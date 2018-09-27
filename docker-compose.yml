@@ -1,0 +1,12 @@
+version: '3'
+services:
+  nginx:
+    build: ./
+    ports:
+      - "8080:80"
+    links:
+      - node:node
+  node:
+    image: aergo/node
+    ports:
+      - 7845
