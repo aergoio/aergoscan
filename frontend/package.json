@@ -3,13 +3,19 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "webpack --watch --config webpack.config.js",
-    "build": "webpack -p --config webpack.config.js"
+    "build": "webpack -p --config webpack.config.js",
+    "dev": "webpack-dev-server --inline --progress --port 8081 --config webpack.config.js"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "herajs": "git+https://github.com/aergoio/herajs.git"
+    "bs58check": "^2.1.2",
+    "herajs": "git+https://github.com/aergoio/herajs.git",
+    "jdenticon": "^2.1.0",
+    "moment": "^2.22.2",
+    "vue": "^2.5.17",
+    "vue-router": "^3.0.1",
+    "vuex": "^3.0.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.0",
@@ -22,6 +28,20 @@
     "regenerator-runtime": "^0.12.1",
     "webpack": "^4.19.1",
     "webpack-cli": "^3.1.0",
-    "webpack-dev-server": "^3.1.8"
+    "webpack-dev-server": "^3.1.8",
+    "autoprefixer": "^9.1.5",
+    "css-loader": "^1.0.0",
+    "extricate-loader": "^3.0.0",
+    "file-loader": "^2.0.0",
+    "interpolate-loader": "^2.0.0",
+    "mini-css-extract-plugin": "^0.4.2",
+    "node-sass": "^4.9.3",
+    "postcss-loader": "^3.0.0",
+    "prop-loader": "^1.0.0",
+    "sass-loader": "^7.1.0",
+    "url-loader": "^1.1.1",
+    "vue-loader": "^15.4.1",
+    "vue-style-loader": "^4.1.2",
+    "vue-template-compiler": "^2.5.17"
   }
 }

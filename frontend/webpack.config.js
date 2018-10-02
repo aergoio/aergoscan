@@ -1,8 +1,29 @@
 const path = require("path");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+const webpack = require('webpack');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+//const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
 module.exports = (env, argv) => {
   const devMode = argv.mode !== 'production';
+
+  const plugins = [
+    // vue-loader requirement
+    new VueLoaderPlugin(),
+    // extract css into files
+    new MiniCssExtractPlugin({
+      filename: '[name].css',
+      chunkFilename: '[id].css',
+    }),
+    // reduce moment.js file size
+    new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /ko/),
+    // analyze bundle
+    //new BundleAnalyzerPlugin(),
+    // create HTML files
+    new HtmlWebpackPlugin({template: 'src/assets/html/index.html'}), // , chunks: ['popup', 'vendor'
+  ];
 
   return {
     mode: devMode ? 'development' : 'production',
@@ -12,25 +33,71 @@ module.exports = (env, argv) => {
     ],
     output: {
       path: path.resolve(__dirname, './build'),
-      filename: '[name].js',
-      chunkFilename: '[name].js'
+      filename: '[name].[hash].js',
+      chunkFilename: '[name].[hash].js',
+      publicPath: '/'
     },
-    plugins: [
-      new HtmlWebpackPlugin(),
-    ],
+    plugins,
     module: {
       rules: [
+        // Vue.js
+        {
+          test: /\.vue$/,
+          loader: 'vue-loader'
+        },
+        // JS, compiled with Babel
         {
           test: /\.js$/,
           use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-env'],
+            }
+          },
+        ]
+        },
+        // CSS, inline for hot-reloading during development or extracted for production
+        {
+          test: /\.(sa|sc|c)ss$/,
+          use: [
+            //{ loader: 'file-loader', options: { name: '[name].css' } },
+            devMode ? 'vue-style-loader' : MiniCssExtractPlugin.loader,
+            //MiniCssExtractPlugin.loader,
+            "css-loader",
             {
-              loader: 'babel-loader',
+              loader: 'postcss-loader',
               options: {
-                presets: ['@babel/preset-env'],
-              }
+                config: {
+                  path: 'postcss.config.js'
+                },
+              },
             },
+            "sass-loader",
           ]
         },
+        // Images, inline up to a certain size
+        { test: /\.(svg)$/, loader: "url-loader?limit=10000"},
+        { test: /\.(png)$/, loader: "url-loader?limit=1"},
+        // Fonts, always external
+        { test: /\.(otf|swf|eot|ttf|woff|woff2)$/, loader: "url-loader?limit=1"}
+      ]
+    },
+    devtool: (() => {
+			if (devMode) return 'cheap-source-map';
+		  return 'source-map';
+		})(),
+    resolve: {
+      extensions: ['.js', '.vue', '.json'],
+      alias: {
+        '@': path.resolve(__dirname),
+        '@assets': path.resolve(__dirname, 'src/assets'),
+        'vue$': 'vue/dist/vue.runtime.esm.js',
+        //'herajs$': 'herajs/src/platforms/web'
+      },
+      modules: [
+        path.resolve(__dirname, 'node_modules'),
+        'node_modules'
       ]
     },
     optimization: {
@@ -38,6 +105,27 @@ module.exports = (env, argv) => {
         chunks: 'all',
         name: 'vendor',
       },
-    }
+    },
+    devServer: {
+      inline: true,
+      historyApiFallback: true,
+      proxy: {
+        "/aergo": {
+          target: {
+              host: "localhost",
+              protocol: 'http:',
+              port: 8080,
+          },
+        },
+        ignorePath: true,
+        changeOrigin: true,
+        secure: false,
+      },
+      host: "localhost",
+    },
   };
 };
+
+
+
+
