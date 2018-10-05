@@ -1,0 +1,44 @@
+datadir = "/aergo/data"
+genesispath = "/aergo/data/genesis.block"
+genesisseed = 1530838800 # unix time
+enableprofile = false
+profileport = 6060
+enablerest = false
+enabledebugmsg = false
+
+[p2p]
+npaddpeers = [
+    "/ip4/192.168.1.136/tcp/7846/p2p/16Uiu2HAmM2UJpHkjwvSk9VcUSoiMiAG8foy5cJwLmBBFZDf6b4js"
+]
+netprotocoladdr = "0.0.0.0"
+netprotocolport = 7846
+nptls = false
+npcert = ""
+npkey = ""
+npmaxpeers = "5"
+nppeerpool = "5"
+
+[rpc]
+netserviceaddr = "0.0.0.0"
+netserviceport = 7845
+nstls = false
+nscert = ""
+nskey = ""
+nsallowcors = false
+
+[rest]
+restport = "8080"
+
+[blockchain]
+blockchainplaceholder = false
+
+[mempool]
+showmetrics = false
+dumpfilepath = "/aergo/mempool.dump"
+
+[consensus]
+enablebp = false
+enabledpos = false
+blockinterval = 1
+bpids = [
+]

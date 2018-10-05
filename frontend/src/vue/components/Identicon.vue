@@ -8,16 +8,19 @@
 import jdenticon from "jdenticon";
 
 export default {
-  props: ['text'],
+  props: ['text', 'size'],
   data () {
     return {
     }
   },
   mounted () {
-    this.$el.innerHTML = jdenticon.toSvg(this.$props.text, 200);
+    this.$el.innerHTML = jdenticon.toSvg(this.$props.text, this.$props.size || 200);
   },
 };
 </script>
 
 <style lang="scss">
+.identicon {
+  line-height: 1;
+}
 </style>

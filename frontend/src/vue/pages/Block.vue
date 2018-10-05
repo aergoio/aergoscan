@@ -3,8 +3,9 @@
     <div class="page-content">
       <div class="island">
         <div class="island-title">
+          Block Details
           <div v-if="!blockDetail">Loading...</div>
-          <div v-if="blockDetail">Block {{blockDetail.hash}}</div>
+          <div v-if="blockDetail" class="subtitle">{{blockDetail.hash}}</div>
         </div>
         <div class="island-content">
           
@@ -17,10 +18,14 @@
               <br>
             Previous block: <router-link :to="`/block/${blockDetail.header.prevblockhash}/`">{{blockDetail.header.prevblockhash}}</router-link><br>
             Time stamp: {{moment(blockDetail.header.timestamp/1000000).format('dddd, MMMM Do YYYY, HH:mm:ss.SSS')}}<br>
-            Transactions: {{blockDetail.body}}
             </p>
           </div>
         </div>
+
+        <div class="island-title" v-if="blockDetail">
+          {{blockDetail.body.txsList.length}} Transactions
+        </div>
+        <TransactionList :items="blockDetail.body.txsList" class="island-content" v-if="blockDetail" />
       </div>
 
     </div>
@@ -30,7 +35,8 @@
 <script>
 import aergo from '../../controller';
 import moment from 'moment';
-import { mapState } from 'vuex'
+import { mapState } from 'vuex';
+import TransactionList from '../components/TransactionList';
 
 export default {
   data () {
@@ -62,6 +68,9 @@ export default {
     },
     moment
   },
+  components: {
+    TransactionList,
+  }
 };
 </script>
 

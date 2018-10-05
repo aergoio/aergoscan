@@ -6,11 +6,15 @@ Can be run locally. With the launch of the testnet, a publicly accessible websit
 
 ## Run
 
-This app is packaged using docker-compose. If you haven't, install Docker first. Check docker-compose.yml for possible configuration options. Then run
+This app is packaged using docker-compose. If you haven't, install Docker first. Then run
 
     docker-compose up
 
 Finally, access the website at http://127.0.0.1:8080
+
+## Configuration
+
+The aergo local node can be configured using aergo/config.toml. After changing values, run `docker-compose build` and restart the containers.
 
 ## Local development
 

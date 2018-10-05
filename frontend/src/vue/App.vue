@@ -115,15 +115,27 @@ p {
   margin: 0 0 1em 0;
 }
 
+a {
+  color: #F90F5F;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
 
 .island {
   background-color: #fff;
 
   .island-title {
     border-bottom: 1px solid #EBEBEB;
-    padding: 20px;
+    padding: 16px 20px;
     font-size: (16/14)*1rem;
-    line-height: 1.2;
+    line-height: 1.4;
+
+    .subtitle {
+      font-weight: 500;
+    }
   }
 }
 
@@ -150,15 +162,39 @@ p {
       font-weight: 500;
     }
 
+    &.clickable:hover {
+      background-color: rgba(0,0,0,0.025);
+    }
+
     .cell {
       padding: 15px 10px;
+      box-sizing: border-box;
 
       &:first-child {
         padding-left: 20px;
       }
       &:last-child {
         padding-right: 20px;
+        flex: 1;
+        text-align: right;
+
+        &:first-child {
+          text-align: center;
+        }
       }
+    }
+  }
+}
+
+.side-by-side {
+  display: flex;
+
+  > * {
+    flex: 1;
+    margin-right: 30px;
+
+    &:last-child {
+      margin-right: 0;
     }
   }
 }

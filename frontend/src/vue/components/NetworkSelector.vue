@@ -1,7 +1,7 @@
 <template>
-  <span class="network-selector" :title="blockHeight">
+  <span class="network-selector" :title="blockHeight" v-on:click="promptNetwork">
     <span class="network-icon" v-bind:style="styleObject"></span>
-    localhost 7845
+    {{networkDisplay}}
     (#{{blockHeight}})
   </span>
 </template>
@@ -9,12 +9,14 @@
 <script>
 import { promisifySimple } from '../../utils/promisify';
 import aergo from '../../controller';
+import { GrpcWebProvider } from 'herajs';
 
 export default {
   data () {
     return {
       isConnected: false,
-      blockHeight: 0
+      blockHeight: 0,
+      network: 'pretestnet'
     }
   },
   created () {
@@ -23,6 +25,9 @@ export default {
   beforeDestroy () {
   },
   computed: {
+    networkDisplay () {
+      return this.network.split(':').join(' ')
+    },
     styleObject () {
       const color = '#F91263';
       if (this.$data.isConnected) {
@@ -39,6 +44,17 @@ export default {
     }
   },
   methods: {
+    promptNetwork() {
+      const input = prompt('Enter network address (e.g. 127.0.0.1:7845)');
+      if (!input) return;
+      this.network = input;
+      const url = 'http://' + this.network;
+      const provider = new GrpcWebProvider({url: url});
+      console.log('Setting provider to', url);
+      this.$store.dispatch('blockchain/setProvider', { provider });
+      this.$data.isConnected = false;
+      this.updateStatus();
+    },
     updateStatus () {
       aergo.blockchain().then(status => {
         this.$data.isConnected = true;
