@@ -10,12 +10,15 @@
   "license": "MIT",
   "dependencies": {
     "bs58check": "^2.1.2",
+    "chart.js": "^2.7.2",
     "herajs": "0.0.1-b2",
     "jdenticon": "^2.1.0",
     "moment": "^2.22.2",
     "vue": "^2.5.17",
+    "vue-fetch": "^1.1.2",
     "vue-router": "^3.0.1",
-    "vuex": "^3.0.1"
+    "vuex": "^3.0.1",
+    "whatwg-fetch": "^3.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.0",

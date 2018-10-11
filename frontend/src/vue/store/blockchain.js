@@ -1,7 +1,7 @@
 import aergo from '../../controller';
 
-const HISTORY_MAX_BLOCKS = 10;
-const HISTORY_MAX_TRANSACTIONS = 50;
+const HISTORY_MAX_BLOCKS = 60;
+const HISTORY_MAX_TRANSACTIONS = 100;
 
 const state = {
     streamConnected: false,

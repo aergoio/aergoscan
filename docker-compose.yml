@@ -4,11 +4,38 @@ services:
     build: ./
     ports:
       - "8080:80"
-    links:
-      - node:node
+      - "443:443"
+    depends_on:
+      - node
+      - backend
   node:
     build: ./aergo
+    volumes:
+      - ./data/aergo:/aergo/data
     ports:
       - 7846
     expose:
       - 7845
+  backend:
+    build: ./backend
+    expose:
+      - 3000
+    volumes:
+      - ./backend/src:/backend/src
+    depends_on:
+      - db
+      - node
+  db:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    expose:
+      - 9200
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+volumes:
+  esdata:
+    driver: local

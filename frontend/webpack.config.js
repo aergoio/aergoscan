@@ -109,6 +109,7 @@ module.exports = (env, argv) => {
     devServer: {
       inline: true,
       historyApiFallback: true,
+      disableHostCheck: true,
       proxy: {
         "/aergo": {
           target: {

@@ -15,7 +15,7 @@
               Balance: {{accountDetail.balance}}<br>
 
               Contract code: {{accountDetail.codehash}}<br>
-              Transactions: (currently not supported by RPC server)
+              <!--Transactions: (Click to scan for transactions. This can take a while.)-->
             </p>
           </div>
         </div>

@@ -1,0 +1,26 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Backend for aergoscan, mostly gathering stats",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "babel-node src/index.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bs58check": "^2.1.2",
+    "elasticsearch": "^15.1.1",
+    "express": "^4.16.3",
+    "google-protobuf": "^3.6.1",
+    "grpc": "^1.15.1",
+    "herajs": "0.0.1-b2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.1.0",
+    "@babel/core": "^7.1.0",
+    "@babel/node": "^7.0.0",
+    "@babel/preset-env": "^7.1.0",
+    "regenerator-runtime": "^0.12.1"
+  }
+}

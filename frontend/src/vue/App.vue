@@ -66,7 +66,7 @@ body {
 }
 
 .page-content {
-  padding: 35px 0;
+  padding: 30px 0 60px;
 }
 
 
@@ -110,7 +110,7 @@ h2, strong {
   font-size: 1em;
 }
 
-p { 
+p, ul { 
   line-height: 1.5;
   margin: 0 0 1em 0;
 }
@@ -126,6 +126,7 @@ a {
 
 .island {
   background-color: #fff;
+  margin-bottom: 25px;
 
   .island-title {
     border-bottom: 1px solid #EBEBEB;
@@ -197,6 +198,10 @@ a {
       margin-right: 0;
     }
   }
+}
+
+.text-field {
+
 }
 
 </style>

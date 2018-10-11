@@ -8,7 +8,7 @@ enabledebugmsg = false
 
 [p2p]
 npaddpeers = [
-    "/ip4/192.168.1.136/tcp/7846/p2p/16Uiu2HAmM2UJpHkjwvSk9VcUSoiMiAG8foy5cJwLmBBFZDf6b4js"
+    "/ip4/172.16.7.114/tcp/7846/p2p/16Uiu2HAmM2UJpHkjwvSk9VcUSoiMiAG8foy5cJwLmBBFZDf6b4js"
 ]
 netprotocoladdr = "0.0.0.0"
 netprotocolport = 7846

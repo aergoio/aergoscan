@@ -8,6 +8,7 @@
 
       <div class="main-nav">
         <router-link :to="`/`">Dashboard</router-link>
+        <router-link :to="`/developers`">Developers</router-link>
         <!--<router-link :to="`/foo`">Transactions</router-link>-->
       </div>
 
@@ -134,7 +135,7 @@ export default {
       color: #F90F5F;
     }
 
-    &.router-link-active {
+    &.router-link-exact-active {
       border-color: #F90F5F;
     }
   }
