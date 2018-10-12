@@ -6,7 +6,9 @@
         <div class="chart-header">
           <div class="chart-title">
             <span class="title">Transaction History</span>
-            (Last: <span class="stat-value">{{reverseBlocks[0].body.txsList.length}}</span> Max: <span class="stat-value">{{maxTps}}</span>)
+            (tps Last: <span class="stat-value" v-if="reverseBlocks.length">{{reverseBlocks[0].body.txsList.length}}</span>
+            Max:
+            <router-link class="stat-value" :to="`/block/${maxTps.hash}/`" v-if="maxTps">{{maxTps.meta.txs}}</router-link>)
           </div>
           <div class="chart-selector">
             <span class="option" :class="{active: txChartUnit=='second'}" v-on:click="selectMode('second')">60 seconds</span>
@@ -45,7 +47,9 @@ export default {
   data () {
     return {
       txChartUnit: 'second',
-      txStats: {}
+      txStats: {},
+      initialTxStats: {},
+      initialStatsLoaded: false
     }
   },
   created () {
@@ -67,24 +71,33 @@ export default {
       return this.txStats.maxTps;
     },
     txData() {
-      console.log('Updating chart data');
       let source;
       const stats = this.txStats;
-      if (this.txChartUnit == 'second') {
-        source = this.blocks;
-        return source.map(item => ({
-          x: item.header.timestamp/1000000,
-          y: item.body.txsList.length
-        }));
-      }
+      let dbData = [];
+      if (this.txChartUnit == 'second') source = this.initialTxStats.txPerSecond;
       if (this.txChartUnit == 'minute') source = stats.txPerMinute;
       if (this.txChartUnit == 'hour') source = stats.txPerHour;
       if (this.txChartUnit == 'day') source = stats.txPerDay;
-      if (!source) return {};
-      return source.map(item => ({
-        x: item.key,
-        y: item.sum_txs.value
-      }));
+      if (source) {
+        dbData = source.map(item => ({
+          x: item.key,
+          y: item.sum_txs.value
+        }));
+      }
+
+      if (this.txChartUnit == 'second' && this.blocks.length > 0) {
+        // Skip duplicate entry of last block
+        if (dbData.length > 0 && dbData[dbData.length-1].x === Math.trunc(this.blocks[0].header.timestamp/1000000000)*1000) {
+          dbData = dbData.slice(0, dbData.length-1);
+        }
+        const dbAndRealtimeData = dbData.concat(this.blocks.map(item => ({
+          x: Math.trunc(item.header.timestamp/1000000000)*1000,
+          y: item.body.txsList.length
+        })));
+        return dbAndRealtimeData.slice(dbAndRealtimeData.length-60);
+      }
+
+      return dbData;
     }
   },
   methods: {
@@ -95,8 +108,16 @@ export default {
       this.txChartUnit = mode;
     },
     async updateStats () {
-      const response = await this.$fetch.get('https://api.aergoscan.io/stats/stats');
-      this.txStats = await response.json();
+      try {
+        const response = await this.$fetch.get('https://api.aergoscan.io/stats/tx');
+        this.txStats = await response.json();
+        if (!this.initialStatsLoaded) {
+          this.initialTxStats = this.txStats;
+          this.initialStatsLoaded = true;
+        }
+      } catch (e) {
+        console.error('Failed to connect to stats API: ' + e);
+      }
       setTimeout(() => {
         this.updateStats();
       }, 10000);

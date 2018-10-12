@@ -31,6 +31,8 @@ services:
       memlock:
         soft: -1
         hard: -1
+    ports:
+      - "9300:9300"
     expose:
       - 9200
     volumes:

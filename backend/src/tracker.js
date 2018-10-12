@@ -1,8 +1,5 @@
-import Aergo, { GrpcProvider } from 'herajs';
+import aergo from './aergo';
 import { EventEmitter } from 'events';
-
-const provider = new GrpcProvider({url: 'node:7845'});
-const aergo = new Aergo({}, provider);
 
 export default class BlockTracker extends EventEmitter {
     constructor() {
