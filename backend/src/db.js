@@ -31,28 +31,32 @@ export const setupIndex = () => {
     return new Promise(async (resolve) => {
         if (cfg.RECREATE_INDEX) {
             console.warn('Deleting existing index');
-            await db.indices.delete({
-                index: DB_BLOCK_INDEX
-            });
+            try {
+                await db.indices.delete({
+                    index: DB_BLOCK_INDEX
+                });
+            } catch(e) {}
         
-            await db.indices.create({
-                index: DB_BLOCK_INDEX
-            });
-            console.log('Setting up re-created index');
-            await db.indices.putMapping({
-                index: DB_BLOCK_INDEX,
-                type: 'block',
-                body: {
-                    properties: {
-                        ts: {
-                            type: "date"
-                        },
-                        no: {
-                            type: "long"
+            try {
+                await db.indices.create({
+                    index: DB_BLOCK_INDEX
+                });
+                console.log('Setting up re-created index');
+                await db.indices.putMapping({
+                    index: DB_BLOCK_INDEX,
+                    type: 'block',
+                    body: {
+                        properties: {
+                            ts: {
+                                type: "date"
+                            },
+                            no: {
+                                type: "long"
+                            }
                         }
                     }
-                }
-            });
+                });
+            } catch(e) {}
         }
         resolve();
     });

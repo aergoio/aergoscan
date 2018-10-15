@@ -16,12 +16,3 @@ Finally, access the website at http://127.0.0.1:8080
 
 The aergo local node can be configured using aergo/config.toml. After changing values, run `docker-compose build` and restart the containers.
 
-## Local development
-
-```shell
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-```

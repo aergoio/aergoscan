@@ -62,6 +62,7 @@ export default {
       if (""+parseInt(this.$route.params.blockNoOrHash) === this.$route.params.blockNoOrHash) {
         blockNoOrHash = parseInt(this.$route.params.blockNoOrHash);
       }
+      this.$data.blockDetail = null;
       this.$store.dispatch('blockchain/getBlock', { blockNoOrHash: blockNoOrHash }).then(block => {
         this.$data.blockDetail = block;
       });

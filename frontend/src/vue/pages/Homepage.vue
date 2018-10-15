@@ -49,7 +49,8 @@ export default {
       txChartUnit: 'second',
       txStats: {},
       initialTxStats: {},
-      initialStatsLoaded: false
+      initialStatsLoaded: false,
+      statsTimeout: null,
     }
   },
   created () {
@@ -59,6 +60,9 @@ export default {
     this.updateStats();
   },
   beforeDestroy () {
+    if (this.statsTimeout) {
+      clearTimeout(this.statsTimeout);
+    }
   },
   computed: {
     ...mapState({
@@ -118,7 +122,7 @@ export default {
       } catch (e) {
         console.error('Failed to connect to stats API: ' + e);
       }
-      setTimeout(() => {
+      this.statsTimeout = setTimeout(() => {
         this.updateStats();
       }, 10000);
     },
