@@ -10,7 +10,7 @@ export const syncIntermediateBlocks = (heightNext, heightPrev) => {
             console.log(`Block meta db out of sync (missing ${diff} blocks between ${heightPrev} and ${heightNext+1}), catching up...`);
             for (let offset = 0; offset < diff; offset += pagesize) {
                 const targetPagesize = Math.min(pagesize, diff - offset);
-                console.log(`Reading ${heightNext-offset}..${1+heightNext-offset-targetPagesize} ...`);
+                console.log(`Reading ${1+heightNext-offset-targetPagesize}..${heightNext-offset} ...`);
                 const blocks = await aergo.getBlockHeaders(heightNext, targetPagesize, offset);
                 for (let blockHeader of blocks) {
                     const block = await aergo.getBlock(blockHeader.hash);

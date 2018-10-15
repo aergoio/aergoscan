@@ -5,10 +5,10 @@ enableprofile = false
 profileport = 6060
 enablerest = false
 enabledebugmsg = false
+enabletestmode = true
 
 [p2p]
 npaddpeers = [
-    "/ip4/192.168.1.136/tcp/7846/p2p/16Uiu2HAmM2UJpHkjwvSk9VcUSoiMiAG8foy5cJwLmBBFZDf6b4js"
 ]
 netprotocoladdr = "0.0.0.0"
 netprotocolport = 7846
@@ -37,7 +37,7 @@ showmetrics = false
 dumpfilepath = "/aergo/mempool.dump"
 
 [consensus]
-enablebp = false
+enablebp = true
 enabledpos = false
 blockinterval = 1
 bpids = [

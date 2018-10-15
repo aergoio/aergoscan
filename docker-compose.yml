@@ -13,6 +13,7 @@ services:
     volumes:
       - ./data/aergo:/aergo/data
     ports:
+      - "7845:7845"
       - 7846
     expose:
       - 7845

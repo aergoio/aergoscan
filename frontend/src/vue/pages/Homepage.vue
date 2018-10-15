@@ -8,7 +8,7 @@
             <span class="title">Transaction History</span>
             (tps Last: <span class="stat-value" v-if="reverseBlocks.length">{{reverseBlocks[0].body.txsList.length}}</span>
             Max:
-            <router-link class="stat-value" :to="`/block/${maxTps.hash}/`" v-if="maxTps">{{maxTps.meta.txs}}</router-link>)
+            <router-link class="stat-value" :to="`/block/${maxTps.meta.no}/`" v-if="maxTps">{{maxTps.meta.txs}}</router-link>)
           </div>
           <div class="chart-selector">
             <span class="option" :class="{active: txChartUnit=='second'}" v-on:click="selectMode('second')">60 seconds</span>
@@ -42,6 +42,7 @@ import { mapState, mapActions } from 'vuex'
 import RecentBlocks from '../components/RecentBlocks';
 import RecentTransactions from '../components/RecentTransactions';
 import TxChart from '../components/TxChart';
+import cfg from '../../config.js';
 
 export default {
   data () {
@@ -50,6 +51,7 @@ export default {
       txStats: {},
       initialTxStats: {},
       initialStatsLoaded: false,
+      realTimeStats: [],
       statsTimeout: null,
     }
   },
@@ -90,6 +92,24 @@ export default {
       }
 
       if (this.txChartUnit == 'second' && this.blocks.length > 0) {
+        // initialize with db data if present
+        if (this.realTimeStats.length === 0 && dbData.length > 0) {
+          this.realTimeStats.push(...dbData);
+        }
+        // add new block
+        const newBlock = this.blocks[this.blocks.length - 1];
+        this.realTimeStats.push({
+          x: Math.trunc(newBlock.header.timestamp/1000000000)*1000,
+          y: newBlock.body.txsList.length
+        });
+        // remove old blocks
+        while (this.realTimeStats.length > 60) {
+          this.realTimeStats.shift();
+        }
+
+        return this.realTimeStats;
+
+        /*
         // Skip duplicate entry of last block
         if (dbData.length > 0 && dbData[dbData.length-1].x === Math.trunc(this.blocks[0].header.timestamp/1000000000)*1000) {
           dbData = dbData.slice(0, dbData.length-1);
@@ -99,6 +119,7 @@ export default {
           y: item.body.txsList.length
         })));
         return dbAndRealtimeData.slice(dbAndRealtimeData.length-60);
+        */
       }
 
       return dbData;
@@ -113,7 +134,7 @@ export default {
     },
     async updateStats () {
       try {
-        const response = await this.$fetch.get('https://api.aergoscan.io/stats/tx');
+        const response = await this.$fetch.get(`${cfg.API_URL}/stats/tx`);
         this.txStats = await response.json();
         if (!this.initialStatsLoaded) {
           this.initialTxStats = this.txStats;
