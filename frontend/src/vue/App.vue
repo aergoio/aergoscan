@@ -176,8 +176,12 @@ a {
       }
       &:last-child {
         padding-right: 20px;
-        flex: 1;
         text-align: right;
+      }
+      &:nth-last-child(2) {
+        padding-right: 20px;
+        text-align: right;
+        flex: 1;
 
         &:first-child {
           text-align: center;
@@ -202,6 +206,21 @@ a {
 
 .text-field {
 
+}
+
+.formatted-value {
+  white-space: nowrap;
+
+  &.token {
+    background-color: #f0f0f0;
+    padding: 0 3px;
+  }
+  .unit {
+
+  }
+  .value {
+    font-weight: 500;
+  }
 }
 
 </style>

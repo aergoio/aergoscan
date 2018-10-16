@@ -37,6 +37,7 @@ import aergo from '../../controller';
 import moment from 'moment';
 import { mapState } from 'vuex';
 import TransactionList from '../components/TransactionList';
+import { loadAndWait } from '../utils/async';
 
 export default {
   data () {
@@ -63,7 +64,9 @@ export default {
         blockNoOrHash = parseInt(this.$route.params.blockNoOrHash);
       }
       this.$data.blockDetail = null;
-      this.$store.dispatch('blockchain/getBlock', { blockNoOrHash: blockNoOrHash }).then(block => {
+      const waitMinimum = loadAndWait();
+      this.$store.dispatch('blockchain/getBlock', { blockNoOrHash: blockNoOrHash }).then(async (block) => {
+        await waitMinimum();
         this.$data.blockDetail = block;
       });
     },

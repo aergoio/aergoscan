@@ -8,7 +8,7 @@ import routes from './config/routes';
 import Button from './components/Button';
 import store from './store/index';
 import { shortAddress } from './filters/address';
-
+import { formatToken } from './filters/format-token';
 
 export default async function setup(opts) {
     Vue.use(VueRouter);
@@ -16,6 +16,7 @@ export default async function setup(opts) {
 
     Vue.component('Button', Button);
     Vue.filter('shortAddress', shortAddress);
+    Vue.filter('formatToken', formatToken);
 
     const router = new VueRouter({
         routes,

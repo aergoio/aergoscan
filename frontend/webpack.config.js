@@ -14,8 +14,8 @@ module.exports = (env, argv) => {
     new VueLoaderPlugin(),
     // extract css into files
     new MiniCssExtractPlugin({
-      filename: '[name].css',
-      chunkFilename: '[id].css',
+      filename: '[name].[hash].css',
+      chunkFilename: '[id].[hash].css',
     }),
     // reduce moment.js file size
     new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /ko/),

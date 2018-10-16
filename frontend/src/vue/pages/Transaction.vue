@@ -16,15 +16,14 @@
               <AccountBox :address="txDetail.tx.to" />
             </div>
             
-            <p>
-              Amount: {{txDetail.tx.amount}}<br>
-              Nonce: {{txDetail.tx.nonce}}
-            </p>
-
-            <div v-if="txDetail.block">
-              Included in block:
-              <router-link :to="`/block/${txDetail.block.hash}/`">{{txDetail.block.hash}}</router-link>.
-            </div>
+            <table class="detail-table">
+              <tr><td>Amount:</td><td v-html="$options.filters.formatToken(txDetail.tx.amount)"></td></tr>
+              <tr><td>Nonce:</td><td>{{txDetail.tx.nonce}}</td>
+              <tr v-if="txDetail.block">
+                <td>Included in block:</td>
+                <td><router-link :to="`/block/${txDetail.block.hash}/`">{{txDetail.block.hash}}</router-link></td>
+              </tr>
+            </table>
             
           </div>
         </div>
@@ -84,6 +83,12 @@ export default {
     border: 8px solid transparent;
     border-top-color: #333;
     margin-top: 8px;
+  }
+}
+.detail-table {
+  margin: 30px auto;
+  td {
+    padding-right: 15px;
   }
 }
 </style>

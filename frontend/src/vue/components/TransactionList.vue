@@ -7,8 +7,8 @@
     </div>
     <div v-for="tx in items" :key="tx.hash" class="row clickable" v-on:click="viewTx(tx.hash)">
       <div class="cell" style="flex: 5">{{tx.hash}}</div>
-      <div class="cell" style="flex: 5">{{tx.body.account}} -> {{tx.body.recipient}}</div>
-      <div class="cell" style="flex: 2">{{tx.body.amount}}</div>
+      <div class="cell" style="flex: 5">{{tx.from}} -> {{tx.to}}</div>
+      <div class="cell" style="flex: 2" v-html="$options.filters.formatToken(tx.amount)"></div>
     </div>
   </div>
 </template>

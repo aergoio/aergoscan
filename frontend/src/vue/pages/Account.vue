@@ -12,11 +12,13 @@
 
           <div v-if="accountDetail">
             <p>
-              Balance: {{accountDetail.balance}}<br>
-
-              Contract code: {{accountDetail.codehash}}<br>
-              <!--Transactions: (Click to scan for transactions. This can take a while.)-->
+              Balance: <span v-html="$options.filters.formatToken(accountDetail.balance)" />
             </p>
+            <p v-if="accountDetail.codehash">
+              Contract code: {{accountDetail.codehash}}
+            </p>
+
+              <!--Transactions: (Click to scan for transactions. This can take a while.)-->
           </div>
         </div>
       </div>

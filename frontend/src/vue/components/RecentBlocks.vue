@@ -4,7 +4,7 @@
       <div class="cell" style="width: 85px">Number</div>
       <div class="cell" style="width: 85px">Time</div>
       <div class="cell">Transactions</div>
-      <div class="cell"></div>
+      <div class="cell"><span class="icon icon-view" style="visibility: hidden"></span></div>
     </div>
     <transition-group name="animated-list" tag="div" style="height: 400px; overflow: auto;">
       <div class="row" v-if="!isConnected" key="connection-status">

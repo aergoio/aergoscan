@@ -5,7 +5,7 @@
       <div class="cell" style="width: 75px">Block</div>
       <div class="cell">Hash</div>
       <div class="cell">Amount</div>
-      <div class="cell"></div>
+      <div class="cell"><span class="icon icon-view" style="visibility: hidden"></span></div>
       <!--<div class="cell">From -> To</div>-->
     </div>
     <transition-group name="animated-list" tag="div" style="height: 400px; overflow: auto;">
@@ -16,7 +16,7 @@
         <div class="cell" style="width: 75px">{{moment(tx.block.header.timestamp/1000000).format('HH:mm:ss')}}</div>
         <div class="cell" style="width: 75px">{{tx.block.header.blockno}}</div>
         <div class="cell">{{tx.hash}}</div>
-        <div class="cell">{{tx.body.amount}}</div>
+        <div class="cell" v-html="$options.filters.formatToken(tx.amount)"></div>
         <!--<div class="cell">{{tx.body.account | shortAddress}} -> {{tx.body.recipient | shortAddress}}</div>-->
         <div class="cell"><span class="icon icon-view"></span></div>
       </div>
