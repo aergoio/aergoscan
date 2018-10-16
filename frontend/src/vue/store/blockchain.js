@@ -27,8 +27,7 @@ const actions = {
         console.log('Starting block stream');
         blockHeaderStream = aergo.getBlockStream();
         blockHeaderStream.on('data', (blockHeader) => {
-            const block = blockHeader.toObject();
-            commit('addBlock', block);
+            commit('addBlock', blockHeader);
             commit('setConnected', true);
         }).on('end', (res) => {
             console.log('Block stream ended, trying to reconnect in 5 seconds...');

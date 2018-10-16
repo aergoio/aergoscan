@@ -12,9 +12,9 @@
         <!--<router-link :to="`/foo`">Transactions</router-link>-->
       </div>
 
-      <form class="search" v-on:submit.native="performSearch">
+      <form class="search" v-on:submit.prevent.capture="performSearch">
         <div class="search-wrap">
-          <input type="search" v-model="query" class="search-field" placeholder="Search for address, tx hash, block height" v-on:keyup="predictSearch">
+          <input type="search" v-model="query" class="search-field" placeholder="Search for address, tx hash, block height" v-on:keyup="predictSearch" v-on:keyup.enter="performSearch">
           <div v-if="predictedType" class="search-prediction" v-on:click="performSearch">
             Do you mean 
             <span v-if="predictedType == 'blockno'">
@@ -64,7 +64,7 @@ export default {
       if ('' + parseInt(this.query) === this.query) {
         this.predictedType = 'blockno';
         this.predictedString = ''+parseInt(this.query);
-      } else if (this.query.length === 64) {
+      } else if (this.query.length > 30) {
         this.predictedType = 'blockhash';
         this.predictedString = this.query;
       }

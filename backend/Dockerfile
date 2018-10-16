@@ -5,3 +5,4 @@ RUN npm install
 COPY . .
 ENV elasticsearch_host db:9200
 CMD npm start
+EXPOSE 3000
