@@ -120,6 +120,10 @@ export const aggregateBlocks = (query, interval) => {
     })
 }
 
+/**
+ * Add a block
+ * @param {object} blocks
+ */
 export const addBlock = (block) => {
     return db.create({
         index: DB_BLOCK_INDEX,
@@ -130,6 +134,26 @@ export const addBlock = (block) => {
             ts: block.header.timestamp / 1000000,
             txs: block.body.txsList.length
         }
+    }).catch((e) => {
+        console.log('Could not save block: ' + e);
+    })
+}
+
+/**
+ * Add blocks in bulk
+ * @param {object[]} blocks 
+ */
+export const addBlocks = (blocks) => {
+    const body = blocks.map(block => [
+        { index: { _index: DB_BLOCK_INDEX, _type: 'block', _id: block.hash }},
+        {
+            no: block.header.blockno,
+            ts: block.header.timestamp / 1000000,
+            txs: block.body.txsList.length
+        }
+    ]).reduce((a, b) => a.concat(...b), []);
+    return db.bulk({
+        body
     }).catch((e) => {
         console.log('Could not save block: ' + e);
     })
