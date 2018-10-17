@@ -1,7 +1,10 @@
 version: '3'
 services:
   nginx:
-    build: ./
+    build:
+      context: ./
+      args:
+        AERGO_NODE: ${AERGO_NODE}
     ports:
       - "8080:80"
       - "443:443"
@@ -13,7 +16,6 @@ services:
     volumes:
       - ./data/aergo:/aergo/data
     ports:
-      - "7845:7845"
       - 7846
     expose:
       - 7845
@@ -26,6 +28,9 @@ services:
     depends_on:
       - db
       - node
+    environment:
+      - AERGO_NODE
+      - AERGOSCAN_REINDEX
   db:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
     ulimits:

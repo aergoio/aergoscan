@@ -1,0 +1,3 @@
+level = "error"           # default level
+formatter = "console"    # console_no_color, json 도 가능
+caller = true
