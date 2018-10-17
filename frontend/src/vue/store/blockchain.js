@@ -81,6 +81,13 @@ const actions = {
         commit('setAccountDetail', { account });
         return account;
     },
+    getABI ({ dispatch }, { address }) {
+        return dispatch('fetchABI', { address });
+    },
+    async fetchABI ({ commit }, { address }) {
+        const abi = await aergo.getABI(address);
+        return abi;
+    },
     setProvider ({ dispatch, commit }, { provider }) {
         aergo.setProvider(provider);
         dispatch('restartStreamBlocks'); // Restart stream with new provider

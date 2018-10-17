@@ -9,7 +9,7 @@ Can be run locally. With the launch of the testnet, a publicly accessible websit
 1. Install Docker if you haven't already. If you are on Linux, you may also have to install docker-compose.
 2. `docker-compose up`
 
-This contains a webserber that is accessible at http://127.0.0.1:8080
+This contains a webserver that is accessible at http://127.0.0.1:8080
 
 ## Configuration
 
