@@ -19,5 +19,7 @@ export function formatToken(value, unit = null) {
         }
         */
     }
-    return `<span class="formatted-value token" title="${value}"><span class="value">${(value/base).toFixed(digits)}</span> <span class="unit">${unit}</span></span>`;
+    let display = (value/base).toFixed(digits);
+    if (value === 0) display = 0;
+    return `<span class="formatted-value token" title="${value}"><span class="value">${display}</span> <span class="unit">${unit}</span></span>`;
 }

@@ -5,7 +5,7 @@
         <div class="island-title">
           Transaction Details
           <div v-if="!txDetail">Loading...</div>
-          <div v-if="txDetail" class="subtitle">{{txDetail.tx.hash}}</div>
+          <div v-if="txDetail" class="subtitle monospace">{{txDetail.tx.hash}}</div>
         </div>
         <div class="island-content">
           
@@ -21,7 +21,11 @@
               <tr><td>Nonce:</td><td>{{txDetail.tx.nonce}}</td>
               <tr v-if="txDetail.block">
                 <td>Included in block:</td>
-                <td><router-link :to="`/block/${txDetail.block.hash}/`">{{txDetail.block.hash}}</router-link></td>
+                <td class="monospace"><router-link :to="`/block/${txDetail.block.hash}/`">{{txDetail.block.hash}}</router-link></td>
+              </tr>
+              <tr v-if="txDetail.tx.payload">
+                <td>Payload:</td>
+                <td class="monospace">{{payloadAsString}}</td>
               </tr>
             </table>
             
@@ -60,6 +64,12 @@ export default {
   components: {
     AccountBox,
   },
+  computed: {
+    payloadAsString() {
+      if (!this.txDetail || !this.txDetail.tx.payload) return '';
+      return Buffer.from(this.txDetail.tx.payload).toString()
+    }
+  },
   methods: {
     load() {
       let hash = this.$route.params.hash;
@@ -85,10 +95,5 @@ export default {
     margin-top: 8px;
   }
 }
-.detail-table {
-  margin: 30px auto;
-  td {
-    padding-right: 15px;
-  }
-}
+
 </style>

@@ -153,6 +153,13 @@ a {
   cursor: pointer;
 }
 
+.monospace, .hash {
+  font-family: 'SourceCodePro', monospace;
+}
+.hash {
+  font-size: .9em;
+}
+
 .table-like {
   .row {
     border-bottom: 1px solid #EBEBEB;
@@ -177,17 +184,27 @@ a {
       &:last-child {
         padding-right: 20px;
         text-align: right;
+
+        &:first-child {
+          /* = only child */
+          text-align: center;
+          flex: 1;
+        }
       }
       &:nth-last-child(2) {
         padding-right: 20px;
         text-align: right;
         flex: 1;
-
-        &:first-child {
-          text-align: center;
-        }
       }
     }
+  }
+}
+
+.detail-table {
+  margin: 30px auto;
+  td {
+    padding-right: 15px;
+    vertical-align: top;
   }
 }
 

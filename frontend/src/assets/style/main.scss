@@ -30,6 +30,18 @@
     font-style: normal;
     font-weight: 300;
 }
+@font-face {
+    font-family: "SourceCodePro";
+    src: url("../font/SourceCodePro-Light.otf") format("opentype");
+    font-style: normal;
+    font-weight: 300;
+}
+@font-face {
+    font-family: "SourceCodePro";
+    src: url("../font/SourceCodePro-Regular.otf") format("opentype");
+    font-style: normal;
+    font-weight: 400;
+}
 
 body {
     font-family: "DINPro", system-ui, sans-serif;

@@ -10,16 +10,17 @@
           
           <div v-if="!accountDetail">Loading...</div>
 
-          <div v-if="accountDetail">
-            <p>
-              Balance: <span v-html="$options.filters.formatToken(accountDetail.balance)" />
-            </p>
-            <p v-if="accountDetail.codehash">
-              Contract code: {{accountDetail.codehash}}
-            </p>
+          <table class="detail-table" v-if="accountDetail">
+            <tr><td>Balance:</td><td v-html="$options.filters.formatToken(accountDetail.balance)"></td></tr>
+           
+            <tr v-if="accountDetail.codehash">
+              <td nowrap>Contract code:</td>
+              <td class="monospace">{{formattedCode}}</td>
+            </tr>
+          </table>
+          
+          <!--Transactions: (Click to scan for transactions. This can take a while.)-->
 
-              <!--Transactions: (Click to scan for transactions. This can take a while.)-->
-          </div>
         </div>
       </div>
 
@@ -53,6 +54,14 @@ export default {
   },
   components: {
     AccountBox,
+  },
+  computed: {
+    formattedCode() {
+      if (!this.accountDetail || !this.accountDetail.codehash) return '';
+      const buf = Buffer.from(this.accountDetail.codehash);
+      //return Buffer.from(this.accountDetail.codehash).toString();
+      return Array.from(buf).map (b => b.toString (16).padStart (2, "0")).join (" ");
+    }
   },
   methods: {
     load() {

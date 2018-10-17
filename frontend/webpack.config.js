@@ -9,7 +9,18 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 module.exports = (env, argv) => {
   const devMode = argv.mode !== 'production';
 
+  const configName = process.env.CONFIG_NAME || 'local';
+  console.log(`Building with config "${configName}"`);
+  const appConfig = require(`./config/${configName}.env`);
+  console.log('Building with');
+  console.log(`  API_URL=${appConfig.API_URL}`);
+  console.log(`  AERGO_URL=${appConfig.AERGO_URL}`);
+
   const plugins = [
+    // config
+    new webpack.DefinePlugin({
+      'process.env': appConfig
+    }),
     // vue-loader requirement
     new VueLoaderPlugin(),
     // extract css into files

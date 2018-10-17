@@ -5,21 +5,21 @@
         <div class="island-title">
           Block Details
           <div v-if="!blockDetail">Loading...</div>
-          <div v-if="blockDetail" class="subtitle">{{blockDetail.hash}}</div>
+          <div v-if="blockDetail" class="subtitle monospace">{{blockDetail.hash}}</div>
         </div>
         <div class="island-content">
           
-          <div v-if="blockDetail">
-            <p>
-            Block height:
-              <router-link :to="`/block/${blockDetail.header.blockno - 1}/`">Prev</router-link>
-              {{blockDetail.header.blockno}}
-              <router-link :to="`/block/${blockDetail.header.blockno + 1}/`">Next</router-link>
-              <br>
-            Previous block: <router-link :to="`/block/${blockDetail.header.prevblockhash}/`">{{blockDetail.header.prevblockhash}}</router-link><br>
-            Time stamp: {{moment(blockDetail.header.timestamp/1000000).format('dddd, MMMM Do YYYY, HH:mm:ss.SSS')}}<br>
-            </p>
-          </div>
+          <table class="detail-table" v-if="blockDetail">
+            <tr><td>Block height:</td>
+            <td>
+              <router-link :to="`/block/${blockDetail.header.blockno - 1}/`">&laquo; Prev</router-link>
+              <span class="this-block-height">{{blockDetail.header.blockno}}</span>
+              <router-link :to="`/block/${blockDetail.header.blockno + 1}/`">Next &raquo;</router-link>
+            </td></tr>
+            <tr><td>Previous block:</td><td><router-link :to="`/block/${blockDetail.header.prevblockhash}/`" class="monospace">{{blockDetail.header.prevblockhash}}</router-link></td></tr>
+            <tr><td>Time stamp:</td><td>{{moment(blockDetail.header.timestamp/1000000).format('dddd, MMMM Do YYYY, HH:mm:ss.SSS')}}</td></tr>
+            
+          </table>
         </div>
 
         <div class="island-title" v-if="blockDetail">
@@ -79,4 +79,7 @@ export default {
 </script>
 
 <style lang="scss">
+.this-block-height {
+  font-weight: 500;
+}
 </style>

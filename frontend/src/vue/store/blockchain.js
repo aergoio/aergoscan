@@ -100,14 +100,14 @@ const mutations = {
         state.recentBlocks.push(block);
 
         // Add block txs
-        if (block.body.txsList) {
+        if (block.body.txsList.length) {
             block.body.txsList.forEach(tx => tx.block = block);
             state.recentTransactions.push(...block.body.txsList);
-            state.recentTransactions.splice(0, state.recentTransactions.length - HISTORY_MAX_TRANSACTIONS);
+            while (state.recentTransactions.length > HISTORY_MAX_TRANSACTIONS) state.recentTransactions.shift();
         }
         
-        // Ensure max length for memory protection
-        state.recentBlocks.splice(0, state.recentBlocks.length - HISTORY_MAX_BLOCKS);
+        // Limit memory usage
+        while (state.recentBlocks.length > HISTORY_MAX_BLOCKS) state.recentBlocks.shift();
     },
     setBlockDetail (state, {block}) {
         state.blocksByHash[block.hash] = block;

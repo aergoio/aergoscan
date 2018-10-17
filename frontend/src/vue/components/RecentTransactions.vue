@@ -15,7 +15,7 @@
       <div class="row clickable" v-for="tx in reverseTransactions" :key="tx.hash" v-on:click="viewTx(tx.hash)">
         <div class="cell" style="width: 75px">{{moment(tx.block.header.timestamp/1000000).format('HH:mm:ss')}}</div>
         <div class="cell" style="width: 75px">{{tx.block.header.blockno}}</div>
-        <div class="cell">{{tx.hash}}</div>
+        <div class="cell monospace hash">{{tx.hash}}</div>
         <div class="cell" v-html="$options.filters.formatToken(tx.amount)"></div>
         <!--<div class="cell">{{tx.body.account | shortAddress}} -> {{tx.body.recipient | shortAddress}}</div>-->
         <div class="cell"><span class="icon icon-view"></span></div>
