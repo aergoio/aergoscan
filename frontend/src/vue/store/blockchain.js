@@ -88,6 +88,10 @@ const actions = {
         const abi = await aergo.getABI(address);
         return abi;
     },
+    async fetchPeers () {
+        const peers = await aergo.getPeers();
+        return peers;
+    },
     setProvider ({ dispatch, commit }, { provider }) {
         aergo.setProvider(provider);
         dispatch('restartStreamBlocks'); // Restart stream with new provider

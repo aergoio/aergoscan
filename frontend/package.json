@@ -11,7 +11,7 @@
   "dependencies": {
     "bs58check": "^2.1.2",
     "chart.js": "^2.7.2",
-    "herajs": "0.0.1-b9",
+    "herajs": "0.0.1-b10",
     "jdenticon": "^2.1.0",
     "moment": "^2.22.2",
     "vue": "^2.5.17",

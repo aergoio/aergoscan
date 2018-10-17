@@ -5,6 +5,7 @@ export function formatToken(value, unit = null) {
     let digits = 0;
     if (!unit) {
         unit = constants.UNITS.NATIVE_TOKEN.baseLabelShort;
+        unit = 'AERGO';
         digits = constants.UNITS.NATIVE_TOKEN.baseDigits;
         base = Math.pow(10, digits);
         /*
