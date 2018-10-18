@@ -21,6 +21,9 @@ export function formatToken(value, unit = null) {
         */
     }
     let display = (value/base).toFixed(digits);
-    if (value === 0) display = 0;
+    if (digits > 0) {
+        display = display.replace(/\.?0+$/, ''); // remove trailing 0
+    }
+    if (value === 0) display = '0';
     return `<span class="formatted-value token" title="${value}"><span class="value">${display}</span> <span class="unit">${unit}</span></span>`;
 }

@@ -7,20 +7,20 @@
     </div>
     <div class="view-box">
       <div v-if="viewMode=='abi'">
-        <div class="monospace code-highlight code-highlight" v-html="formattedAbi"></div>
+        <div class="monospace code-highlight code-highlight-pre" v-html="formattedAbi"></div>
       </div>
       <div v-if="viewMode=='interactive'">
-        <div class="monospace interactive-contract">
+        <div class="monospace interactive-contract code-highlight">
           <div v-if="abi.functions.length == 0">Contract has no public functions.</div>
-          <div v-for="(func, idx) in functions" :key="func.name" class="function">
-            {{func.name}}(<span v-if="func.arguments.length">{<br>
+          <div v-for="(func, idx) in functions" :key="func.name" class="function-block">
+            <span class="function">{{func.name}}</span>(<span v-if="func.arguments.length">{<br>
               <span v-for="(arg, idx) in func.arguments" :key="arg.name">
-                &nbsp;&nbsp;{{arg.name}}: <input type="text" v-model="interactiveArguments[func.name][arg.name]" class="arg-field"> <span v-if="idx!=func.arguments.length-1">, </span><br>
+                &nbsp;&nbsp;<span class="key">{{arg.name}}</span>: <input type="text" v-model="interactiveArguments[func.name][arg.name]" class="arg-field"> <span v-if="idx!=func.arguments.length-1">, </span><br>
               </span>
             }</span>)
             <span class="btn-call" v-if="!isLoading[idx]" v-on:click="queryContract(idx)">Query</span>
             <span class="btn-call" v-if="isLoading[idx]">Loading...</span>
-            <div v-if="interactiveResults[idx]">-> <span class="code-highlight" v-html="syntaxHighlight(interactiveResults[idx])"></span></div>
+            <div v-if="interactiveResults[idx]" class="code-highlight-pre">-> <span v-html="syntaxHighlight(interactiveResults[idx])"></span></div>
           </div>
         </div>
       </div>
@@ -175,11 +175,15 @@ export default {
   font-weight: 500;
   color: #D4D4D4;
 }
-.code-highlight {
+.code-highlight-pre {
   white-space: pre;
-
-  .string, .boolean, .number, .null {
+}
+.code-highlight {
+  .string, .boolean, .number, .null, .function {
       font-weight: 500;
+  }
+  .function {
+    color: #FCFFA7;
   }
   .key {
     color: #9CDCFE;
@@ -195,7 +199,7 @@ export default {
   }
 }
 .interactive-contract {
-  .function {
+  .function-block {
     margin-bottom: 1em;
   }
   .arg-field {
