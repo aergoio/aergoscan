@@ -1,4 +1,5 @@
 import aergo from '../../controller';
+import { Contract } from 'herajs';
 
 const HISTORY_MAX_BLOCKS = 60;
 const HISTORY_MAX_TRANSACTIONS = 100;
@@ -68,6 +69,13 @@ const actions = {
         commit('setTxDetail', { tx });
         return tx;
     },
+    getTransactionReceipt ({ dispatch, state }, { hash }) {
+        return dispatch('fetchTransactionReceipt', { hash });
+    },
+    async fetchTransactionReceipt ({ }, { hash }) {
+        const txReceipt = await aergo.getTransactionReceipt(hash);
+        return txReceipt;
+    },
     getAccount ({ dispatch, state }, { address }) {
         if (state.accountsByAddress[address]) {
             return new Promise((resolve) => {
@@ -96,6 +104,10 @@ const actions = {
         aergo.setProvider(provider);
         dispatch('restartStreamBlocks'); // Restart stream with new provider
         commit('setProvider', { provider });
+    },
+    async queryContract ({}, {abi, address, name, args}) {
+         const contract = Contract.fromAbi(abi).setAddress(address);
+         return await aergo.queryContract(contract[name](...args));
     }
 }
 

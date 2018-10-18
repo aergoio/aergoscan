@@ -138,6 +138,9 @@ a {
       font-weight: 500;
     }
   }
+  .island-content + .island-title {
+    margin-top: -32px;
+  }
 }
 
 .island-content {

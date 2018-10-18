@@ -36,5 +36,8 @@ export default {
     line-height: 50px;
     margin: 0 10px;
   }
+  &.null-address {
+    padding: .5em;
+  }
 }
 </style>
