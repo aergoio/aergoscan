@@ -59,6 +59,7 @@ export default {
             ticks: {
               beginAtZero: true,
               padding: 10,
+              suggestedMax: 10,
             }
           }],
           xAxes: [{
