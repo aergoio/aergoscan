@@ -1,8 +1,6 @@
-import BlockTracker from './tracker.js';
+import BlockTracker from './tracker';
 import { waitForDb, setupIndex, addBlock, getBestBlock } from './db';
 import { syncIntermediateBlocks } from './sync';
-import app from './app';
-import cfg from './config';
 
 const startup = async () => {
     await waitForDb();
@@ -29,9 +27,10 @@ const startup = async () => {
         addBlock(block);
     });
     tracker.start();
-
-    app.listen(cfg.HTTP_PORT, () => console.log(`Backend listening on port ${cfg.HTTP_PORT}.`))
+    setInterval(() => {
+        console.log('Tracker is alive');
+    }, 30000);
 }
 
+console.log('Tracker started at ' + new Date());
 startup();
-

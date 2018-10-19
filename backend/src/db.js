@@ -29,8 +29,9 @@ export const waitForDb = () => {
 
 export const setupIndex = () => {
     return new Promise(async (resolve) => {
+        console.log(`AERGOSCAN_REINDEX = ${process.env.AERGOSCAN_REINDEX}`);
         if (cfg.RECREATE_INDEX) {
-            console.warn('Deleting existing index');
+            console.log('Deleting existing index');
             try {
                 await db.indices.delete({
                     index: DB_BLOCK_INDEX
@@ -90,6 +91,13 @@ export const getBestBlock = () => {
             },
         }
     }, true);
+}
+
+export const getBlockCount = async () => {
+    const { count } = await db.count({
+        index: DB_BLOCK_INDEX
+    });
+    return count;
 }
 
 export const aggregateBlocks = (query, interval) => {

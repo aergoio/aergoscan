@@ -4,7 +4,9 @@
   "description": "Backend for aergoscan, mostly gathering stats",
   "main": "src/index.js",
   "scripts": {
-    "start": "babel-node src/index.js"
+    "start": "concurrently \"npm:start-server\" \"npm:start-tracker\"",
+    "start-server": "node bin/server.js",
+    "start-tracker": "node bin/tracker.js"
   },
   "author": "",
   "license": "MIT",
@@ -22,6 +24,7 @@
     "@babel/core": "^7.1.0",
     "@babel/node": "^7.0.0",
     "@babel/preset-env": "^7.1.0",
+    "concurrently": "^4.0.1",
     "regenerator-runtime": "^0.12.1"
   }
 }

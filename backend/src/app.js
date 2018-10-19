@@ -1,5 +1,5 @@
 import express from 'express';
-import { searchBlock, aggregateBlocks, getBestBlock } from './db';
+import { searchBlock, aggregateBlocks, getBestBlock, getBlockCount } from './db';
 const app = express();
 
 app.get('/', (req, res) => res.send('aergoscan stats API'))
@@ -20,7 +20,10 @@ app.get('/tx', async (req, res) => {
     const txPerHour = await aggregateBlocks({ gte: "now-24h/h", lt: "now" }, "1h");
     const txPerDay = await aggregateBlocks({ gte: "now-30d/d", lt: "now" }, "1d");
     
+    const blockCount = await getBlockCount();
+    
     return res.json({
+        blockCount,
         maxTps,
         bestBlock,
         txPerSecond,
