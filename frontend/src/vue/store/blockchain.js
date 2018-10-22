@@ -1,5 +1,5 @@
 import aergo from '../../controller';
-import { Contract } from 'herajs';
+import { Contract } from '@herajs/client';
 
 const HISTORY_MAX_BLOCKS = 60;
 const HISTORY_MAX_TRANSACTIONS = 100;

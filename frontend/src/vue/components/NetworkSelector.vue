@@ -9,7 +9,7 @@
 <script>
 import { promisifySimple } from '../../utils/promisify';
 import aergo from '../../controller';
-import { GrpcWebProvider } from 'herajs';
+import { GrpcWebProvider } from '@herajs/client';
 
 export default {
   data () {

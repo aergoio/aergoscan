@@ -1,4 +1,4 @@
-import { constants } from 'herajs';
+import { constants } from '@herajs/client';
 
 export function formatToken(value, unit = null) {
     let base = 1;

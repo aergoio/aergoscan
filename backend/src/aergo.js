@@ -1,4 +1,4 @@
-import Aergo, { GrpcProvider } from 'herajs';
+import Aergo, { GrpcProvider } from '@herajs/client';
 import cfg from './config';
 
 console.log(`Using aergo node at ${cfg.AERGO_URL}`);
