@@ -60,6 +60,7 @@ export default {
   mounted () {
     this.$store.dispatch('blockchain/streamBlocks');
     this.updateStats();
+    
   },
   beforeDestroy () {
     if (this.statsTimeout) {

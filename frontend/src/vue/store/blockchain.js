@@ -73,8 +73,11 @@ const actions = {
         return dispatch('fetchTransactionReceipt', { hash });
     },
     async fetchTransactionReceipt ({ }, { hash }) {
-        const txReceipt = await aergo.getTransactionReceipt(hash);
-        return txReceipt;
+        try {
+            return await aergo.getTransactionReceipt(hash);
+        } catch (e) {
+            return null;
+        }
     },
     getAccount ({ dispatch, state }, { address }) {
         if (state.accountsByAddress[address]) {

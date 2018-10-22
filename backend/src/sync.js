@@ -1,17 +1,17 @@
 import aergo from './aergo';
-import { addBlocks } from './db';
+import { addBlocks, removeBlocks } from './db';
 import asyncPool from "tiny-async-pool";
 
 const pagesize = 1000;
 
 const _sync = async (height, pagesize, offset) => {
     const started = + new Date();
-    console.log(`Reading ${1+height-offset-pagesize}..${height-offset} ...`);
+    console.log(`[sync] Reading ${1+height-offset-pagesize}..${height-offset} ...`);
     const blockHeaders = await aergo.getBlockHeaders(height, pagesize, offset);
     const blocks = await asyncPool(10, blockHeaders, async blockHeader => await aergo.getBlock(blockHeader.hash));
     await addBlocks(blocks);
     const seconds = (new Date() - started)/1000;
-    console.log(`Synced ${1+height-offset-pagesize}..${height-offset} in ${seconds}s (${(blockHeaders.length/seconds).toFixed()} blocks per second)`);
+    console.log(`[sync] Synced ${1+height-offset-pagesize}..${height-offset} in ${seconds.toFixed(3)}s (${(blockHeaders.length/seconds).toFixed()} blocks per second)`);
 }
 
 /**
@@ -22,8 +22,13 @@ const _sync = async (height, pagesize, offset) => {
  */
 export const syncIntermediateBlocks = async (heightNext, heightPrev) => {
     const diff = heightNext - heightPrev;
+    if (diff < 0) {
+        console.log(`[sync] Detected reorg (next block ${heightNext+1}, but last synced block is ${heightPrev}), removing intermediate blocks...`);
+        const result = await removeBlocks(heightNext + 1, heightPrev);
+        console.log(`[sync] Removed ${result.deleted} blocks in ${(result.took/1000).toFixed(3)} seconds.`);
+    }
     if (diff > 0) {
-        console.log(`Block meta db out of sync (missing ${diff} blocks between ${heightPrev} and ${heightNext+1}), catching up...`);
+        console.log(`[sync] Block meta db out of sync (missing ${diff} blocks between ${heightPrev} and ${heightNext+1}), catching up...`);
         const started = + new Date();
 
         const jobs = [];
@@ -37,6 +42,6 @@ export const syncIntermediateBlocks = async (heightNext, heightPrev) => {
         });
 
         const seconds = (new Date() - started)/1000;
-        console.log(`Finished sync in ${seconds}s (${(diff/seconds).toFixed()} blocks per second)`);
+        console.log(`[sync] Finished sync in ${seconds.toFixed(3)}s (${(diff/seconds).toFixed()} blocks per second)`);
     }
 }

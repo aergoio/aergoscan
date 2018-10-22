@@ -16,7 +16,7 @@ services:
       - ./data/aergo:/aergo/data
     ports:
       - 7846
-      - "7845:7845"
+      - "7845"
     expose:
       - 7845
   backend:

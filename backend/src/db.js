@@ -3,6 +3,7 @@ import elasticsearch from 'elasticsearch';
 import cfg from './config';
 
 export const DB_BLOCK_INDEX = 'block_meta';
+export const DB_TX_INDEX = 'transaction_meta';
 export const db = new elasticsearch.Client({
     host: cfg.DB_HOST,
     log: ['error'] // 'trace'
@@ -31,10 +32,15 @@ export const setupIndex = () => {
     return new Promise(async (resolve) => {
         console.log(`AERGOSCAN_REINDEX = ${process.env.AERGOSCAN_REINDEX}`);
         if (cfg.RECREATE_INDEX) {
-            console.log('Deleting existing index');
+            console.log('Deleting existing indices');
             try {
                 await db.indices.delete({
                     index: DB_BLOCK_INDEX
+                });
+            } catch(e) {}
+            try {
+                await db.indices.delete({
+                    index: DB_TX_INDEX
                 });
             } catch(e) {}
         
@@ -42,7 +48,7 @@ export const setupIndex = () => {
                 await db.indices.create({
                     index: DB_BLOCK_INDEX
                 });
-                console.log('Setting up re-created index');
+                console.log('Setting up re-created block index');
                 await db.indices.putMapping({
                     index: DB_BLOCK_INDEX,
                     type: 'block',
@@ -53,6 +59,33 @@ export const setupIndex = () => {
                             },
                             no: {
                                 type: "long"
+                            }
+                        }
+                    }
+                });
+            } catch(e) {}
+
+            try {
+                await db.indices.create({
+                    index: DB_TX_INDEX
+                });
+                console.log('Setting up re-created tx index');
+                await db.indices.putMapping({
+                    index: DB_TX_INDEX,
+                    type: 'tx',
+                    body: {
+                        properties: {
+                            ts: {
+                                type: "date"
+                            },
+                            blockno: {
+                                type: "long"
+                            },
+                            from: {
+                                type: "keyword"
+                            },
+                            to: {
+                                type: "keyword"
                             }
                         }
                     }
@@ -78,6 +111,36 @@ export const searchBlock = (opts, single = false) => {
             return resolve({hash: item._id, meta: item._source});
         } else {
             return resolve(response.hits.hits.map(item => ({hash: item._id, meta: item._source})));
+        }
+    });
+}
+
+export const searchTransactions = (query) => {
+    return new Promise(async (resolve) => {
+        const q = {
+            requestTimeout: 2000,
+            index: DB_TX_INDEX,
+            body: {
+                query,
+                size: 50,
+                sort: {
+                    blockno: { "order" : "desc" }
+                },
+            }
+        };
+        const response = await db.search(q);
+        return resolve(response.hits.hits.map(item => ({hash: item._id, meta: item._source})));
+    });
+}
+
+export const removeBlocks = (lastToKeep, lastToDelete) => {
+    return db.deleteByQuery({
+        index: DB_BLOCK_INDEX,
+        type: 'block',
+        body: {
+          query: {
+            range: { no: { gt: lastToKeep, lte: lastToDelete} }
+          }
         }
     });
 }
@@ -132,7 +195,11 @@ export const aggregateBlocks = (query, interval) => {
  * Add a block
  * @param {object} blocks
  */
-export const addBlock = (block) => {
+export const addBlock = async (block) => {
+    await addTransactions(block.body.txsList.map(tx => {
+        tx.block = block;
+        return tx;
+    }));
     return db.create({
         index: DB_BLOCK_INDEX,
         type: 'block',
@@ -151,7 +218,15 @@ export const addBlock = (block) => {
  * Add blocks in bulk
  * @param {object[]} blocks 
  */
-export const addBlocks = (blocks) => {
+export const addBlocks = async (blocks) => {
+    const txsList = blocks.reduce((txsList, block) => txsList.concat(
+        block.body.txsList.map(tx => {
+            tx.block = block;
+            return tx;
+        })
+    ), []);
+    await addTransactions(txsList);
+    console.log(`[sync] Synced ${txsList.length} tx.`);
     const body = blocks.map(block => [
         { index: { _index: DB_BLOCK_INDEX, _type: 'block', _id: block.hash }},
         {
@@ -164,5 +239,24 @@ export const addBlocks = (blocks) => {
         body
     }).catch((e) => {
         console.log('Could not save block: ' + e);
+    })
+}
+
+const addTransactions = (txsList) => {
+    if (txsList.length == 0) return;
+    const body = txsList.map(tx => [
+        { index: { _index: DB_TX_INDEX, _type: 'tx', _id: tx.hash }},
+        {
+            from: tx.from,
+            to: tx.to,
+            amount: tx.amount,
+            blockno: tx.block.header.blockno,
+            ts: tx.block.header.timestamp / 1000000
+        }
+    ]).reduce((a, b) => a.concat(...b), []);
+    return db.bulk({
+        body
+    }).catch((e) => {
+        console.log('Could not save tx: ' + e);
     })
 }

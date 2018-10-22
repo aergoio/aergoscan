@@ -1,8 +1,23 @@
 import express from 'express';
-import { searchBlock, aggregateBlocks, getBestBlock, getBlockCount } from './db';
+import { searchBlock, aggregateBlocks, getBestBlock, getBlockCount, searchTransactions } from './db';
 const app = express();
 
 app.get('/', (req, res) => res.send('aergoscan stats API'))
+app.get('/recentTransactions', async (req, res) => {
+    return res.json(await searchTransactions({
+        match_all: {}
+    }));
+});
+app.get('/accountTransactions', async (req, res) => {
+    return res.json(await searchTransactions({
+        bool: {
+            should: [
+                { term: { from: req.query.address } },
+                { term: { to: req.query.address } },
+            ]
+        }
+    }));
+});
 app.get('/tx', async (req, res) => {
     const maxTps = await searchBlock({
         body: {

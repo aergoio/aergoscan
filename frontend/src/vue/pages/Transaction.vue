@@ -89,6 +89,7 @@ export default {
       let hash = this.$route.params.hash;
       this.txDetail = await this.$store.dispatch('blockchain/getTransaction', { hash });
       this.txReceipt = await this.$store.dispatch('blockchain/getTransactionReceipt', { hash });
+      
     },
     moment
   },

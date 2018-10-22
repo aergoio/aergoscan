@@ -13,8 +13,8 @@
         <div class="cell">Connecting...</div>
       </div>
       <div class="row clickable" v-for="tx in reverseTransactions" :key="tx.hash" v-on:click="viewTx(tx.hash)">
-        <div class="cell" style="width: 75px">{{moment(tx.block.header.timestamp/1000000).format('HH:mm:ss')}}</div>
-        <div class="cell" style="width: 75px">{{tx.block.header.blockno}}</div>
+        <div class="cell" style="width: 75px">{{moment(tx.ts || tx.block.header.timestamp/1000000).format('HH:mm:ss')}}</div>
+        <div class="cell" style="width: 75px">{{tx.blockno || tx.block.header.blockno}}</div>
         <div class="cell monospace hash">{{tx.hash}}</div>
         <div class="cell" v-html="$options.filters.formatToken(tx.amount)"></div>
         <!--<div class="cell">{{tx.body.account | shortAddress}} -> {{tx.body.recipient | shortAddress}}</div>-->
@@ -27,16 +27,20 @@
 <script>
 import moment from 'moment';
 import { mapState, mapActions } from 'vuex'
+import cfg from '../../config.js';
 
 export default {
   data () {
     return {
+      initialTransactions: [],
     }
   },
   created () {
   },
-  mounted () {
+  async mounted () {
     this.$store.dispatch('blockchain/streamBlocks');
+    const response = await this.$fetch.get(`${cfg.API_URL}/stats/recentTransactions`);
+    this.initialTransactions = (await response.json()).map(tx => ({...tx, ...tx.meta}));
   },
   beforeDestroy () {
   },
@@ -46,7 +50,7 @@ export default {
       isConnected: state => state.blockchain.streamConnected
     }),
     reverseTransactions() {
-      return this.transactions.slice().reverse();
+      return this.transactions.slice().reverse().concat(this.initialTransactions);
     }
   },
   methods: {

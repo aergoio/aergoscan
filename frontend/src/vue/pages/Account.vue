@@ -15,14 +15,17 @@
               Balance: <span v-html="$options.filters.formatToken(accountDetail.balance)"></span>
             </p>
           </div>
-          
-          <!--Transactions: (Click to scan for transactions. This can take a while.)-->
-
         </div>
+
         <div class="island-title" v-if="this.accountDetail && this.accountDetail.codehash">Contract</div>
         <div class="island-content" v-if="this.accountDetail && this.accountDetail.codehash">
           <ContractAbi :abi="contractAbi" :codehash="this.accountDetail.codehash" :address="$route.params.address" />
         </div>
+
+        <div class="island-title" v-if="transactions.length">
+          {{transactions.length}} Transactions
+        </div>
+        <TransactionList :items="transactions" class="island-content" showTimes="true" :baseAccount="$route.params.address" v-if="transactions.length" />
       </div>
 
     </div>
@@ -35,12 +38,15 @@ import moment from 'moment';
 import { mapState } from 'vuex'
 import AccountBox from '../components/AccountBox';
 import ContractAbi from '../components/ContractAbi';
+import TransactionList from '../components/TransactionList';
+import cfg from '../../config.js';
 
 export default {
   data () {
     return {
       accountDetail: null,
-      contractAbi: null
+      contractAbi: null,
+      transactions: []
     }
   },
   created () {
@@ -58,6 +64,7 @@ export default {
   components: {
     AccountBox,
     ContractAbi,
+    TransactionList,
   },
   computed: {
   },
@@ -67,9 +74,9 @@ export default {
       this.accountDetail = await this.$store.dispatch('blockchain/getAccount', { address });
       if (this.accountDetail.codehash) {
         this.contractAbi = await this.$store.dispatch('blockchain/getABI', { address });
-        this.contractAbi.foo = true;
-        this.contractAbi.bar = 3;
       }
+      const response = await this.$fetch.get(`${cfg.API_URL}/stats/accountTransactions`, { address });
+      this.transactions = (await response.json()).map(tx => ({...tx, ...tx.meta}));
     },
     moment
   },

@@ -243,4 +243,24 @@ a {
   }
 }
 
+.label {
+  display: inline-block;
+  vertical-align: text-bottom;
+  text-transform: uppercase;
+  font-size: .85em;
+  background-color: #eee;
+  line-height: 1.5;
+  padding: 0 .4em;
+  border-radius: 4px;
+
+  &.label-positive {
+    background-color: #13c329;
+    color: #fff;
+  }
+  &.label-negative {
+    background-color: #f57336;
+    color: #fff;
+  }
+}
+
 </style>
