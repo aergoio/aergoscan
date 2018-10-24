@@ -6,9 +6,10 @@
         <div class="chart-header">
           <div class="chart-title">
             <span class="title">Transaction History</span>
-            (tps Last: <span class="stat-value" v-if="reverseBlocks.length">{{reverseBlocks[0].body.txsList.length}}</span>
-            Max:
-            <router-link class="stat-value" :to="`/block/${maxTps.meta.no}/`" v-if="maxTps">{{maxTps.meta.txs}}</router-link>)
+            (Last tps: <span class="stat-value" v-if="reverseBlocks.length">{{reverseBlocks[0].body.txsList.length}}</span>
+            Peak tps:
+            <router-link class="stat-value" :to="`/block/${maxTps.meta.no}/`" v-if="maxTps">{{maxTps.meta.txs}}</router-link>
+            Total: {{txTotal}})
           </div>
           <div class="chart-selector">
             <span class="option" :class="{active: txChartUnit=='second'}" v-on:click="selectMode('second')">60 seconds</span>
@@ -76,6 +77,9 @@ export default {
     },
     maxTps() {
       return this.txStats.maxTps;
+    },
+    txTotal() {
+      return this.txStats.txTotal;
     },
     txData() {
       let source;

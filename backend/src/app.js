@@ -3,11 +3,13 @@ import { searchBlock, aggregateBlocks, getBestBlock, getBlockCount, searchTransa
 const app = express();
 
 app.get('/', (req, res) => res.send('aergoscan stats API'))
+
 app.get('/recentTransactions', async (req, res) => {
     return res.json(await searchTransactions({
         match_all: {}
     }));
 });
+
 app.get('/accountTransactions', async (req, res) => {
     return res.json(await searchTransactions({
         bool: {
@@ -18,6 +20,7 @@ app.get('/accountTransactions', async (req, res) => {
         }
     }));
 });
+
 app.get('/tx', async (req, res) => {
     const maxTps = await searchBlock({
         body: {
@@ -34,12 +37,15 @@ app.get('/tx', async (req, res) => {
     const txPerMinute = await aggregateBlocks({ gte: "now-60m/m", lt: "now" }, "1m");
     const txPerHour = await aggregateBlocks({ gte: "now-24h/h", lt: "now" }, "1h");
     const txPerDay = await aggregateBlocks({ gte: "now-30d/d", lt: "now" }, "1d");
+
+    const txTotal = txPerDay.map(day => day.sum_txs.value).reduce((a, b) => a + b, 0);
     
     const blockCount = await getBlockCount();
     
     return res.json({
         blockCount,
         maxTps,
+        txTotal,
         bestBlock,
         txPerSecond,
         txPerMinute,

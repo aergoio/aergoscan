@@ -2,7 +2,7 @@ import aergo from './aergo';
 import { addBlocks, removeBlocks } from './db';
 import asyncPool from "tiny-async-pool";
 
-const pagesize = 1000;
+const pagesize = 100;
 
 const _sync = async (height, pagesize, offset) => {
     const started = + new Date();
@@ -37,7 +37,7 @@ export const syncIntermediateBlocks = async (heightNext, heightPrev) => {
             jobs.push([offset, targetPagesize]);
         }
 
-        await asyncPool(3, jobs, async ([offset, pagesize]) => {
+        await asyncPool(5, jobs, async ([offset, pagesize]) => {
             return _sync(heightNext, pagesize, offset);
         });
 

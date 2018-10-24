@@ -225,8 +225,9 @@ export const addBlocks = async (blocks) => {
             return tx;
         })
     ), []);
+    const txCount = txsList.length;
     await addTransactions(txsList);
-    console.log(`[sync] Synced ${txsList.length} tx.`);
+    console.log(`[sync] Synced ${txCount} tx.`);
     const body = blocks.map(block => [
         { index: { _index: DB_BLOCK_INDEX, _type: 'block', _id: block.hash }},
         {
@@ -244,19 +245,32 @@ export const addBlocks = async (blocks) => {
 
 const addTransactions = (txsList) => {
     if (txsList.length == 0) return;
-    const body = txsList.map(tx => [
-        { index: { _index: DB_TX_INDEX, _type: 'tx', _id: tx.hash }},
-        {
-            from: tx.from,
-            to: tx.to,
-            amount: tx.amount,
-            blockno: tx.block.header.blockno,
-            ts: tx.block.header.timestamp / 1000000
+
+    return new Promise(async resolve => {
+        const chunkSize = 5000;
+        if (txsList.length > chunkSize) {
+            console.log(`[sync] Processing ${txsList.length} tx in chunks...`);
         }
-    ]).reduce((a, b) => a.concat(...b), []);
-    return db.bulk({
-        body
-    }).catch((e) => {
-        console.log('Could not save tx: ' + e);
-    })
+        while (txsList.length) {
+            const chunk = txsList.splice(0, chunkSize);
+            const body = chunk.map(tx => [
+                { index: { _index: DB_TX_INDEX, _type: 'tx', _id: tx.hash }},
+                {
+                    from: tx.from,
+                    to: tx.to,
+                    amount: tx.amount,
+                    blockno: tx.block.header.blockno,
+                    ts: tx.block.header.timestamp / 1000000
+                }
+            ]).reduce((a, b) => a.concat(...b), []);
+            try {
+                await db.bulk({
+                    body
+                })
+            } catch (e) {
+                console.log('[sync] Failed to save tx.');
+            }
+        }
+        resolve();
+    });
 }
