@@ -27,14 +27,17 @@ export default {
   border: 1px solid #e0e0e0;
   font-size: (13/16)*1rem;
 
-  overflow: hidden;
+  display: flex;
+  align-items: center;
 
   .identicon {
-    float: left;
+    
   }
   .address {
-    line-height: 50px;
-    margin: 0 10px;
+    flex: 1;
+    line-height: 18px;
+    margin: 0 7px;
+    word-break: break-word;
   }
   &.null-address {
     padding: .5em;

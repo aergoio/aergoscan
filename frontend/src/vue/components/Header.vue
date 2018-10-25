@@ -95,6 +95,11 @@ export default {
   .wrap {
     display: flex;
 
+    @media (max-width: 40em) {
+      flex-direction: column;
+      align-items: center;
+    }
+
     :last-child {
       flex: 1
     }
@@ -112,22 +117,40 @@ export default {
   height: 36px;
   background-size: auto 100%;
   background-repeat: no-repeat;
-  margin-right: 60px;
+}
+
+.main-nav, .logo {
+  @media (min-width: 40em) {
+    margin-right: 60px;
+  }
 }
 
 .main-nav {
   text-transform: uppercase;
-  margin-right: 60px;
 
   a {
     color: inherit;
     font-size: (16/13)*1em;
     text-decoration: none;
-    line-height: 65px;
-    border-top: 6px solid transparent;
+    line-height: 40px;
+    @media (min-width: 40em) {
+      line-height: 65px;
+    }
+    @media (max-width: 40em) {
+      border-bottom: 3px solid transparent;
+    }
+    @media (min-width: 40em) {
+      border-top: 6px solid transparent;
+    }
+    
+
     vertical-align: top;
     display: inline-block;
     margin-right: 30px;
+
+    &:last-child {
+      margin-right: 0;
+    }
 
     transition: color .25s;
 
@@ -136,6 +159,7 @@ export default {
     }
 
     &.router-link-exact-active {
+      
       border-color: #F90F5F;
     }
   }
@@ -143,6 +167,10 @@ export default {
 
 .search {
   padding: 25px 0;
+
+  @media (max-width: 40em) {
+    width: 100%;
+  }
 
   .search-wrap {
     position: relative;

@@ -45,6 +45,7 @@ export default {
   },
   methods: {
     promptNetwork() {
+      return; // disabled until proper UI is built
       const input = prompt('Enter network address (e.g. 127.0.0.1:7845)');
       if (!input) return;
       this.network = input;

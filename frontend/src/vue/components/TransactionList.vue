@@ -7,7 +7,7 @@
       <div class="cell" style="flex: 2">Amount</div>
       <div class="cell"><span class="icon icon-view" style="visibility: hidden"></span></div>
     </div>
-    <div v-for="tx in items" :key="tx.hash" class="row clickable" v-on:click="viewTx(tx.hash)">
+    <div v-for="tx in items" :key="tx.hash" class="row clickable linearize" v-on:click="viewTx(tx.hash)">
       <div class="cell" style="flex: 2" v-if="showTimes">{{moment(tx.ts).fromNow()}}</div>
       <div class="cell hash" style="flex: 5">{{tx.hash}}</div>
       <div class="cell" style="flex: 4" v-if="!baseAccount">{{tx.from | shortAddress}} -> {{tx.to | shortAddress}}</div>

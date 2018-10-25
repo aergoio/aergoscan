@@ -63,6 +63,7 @@ body {
 .wrap {
   margin: 0 auto;
   max-width: 1000px;
+  padding: 0 15px;
 }
 
 .page-content {
@@ -158,6 +159,7 @@ a {
 
 .monospace, .hash {
   font-family: 'SourceCodePro', monospace;
+  word-break: break-word;
 }
 .hash {
   font-size: .9em;
@@ -167,6 +169,7 @@ a {
   .row {
     border-bottom: 1px solid #EBEBEB;
     display: flex;
+    align-items: baseline;
 
     &.header {
       text-transform: uppercase;
@@ -180,6 +183,14 @@ a {
     .cell {
       padding: 15px 10px;
       box-sizing: border-box;
+
+      @media (max-width: 40em) {
+        padding: 15px 20px;
+
+        + .cell {
+          padding-top: 0;
+        }
+      }
 
       &:first-child {
         padding-left: 20px;
@@ -200,6 +211,14 @@ a {
         flex: 1;
       }
     }
+
+    &.linearize {
+      @media (max-width: 40em) {
+        flex-direction: column;
+
+
+      }
+    }
   }
 }
 
@@ -214,9 +233,17 @@ a {
 .side-by-side {
   display: flex;
 
+  @media (max-width: 50em) {
+    flex-direction: column;
+  }
+
   > * {
     flex: 1;
-    margin-right: 30px;
+
+    @media (min-width: 50em) {
+      margin-right: 30px;
+    }
+    
 
     &:last-child {
       margin-right: 0;

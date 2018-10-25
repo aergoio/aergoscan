@@ -1,5 +1,5 @@
 <template>
-  <div class="wrap">
+  <div>
     <div class="view-selector">
       <div class="view-option" :class="{active: viewMode=='abi'}" v-on:click="setViewMode('abi')">ABI (JSON)</div>
       <div class="view-option" :class="{active: viewMode=='interactive'}" v-on:click="setViewMode('interactive')">Interactive</div>
@@ -174,6 +174,7 @@ export default {
   border-radius: 4px;
   font-weight: 500;
   color: #D4D4D4;
+  margin-bottom: 20px;
 }
 .code-highlight-pre {
   white-space: pre;

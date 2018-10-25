@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="9px" height="13px" viewBox="0 0 9 13" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 49.3 (51167) - http://www.bohemiancoding.com/sketch -->
+    <title>receipt icon</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Extension-Visible" transform="translate(-1028.000000, -359.000000)">
+            <g id="receipt-icon" transform="translate(1028.000000, 359.000000)">
+                <polygon id="Path-2" stroke="#373737" stroke-width="0.649999976" stroke-linejoin="round" points="0.527980503 0.516688355 0.527980503 12.4725686 2.63557515 11.4551392 4.5674593 12.4725686 6.56933082 11.4551392 8.52526459 12.4725686 8.52526459 0.516688355 6.56933082 1.55527689 4.58758674 0.516688355 2.63557515 1.55527689"></polygon>
+                <path d="M2.5,4.5 L5.5,4.5" id="Line-2" stroke="#737373" stroke-width="0.75" stroke-linecap="square"></path>
+                <path d="M2.5,8.5 L4.5,8.5" id="Line-2" stroke="#737373" stroke-width="0.75" stroke-linecap="square"></path>
+                <path d="M2.5,6.5 L6.5,6.5" id="Line-2" stroke="#737373" stroke-width="0.75" stroke-linecap="square"></path>
+            </g>
+        </g>
+    </g>
+</svg>

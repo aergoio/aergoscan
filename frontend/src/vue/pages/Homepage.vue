@@ -9,7 +9,7 @@
             (Last tps: <span class="stat-value" v-if="reverseBlocks.length">{{reverseBlocks[0].body.txsList.length}}</span>
             Peak tps:
             <router-link class="stat-value" :to="`/block/${maxTps.meta.no}/`" v-if="maxTps">{{maxTps.meta.txs}}</router-link>
-            Total: {{txTotal}})
+            Total: <span class="stat-value">{{txTotal}})</span>
           </div>
           <div class="chart-selector">
             <span class="option" :class="{active: txChartUnit=='second'}" v-on:click="selectMode('second')">60 seconds</span>
@@ -197,6 +197,16 @@ export default {
 
 .chart-header {
   display: flex;
+  align-items: baseline;
+
+  @media (max-width: 40em) {
+    flex-direction: column;
+    align-items: center;
+
+    .chart-title {
+      margin-bottom: 1em;
+    }
+  }
 
   .chart-title {
     flex: 1;
