@@ -2,14 +2,32 @@
   <div class="wrap">
     <div class="page-content">
 
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value" v-if="reverseBlocks.length">{{reverseBlocks[0].header.blockno}}</div>
+          <div class="stat-value" v-if="!reverseBlocks.length">...</div>
+          <div class="stat-label">last<br>block</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" v-if="reverseBlocks.length">{{reverseBlocks[0].body.txsList.length}}</div>
+          <div class="stat-value" v-if="!reverseBlocks.length">...</div>
+          <div class="stat-label">tps<br>(now)</div>
+        </div>
+        <div class="stat">
+          <router-link class="stat-value" :to="`/block/${maxTps.meta.no}/`" v-if="maxTps">{{maxTps.meta.txs}}</router-link>
+          <div class="stat-value" v-if="!maxTps">...</div>
+          <div class="stat-label">tps<br>(peak)</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">{{txTotal || '...'}}</div>
+          <div class="stat-label">total<br>tx</div>
+        </div>
+      </div>
+
       <div class="chart-wrap">
         <div class="chart-header">
           <div class="chart-title">
             <span class="title">Transaction History</span>
-            (Last tps: <span class="stat-value" v-if="reverseBlocks.length">{{reverseBlocks[0].body.txsList.length}}</span>
-            Peak tps:
-            <router-link class="stat-value" :to="`/block/${maxTps.meta.no}/`" v-if="maxTps">{{maxTps.meta.txs}}</router-link>
-            Total: <span class="stat-value">{{txTotal}})</span>
           </div>
           <div class="chart-selector">
             <span class="option" :class="{active: txChartUnit=='second'}" v-on:click="selectMode('second')">60 seconds</span>
@@ -22,12 +40,12 @@
       </div>
 
       <div class="side-by-side">
-        <div class="island">
+        <div class="island" style="flex: 1">
           <div class="island-title">Blocks</div>
           <RecentBlocks class="island-content" />
         </div>
 
-        <div class="island">
+        <div class="island" style="flex: 2">
           <div class="island-title">Transactions</div>
           <RecentTransactions class="island-content" />
         </div>
@@ -96,10 +114,17 @@ export default {
         }));
       }
 
+      // Extra handling for seconds for smooth chart
       if (this.txChartUnit == 'second' && this.blocks.length > 0) {
         // initialize with db data if present
         if (this.realTimeStats.length === 0 && dbData.length > 0) {
           this.realTimeStats.push(...dbData);
+        }
+        if (this.realTimeStats.length === 0 && this.blocks.length > 1) {
+          this.realTimeStats.push(...this.blocks.map(b => ({
+            x: Math.trunc(b.header.timestamp/1000000000)*1000,
+            y: b.body.txsList.length
+          })));
         }
         // add new block
         const newBlock = this.blocks[this.blocks.length - 1];
@@ -113,20 +138,7 @@ export default {
         }
 
         return this.realTimeStats;
-
-        /*
-        // Skip duplicate entry of last block
-        if (dbData.length > 0 && dbData[dbData.length-1].x === Math.trunc(this.blocks[0].header.timestamp/1000000000)*1000) {
-          dbData = dbData.slice(0, dbData.length-1);
-        }
-        const dbAndRealtimeData = dbData.concat(this.blocks.map(item => ({
-          x: Math.trunc(item.header.timestamp/1000000000)*1000,
-          y: item.body.txsList.length
-        })));
-        return dbAndRealtimeData.slice(dbAndRealtimeData.length-60);
-        */
       }
-
       return dbData;
     }
   },
@@ -183,10 +195,6 @@ export default {
   opacity: 0;
 }
 
-.stat-value {
-  color: #F90F5F;
-  font-weight: 500;
-}
 
 .chart-wrap {
   margin-bottom: 25px;
@@ -239,6 +247,35 @@ export default {
         background-color: #F90F5F;
       }
       transition: all .24s;
+    }
+  }
+}
+
+.stats {
+  display: flex;
+  margin: 0 0 15px;
+
+  .stat {
+    background-color: #fff;
+    padding: 7px;
+    min-width: 4em;
+    height: 4em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-right: 25px;
+
+    .stat-label {
+      text-align: center;
+      text-transform: uppercase;
+      font-size: .9em;
+      letter-spacing: .05em;
+    }
+    .stat-value {
+      text-align: center;
+      color: #F90F5F;
+      font-weight: 500;
+      font-size: 1.5em;
     }
   }
 }

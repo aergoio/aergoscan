@@ -1,5 +1,6 @@
 
 import 'whatwg-fetch';
+import 'intersection-observer';
 import Vue from 'vue';
 import App from './App';
 import VueRouter from 'vue-router';
@@ -9,6 +10,7 @@ import Button from './components/Button';
 import store from './store/index';
 import { shortAddress } from './filters/address';
 import { formatToken } from './filters/format-token';
+
 
 export default async function setup(opts) {
     Vue.use(VueRouter);

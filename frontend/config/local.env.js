@@ -6,7 +6,7 @@ if (process.env.AERGO_NODE) {
 }
 
 module.exports = {
-    NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+    NODE_ENV: JSON.stringify('development'),
     API_URL: JSON.stringify(API_URL),
     AERGO_URL: JSON.stringify(AERGO_URL),
 }

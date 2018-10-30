@@ -7,23 +7,29 @@
       <div class="cell" style="flex: 2">Amount</div>
       <div class="cell"><span class="icon icon-view" style="visibility: hidden"></span></div>
     </div>
-    <div v-for="tx in items" :key="tx.hash" class="row clickable linearize" v-on:click="viewTx(tx.hash)">
-      <div class="cell" style="flex: 2" v-if="showTimes">{{moment(tx.ts).fromNow()}}</div>
-      <div class="cell hash" style="flex: 5">{{tx.hash}}</div>
-      <div class="cell" style="flex: 4" v-if="!baseAccount">{{tx.from | shortAddress}} -> {{tx.to | shortAddress}}</div>
-      <div class="cell" style="flex: 4;" v-if="baseAccount">
-        <span v-if="baseAccount == tx.from"><span class="label label-positive">to</span>&nbsp;{{tx.to | shortAddress}}</span>
-        <span v-if="baseAccount == tx.to"><span class="label label-negative">from</span>&nbsp;{{tx.from | shortAddress}}</span>
+    
+
+    <RecycleScroller class="scroller" :items="items" :item-height="45" keyField="hash" page-mode>
+      <div slot-scope="{ item }" class="row clickable linearize" v-on:click="viewTx(item.hash)">
+        <div class="cell" style="flex: 2" v-if="showTimes">{{moment(item.ts).fromNow()}}</div>
+        <div class="cell hash" style="flex: 5">{{item.hash}}</div>
+        <div class="cell" style="flex: 4" v-if="!baseAccount">{{item.from | shortAddress}} -> {{item.to | shortAddress}}</div>
+        <div class="cell" style="flex: 4;" v-if="baseAccount && item.from !== item.to">
+          <span v-if="baseAccount == item.from"><span class="label label-positive">to</span>&nbsp;{{item.to | shortAddress}}</span>
+          <span v-if="baseAccount == item.to"><span class="label label-negative">from</span>&nbsp;{{item.from | shortAddress}}</span>
+        </div>
+        <div class="cell" style="flex: 4;" v-if="baseAccount && item.from === item.to"><span class="label label-neutral">self transfer</span></div>
+        <div class="cell" style="flex: 2" v-html="$options.filters.formatToken(item.amount)"></div>
+        <div class="cell"><span class="icon icon-view"></span></div>
       </div>
-      <div class="cell" style="flex: 2" v-html="$options.filters.formatToken(tx.amount)"></div>
-      <div class="cell"><span class="icon icon-view"></span></div>
-    </div>
+    </RecycleScroller>
   </div>
 </template>
 
 <script>
 import Identicon from './Identicon';
 import moment from 'moment';
+import { RecycleScroller } from 'vue-virtual-scroller'
 
 export default {
   props: ['items', 'showTimes', 'baseAccount'],
@@ -32,6 +38,7 @@ export default {
     }
   },
   components: {
+    RecycleScroller,
   },
   methods: {
     viewTx (hash) {

@@ -4,7 +4,33 @@
       <div class="side-by-side">
         <div class="island">
           <div class="island-title">
-            AERGO Pre-testnet guide
+            Welcome to Aergoscan
+          </div>
+          <div class="island-content">
+            <p>Aergoscan is showing the status of the pre-testnet.</p>
+            <p>This is a very experimental deployment of the Aergo main blockchain.</p>
+            <p>You can use this website to view blocks as they get created, transactions and accounts (including contracts).</p>
+          </div>
+        </div>
+        <div class="island">
+          <div class="island-title">
+            Explore
+          </div>
+          <div class="island-content">
+            <p>Example smart contracts:</p>
+            <ul>
+              <li><a href="">A</a></li>
+              <li><a href="">B</a></li>
+              <li><a href="">C</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-by-side">
+        <div class="island">
+          <div class="island-title">
+            References
           </div>
           <div class="island-content">
             
@@ -14,7 +40,7 @@
               <li><a href="">Running a local node</a></li>
               <li>Development using <a href="">heraj</a> and <a href="">herajs</a></li>
             </ul>
-            <p>Also, refer to these ressources:</p>
+            <p>Also, please refer to these ressources:</p>
             <ul>
               <li><a href="">Twitter</a></li>
               <li><a href="">Medium</a></li>
@@ -29,7 +55,7 @@
           </div>
           <div class="island-content">
             
-            <p>You can sign up here if you want to get in touch with us.</p>
+            <p>You can sign up here if you want to get started developing using the pre-testnet.</p>
             <p>Please send us an email to <a href="mailto:pretestnet@aergo.io">pretestnet@aergo.io</a> with the following information:</p>
             <ul>
               <li>Your name</li>

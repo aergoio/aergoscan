@@ -12,7 +12,7 @@
 
           <div v-if="accountDetail">
             <p>
-              Balance: <span v-html="$options.filters.formatToken(accountDetail.balance)"></span>
+              Balance: <span v-html="$options.filters.formatToken(accountDetail.balance)"></span> ({{accountDetail.balance}} aer)
             </p>
           </div>
         </div>

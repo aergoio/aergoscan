@@ -1,8 +1,8 @@
 <template>
   <router-link :to="`/account/${address}/`" class="account-box">
 
-    <Identicon :text="address" size="50" />
-    <span class="address">{{address}}</span>
+    <Identicon :text="''+address" size="50" />
+    <span class="address">{{''+address}}</span>
   </router-link>
 </template>
 
