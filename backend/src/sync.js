@@ -4,10 +4,21 @@ import asyncPool from "tiny-async-pool";
 
 const pagesize = 100;
 
+function delay(t, v) {
+    return new Promise(function(resolve) { 
+        setTimeout(resolve.bind(null, v), t)
+    });
+ }
+
 const _sync = async (height, pagesize, offset) => {
     const started = + new Date();
     console.log(`[sync] Reading ${1+height-offset-pagesize}..${height-offset} ...`);
     const blockHeaders = await aergo.getBlockHeaders(height, pagesize, offset);
+    if (blockHeaders.length !== pagesize) {
+        console.log(`[sync] Warning: Received 0 block headers for ${1+height-offset-pagesize}..${height-offset}, expected ${pagesize}. Retrying in 5 seconds...`);
+        await delay(5000);
+        return await _sync(height, pagesize, offset);
+    }
     const blocks = await asyncPool(10, blockHeaders, async blockHeader => await aergo.getBlock(blockHeader.hash));
     await addBlocks(blocks);
     const seconds = (new Date() - started)/1000;

@@ -5,20 +5,28 @@ const app = express();
 app.get('/', (req, res) => res.send('aergoscan stats API'))
 
 app.get('/recentTransactions', async (req, res) => {
-    return res.json(await searchTransactions({
-        match_all: {}
-    }));
+    try {
+        return res.json(await searchTransactions({
+            match_all: {}
+        }));
+    } catch(e) {
+        return res.json({error: e});
+    }
 });
 
 app.get('/accountTransactions', async (req, res) => {
-    return res.json(await searchTransactions({
-        bool: {
-            should: [
-                { term: { from: req.query.address } },
-                { term: { to: req.query.address } },
-            ]
-        }
-    }));
+    try {
+        return res.json(await searchTransactions({
+            bool: {
+                should: [
+                    { term: { from: req.query.address } },
+                    { term: { to: req.query.address } },
+                ]
+            }
+        }));
+    } catch(e) {
+        return res.json({error: e});
+    }
 });
 
 app.get('/tx', async (req, res) => {

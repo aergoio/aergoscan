@@ -219,6 +219,7 @@ export const addBlock = async (block) => {
  * @param {object[]} blocks 
  */
 export const addBlocks = async (blocks) => {
+    if (!blocks.length) return;
     const txsList = blocks.reduce((txsList, block) => txsList.concat(
         block.body.txsList.map(tx => {
             tx.block = block;
@@ -256,8 +257,8 @@ const addTransactions = (txsList) => {
             const body = chunk.map(tx => [
                 { index: { _index: DB_TX_INDEX, _type: 'tx', _id: tx.hash }},
                 {
-                    from: tx.from,
-                    to: tx.to,
+                    from: ''+tx.from,
+                    to: ''+tx.to,
                     amount: tx.amount,
                     blockno: tx.block.header.blockno,
                     ts: tx.block.header.timestamp / 1000000
