@@ -163,6 +163,7 @@ a {
 }
 .hash {
   font-size: .9em;
+  min-width: 13em;
 }
 
 .table-like {

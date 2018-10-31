@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="12px" height="12px" viewBox="0 0 12 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-325.000000, -359.000000)">
+        <g id="Oval" transform="translate(331.000000, 364.692308) rotate(-90.000000) translate(-331.000000, -364.692308) translate(324.307692, 358.692308)">
+            <ellipse fill="#5F5F5F" fill-rule="evenodd" cx="2.32424242" cy="9.73972603" rx="1.53636364" ry="1.60273973"></ellipse>
+            <ellipse fill="#5F5F5F" fill-rule="evenodd" cx="10.6757576" cy="9.73972603" rx="1.53636364" ry="1.60273973"></ellipse>
+            <ellipse fill="#5F5F5F" fill-rule="evenodd" cx="6.5" cy="2.17808219" rx="1.53636364" ry="1.60273973"></ellipse>
+            <path d="M2.56060606,9.24657534 L6.18484848,2.75342466" id="Line-2" stroke="#5F5F5F" stroke-width="1" stroke-linecap="round"></path>
+            <path d="M6.81515152,2.83561644 L10.3606061,9.24657534" id="Line-3" stroke="#5F5F5F" stroke-width="1" stroke-linecap="round"></path>
+        </g>
+    </g>
+</svg>

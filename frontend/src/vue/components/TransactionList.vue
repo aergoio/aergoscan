@@ -9,7 +9,7 @@
     </div>
     
 
-    <RecycleScroller class="scroller" :items="items" :item-height="45" keyField="hash" page-mode>
+    <RecycleScroller class="scroller" :items="items" :item-height="scrollerItemHeight" keyField="hash" page-mode>
       <div slot-scope="{ item }" class="row clickable linearize" v-on:click="viewTx(item.hash)">
         <div class="cell" style="flex: 2" v-if="showTimes">{{moment(item.ts).fromNow()}}</div>
         <div class="cell hash" style="flex: 5">{{item.hash}}</div>
@@ -39,6 +39,12 @@ export default {
   },
   components: {
     RecycleScroller,
+  },
+  computed: {
+    scrollerItemHeight() {
+      const width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+      return width >= 640 ? 45 : 175;
+    }
   },
   methods: {
     viewTx (hash) {

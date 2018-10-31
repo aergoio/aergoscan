@@ -37,10 +37,11 @@
         <div class="island-title" v-if="txReceipt">Receipt</div>
         <div class="island-content" v-if="txReceipt">
           
+          <AccountBox v-if="txReceipt.contractaddress" :address="txReceipt.contractaddress" />
+
           <table class="detail-table">
-            <tr><td>Contract:</td><td><AccountBox :address="txReceipt.contractaddress" /></td></tr>
-            <tr><td>Result:</td><td class="monospace">{{txReceipt.result}}</td></tr>
             <tr><td>Status:</td><td class="monospace">{{txReceipt.status}}</td></tr>
+            <tr><td>Result:</td><td class="monospace">{{txReceipt.result}}</td></tr>
           </table>
            
         </div>

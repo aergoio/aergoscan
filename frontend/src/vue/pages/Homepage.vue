@@ -98,7 +98,7 @@ export default {
       return this.txStats.maxTps;
     },
     txTotal() {
-      return this.txStats.txTotal;
+      return typeof this.txStats.txTotal !== 'undefined' ? this.txStats.txTotal : false;
     },
     txData() {
       let source;

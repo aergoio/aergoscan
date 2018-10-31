@@ -12,7 +12,7 @@
       <div class="row" v-if="!isConnected" key="connection-status">
         <div class="cell">Connecting...</div>
       </div>
-      <div class="row clickable" v-for="tx in reverseTransactions" :key="tx.hash" v-on:click="viewTx(tx.hash)">
+      <div class="row clickable" v-for="tx in syncedTransactions" :key="tx.hash" v-on:click="viewTx(tx.hash)">
         <div class="cell" style="width: 75px">{{moment(tx.ts || tx.block.header.timestamp/1000000).format('HH:mm:ss')}}</div>
         <div class="cell" style="width: 75px">{{tx.blockno || tx.block.header.blockno}}</div>
         <div class="cell monospace hash">{{tx.hash}}</div>
@@ -33,6 +33,8 @@ export default {
   data () {
     return {
       initialTransactions: [],
+      syncedTransactions: [],
+      syncInterval: null,
     }
   },
   created () {
@@ -41,21 +43,24 @@ export default {
     this.$store.dispatch('blockchain/streamBlocks');
     const response = await this.$fetch.get(`${cfg.API_URL}/stats/recentTransactions`);
     this.initialTransactions = (await response.json()).map(tx => ({...tx, ...tx.meta}));
+    this.syncTxList();
+    this.syncInterval = setInterval(() => { this.syncTxList(); }, 5000);
   },
   beforeDestroy () {
+    clearInterval(this.syncInterval);
   },
   computed: {
     ...mapState({
       transactions: state => state.blockchain.recentTransactions,
       isConnected: state => state.blockchain.streamConnected
-    }),
-    reverseTransactions() {
-      return this.transactions.slice().reverse().concat(this.initialTransactions);
-    }
+    })
   },
   methods: {
     viewTx (hash) {
       this.$router.push({ name: 'transaction', params: { hash }});
+    },
+    syncTxList() {
+      this.syncedTransactions = this.transactions.slice().reverse().concat(this.initialTransactions);
     },
     moment
   },

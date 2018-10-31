@@ -19,6 +19,7 @@ const getters = {
 }
 
 let blockHeaderStream = null;
+let previousBlockNumber = 0;
 
 const actions = {
     streamBlocks ({ commit, dispatch }) {
@@ -122,8 +123,13 @@ const mutations = {
             return;
         }
 
+        if (block.header.blockno <= previousBlockNumber) {
+            block.detectedReorg = true;
+        }
+
         // Add block
         state.recentBlocks.push(block);
+        previousBlockNumber = block.header.blockno;
 
         // Add block txs
         if (block.body.txsList.length) {

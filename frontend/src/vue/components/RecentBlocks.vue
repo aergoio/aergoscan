@@ -10,8 +10,11 @@
       <div class="row" v-if="!isConnected" key="connection-status">
         <div class="cell">Connecting...</div>
       </div>
-      <div class="row clickable" v-for="block in reverseBlocks" :key="block.hash" v-on:click="viewBlock(block.header.blockno)">
-        <div class="cell" style="width: 85px">{{block.header.blockno}}</div>
+
+      <div class="row clickable" v-for="block in reverseBlocks" :key="block.hash" v-on:click="viewBlock(block.hash)" :class="{reorg: block.detectedReorg}">
+        <div class="cell" style="width: 85px">
+          {{block.header.blockno}}
+        </div>
         <div class="cell" style="width: 85px">{{moment(block.header.timestamp/1000000).format('HH:mm:ss')}}</div>
         <div class="cell">{{block.body.txsList.length}} tx</div>
         <div class="cell"><span class="icon icon-view"></span></div>
@@ -46,8 +49,8 @@ export default {
     }
   },
   methods: {
-    viewBlock (blockNo) {
-      this.$router.push(`/block/${blockNo}`);
+    viewBlock (hash) {
+      this.$router.push(`/block/${hash}`);
     },
     moment
   },
@@ -55,4 +58,21 @@ export default {
 </script>
 
 <style lang="scss">
+.reorg {
+  &.animated-list-enter {
+    background-color: red;
+  }
+
+  .cell:first-child:after {
+    content: "";
+    display: inline-block;
+    width: 14px;
+    height: 11px;
+    background: url(~@assets/img/reorg.svg);
+    background-size: auto 11px;
+    background-repeat: no-repeat;
+    display: inline-block;
+    background-position: 50% 50%;
+  }
+}
 </style>
