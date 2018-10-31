@@ -139,7 +139,7 @@ export const removeBlocks = (lastToKeep, lastToDelete) => {
         type: 'block',
         body: {
           query: {
-            range: { no: { gt: lastToKeep, lte: lastToDelete} }
+            range: { no: { gte: lastToKeep, lte: lastToDelete} }
           }
         }
     });

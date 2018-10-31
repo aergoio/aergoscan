@@ -1,8 +1,8 @@
 import aergo from './aergo';
 import { addBlocks, removeBlocks } from './db';
-import asyncPool from "tiny-async-pool";
+import asyncPool from 'tiny-async-pool';
 
-const pagesize = 100;
+const pagesize = 50;
 
 function delay(t, v) {
     return new Promise(function(resolve) { 
@@ -25,6 +25,15 @@ const _sync = async (height, pagesize, offset) => {
     console.log(`[sync] Synced ${1+height-offset-pagesize}..${height-offset} in ${seconds.toFixed(3)}s (${(blockHeaders.length/seconds).toFixed()} blocks per second)`);
 }
 
+export const handleReorg = async (heightNext, heightPrev) => {
+    const diff = heightNext - heightPrev;
+    if (diff < 0) {
+        console.log(`[sync] Detected reorg (next block ${heightNext+1}, but last synced block is ${heightPrev}), removing intermediate blocks...`);
+        const result = await removeBlocks(heightNext + 1, heightPrev);
+        console.log(`[sync] Removed ${heightNext + 1}..${heightPrev} (${result.deleted}) blocks in ${(result.took/1000).toFixed(3)} seconds.`);
+    }
+};
+
 /**
  * Syncronize missing blocks if heightNext is bigger than heightPrev.
  * Paralized as much as possible. This reads the blockchain at ~2000 blocks per second.
@@ -33,11 +42,6 @@ const _sync = async (height, pagesize, offset) => {
  */
 export const syncIntermediateBlocks = async (heightNext, heightPrev) => {
     const diff = heightNext - heightPrev;
-    if (diff < 0) {
-        console.log(`[sync] Detected reorg (next block ${heightNext+1}, but last synced block is ${heightPrev}), removing intermediate blocks...`);
-        const result = await removeBlocks(heightNext + 1, heightPrev);
-        console.log(`[sync] Removed ${result.deleted} blocks in ${(result.took/1000).toFixed(3)} seconds.`);
-    }
     if (diff > 0) {
         console.log(`[sync] Block meta db out of sync (missing ${diff} blocks between ${heightPrev} and ${heightNext+1}), catching up...`);
         const started = + new Date();
