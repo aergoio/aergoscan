@@ -17,6 +17,9 @@ export default {
     data(val, oldVal) {
       if (!this.chart) return;
       this.chart.data.datasets[0].data = val;
+      if (this.$props.unit === 'second') {
+        this.chart.options.scales.xAxes[0].time.min = new Date() - 60 * 1000;
+      }
       this.chart.update();
     },
     unit(val, oldVal) {
@@ -26,6 +29,10 @@ export default {
     }
   },
   mounted () {
+    let min = 0;
+    if (this.$props.unit === 'second') {
+      min = new Date() - 60 * 1000;
+    }
     this.chart = new Chart(this.$refs.canvas, {
       type: 'line',      
       data: {
@@ -69,7 +76,8 @@ export default {
               drawOnChartArea: false,
             },
             time: {
-              unit: this.$props.unit || 'auto'
+              unit: this.$props.unit || 'auto',
+              min: min
             },
             ticks: {
               padding: 10,
