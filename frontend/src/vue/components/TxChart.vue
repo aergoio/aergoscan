@@ -19,6 +19,8 @@ export default {
       this.chart.data.datasets[0].data = val;
       if (this.$props.unit === 'second') {
         this.chart.options.scales.xAxes[0].time.min = new Date() - 60 * 1000;
+      } else {
+        this.chart.options.scales.xAxes[0].time.min = 0;
       }
       this.chart.update();
     },

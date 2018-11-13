@@ -6,9 +6,11 @@
           Account Details
         </div>
         <div class="island-content">
-          <AccountBox :address="$route.params.address" />
+          <AccountBox v-if="accountDetail" :address="$route.params.address" />
           
-          <div v-if="!accountDetail">Loading...</div>
+          <div v-if="error">Error: {{error}}</div>
+
+          <div v-if="!accountDetail && !error">Loading...</div>
 
           <div v-if="accountDetail">
             <p>
@@ -46,7 +48,8 @@ export default {
     return {
       accountDetail: null,
       contractAbi: null,
-      transactions: []
+      transactions: [],
+      error: null
     }
   },
   created () {
@@ -71,12 +74,22 @@ export default {
   methods: {
     async load() {
       let address = this.$route.params.address;
-      this.accountDetail = await this.$store.dispatch('blockchain/getAccount', { address });
-      if (this.accountDetail.codehash) {
-        this.contractAbi = await this.$store.dispatch('blockchain/getABI', { address });
+      this.error = null;
+      try {
+        this.accountDetail = await this.$store.dispatch('blockchain/getAccount', { address });
+      } catch (e) {
+        this.error = 'Account not found';
+        return;
       }
-      const response = await this.$fetch.get(`${cfg.API_URL}/stats/accountTransactions`, { address });
-      this.transactions = (await response.json()).map(tx => ({...tx, ...tx.meta}));
+      try {
+        if (this.accountDetail.codehash) {
+          this.contractAbi = await this.$store.dispatch('blockchain/getABI', { address });
+        }
+        const response = await this.$fetch.get(`${cfg.API_URL}/stats/accountTransactions`, { address });
+        this.transactions = (await response.json()).map(tx => ({...tx, ...tx.meta}));
+      } catch (e) {
+        this.error = e;
+      }
     },
     moment
   },

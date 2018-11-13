@@ -4,10 +4,12 @@
       <div class="island">
         <div class="island-title">
           Transaction Details
-          <div v-if="!txDetail">Loading...</div>
+          <div v-if="!txDetail && !error">Loading...</div>
           <div v-if="txDetail" class="subtitle monospace">{{txDetail.tx.hash}}</div>
         </div>
         <div class="island-content">
+
+          <p v-if="error">{{error}}</p>
           
           <div v-if="txDetail">
             <div class="transaction-flow-diagram">
@@ -62,7 +64,8 @@ export default {
   data () {
     return {
       txDetail: null,
-      txReceipt: null
+      txReceipt: null,
+      error: null,
     }
   },
   created () {
@@ -88,8 +91,14 @@ export default {
   },
   methods: {
     async load() {
+      this.error = null;
       let hash = this.$route.params.hash;
-      this.txDetail = await this.$store.dispatch('blockchain/getTransaction', { hash });
+      try {
+        this.txDetail = await this.$store.dispatch('blockchain/getTransaction', { hash });
+      } catch (e) {
+        this.error = '' + e;
+        return;
+      }
       this.txReceipt = await this.$store.dispatch('blockchain/getTransactionReceipt', { hash });
       
     },
