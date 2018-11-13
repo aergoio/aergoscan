@@ -4,7 +4,8 @@
       <div class="island">
         <div class="island-title">
           Block Details
-          <div v-if="!blockDetail">Loading...</div>
+          <div v-if="error">{{error}}</div>
+          <div v-if="!blockDetail && !error">Loading...</div>
           <div v-if="blockDetail" class="subtitle monospace">{{blockDetail.hash}}</div>
         </div>
         <div class="island-content">
@@ -18,7 +19,6 @@
             </td></tr>
             <tr><td>Previous block:</td><td><router-link :to="`/block/${blockDetail.header.prevblockhash}/`" class="monospace">{{blockDetail.header.prevblockhash}}</router-link></td></tr>
             <tr><td>Time stamp:</td><td>{{moment(blockDetail.header.timestamp/1000000).format('dddd, MMMM Do YYYY, HH:mm:ss.SSS')}}</td></tr>
-            
           </table>
         </div>
 
@@ -42,7 +42,8 @@ import { loadAndWait } from '../utils/async';
 export default {
   data () {
     return {
-      blockDetail: null
+      blockDetail: null,
+      error: null
     }
   },
   created () {
@@ -68,6 +69,8 @@ export default {
       this.$store.dispatch('blockchain/getBlock', { blockNoOrHash: blockNoOrHash }).then(async (block) => {
         await waitMinimum();
         this.$data.blockDetail = block;
+      }).catch(error => {
+        this.error = ''+error;
       });
     },
     moment

@@ -23,7 +23,7 @@
         </div>
 
         <div class="island-title" v-if="transactions.length">
-          {{transactions.length}} Transactions
+          {{transactions.length == 50 ? "Last 50" : transactions.length}} Transactions
         </div>
         <TransactionList :items="transactions" class="island-content" showTimes="true" :baseAccount="$route.params.address" v-if="transactions.length" />
       </div>

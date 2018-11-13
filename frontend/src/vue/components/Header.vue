@@ -14,26 +14,29 @@
 
       <form class="search" v-on:submit.prevent.capture="performSearch">
         <div class="search-wrap">
-          <input type="search" v-model="query" class="search-field" placeholder="Search for address, tx hash, block height" v-on:keyup="predictSearch" v-on:keyup.enter="performSearch">
-          <div v-if="predictedType" class="search-prediction" v-on:click="performSearch">
-            Do you mean 
-            <span v-if="predictedType == 'blockno'">
+          <input type="search" v-model="query" class="search-field" placeholder="Search for address, tx hash, block hash or height" v-on:keyup="predictSearch" v-on:keyup.enter="performSearch">
+          <div v-if="predictedType" class="search-prediction">
+            
+            <div v-if="predictedType == 'blockno'" v-on:click="gotoBlock(predictedString)">
+              Do you mean 
               <span class="type">block number</span>
-              <span class="value">{{predictedString}}</span>
-            </span>
-            <span v-if="predictedType == 'blockhash'">
+              <span class="value">{{predictedString}}</span>?
+            </div>
+            <div v-if="predictedType == 'hash'" v-on:click="gotoBlock(predictedString)">
+              Do you mean 
               <span class="type">block hash</span>
-              <span class="value">{{predictedString}}</span>
-            </span>
-            <span v-if="predictedType == 'txhash'">
+              <span class="value">{{predictedString}}</span>?
+            </div>
+            <div v-if="predictedType == 'hash'" v-on:click="gotoTransaction(predictedString)">
+              Do you mean 
               <span class="type">transaction hash</span>
-              <span class="value">{{predictedString}}</span>
-            </span>
-            <span v-if="predictedType == 'address'">
+              <span class="value">{{predictedString}}</span>?
+            </div>
+            <div v-if="predictedType == 'address'" v-on:click="gotoAccount(predictedString)">
+              Do you mean 
               <span class="type">account address</span>
-              <span class="value">{{predictedString}}</span>
-            </span>
-            ?
+              <span class="value">{{predictedString}}</span>?
+            </div>
           </div>
         </div>
       </form>
@@ -60,17 +63,31 @@ export default {
   },
   methods: {
     predictSearch() {
-      console.log('predict', this.query);
       if ('' + parseInt(this.query) === this.query) {
         this.predictedType = 'blockno';
         this.predictedString = ''+parseInt(this.query);
-      } else if (this.query.length > 30) {
-        this.predictedType = 'blockhash';
+      } else if (this.query[0] == 'A') {
+        this.predictedType = 'address';
         this.predictedString = this.query;
-      }
+      } else {
+        this.predictedType = 'hash';
+        this.predictedString = this.query;
+      } 
+    },
+    gotoBlock(numberOrHash) {
+      this.$router.push(`/block/${numberOrHash}`);
+      this.predictedType = '';
+    },
+    gotoAccount(address) {
+      this.$router.push(`/account/${address}`);
+      this.predictedType = '';
+    },
+    gotoTransaction(hash) {
+      this.$router.push(`/transaction/${hash}`);
+      this.predictedType = '';
     },
     performSearch() {
-      if (this.predictedType === 'blockno' || this.predictedType === 'blockhash') {
+      if (this.predictedType === 'blockno') {
         this.$router.push(`/block/${this.predictedString}`);
       }
       if (this.predictedType === 'address') {
@@ -184,11 +201,19 @@ export default {
     margin: 0 20px;
     background-color: #F90F5F;
     color: #fff;
-    padding: 7px 8px 8px;
+    
     cursor: pointer;
 
     .type {
-      font-weight: 500;
+      font-weight: 700;
+    }
+
+    > div {
+      padding: 7px 8px 8px;
+
+      & + div {
+        border-top: 1px solid #fff;
+      }
     }
   }
 }
