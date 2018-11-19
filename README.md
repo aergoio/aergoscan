@@ -2,14 +2,16 @@
 
 A web application to monitor the current state of the aergo blockchain.
 
-Can be run locally. With the launch of the testnet, a publicly accessible website will be deployed.
+Can be run locally. You can find the deployed application at http://aergoscan.io
 
 ## Running locally
 
 1. Install Docker if you haven't already. If you are on Linux, you may also have to install docker-compose.
 2. `docker-compose up`
 
-This contains a webserver that is accessible at http://127.0.0.1:8080
+This will start a webserver, backend, and local Aergo testnet with zero configuration.
+
+The webserver is accessible at http://127.0.0.1:8080
 
 ## Configuration
 

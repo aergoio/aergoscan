@@ -38,6 +38,7 @@ services:
         hard: -1
     ports:
       - "9300:9300"
+      - "9200:9200"
     expose:
       - 9200
     volumes:

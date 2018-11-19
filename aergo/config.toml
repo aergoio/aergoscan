@@ -10,7 +10,7 @@ enabletestmode = true
 [p2p]
 npaddpeers = [
 ]
-netprotocoladdr = "0.0.0.0"
+netprotocoladdr = "127.0.0.1"
 netprotocolport = 7846
 nptls = false
 npcert = ""

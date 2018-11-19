@@ -2,6 +2,11 @@
   <div id="app">
     <Header />
     <div class="page-container">
+      <!--
+      <div class="temp-notice">
+        <strong>Notice (2018/11/16):</strong>
+        The pre-testnet is up and running, but aergoscan is having some issues. We'll be back soon.
+      </div>-->
       <TransitionPage>
         <router-view></router-view>
       </TransitionPage>
@@ -289,6 +294,13 @@ a {
     background-color: #f57336;
     color: #fff;
   }
+}
+
+.temp-notice {
+  text-align: center;
+  background-color: #ff005d;
+  padding: 6px;
+  color: #fff;
 }
 
 </style>

@@ -9,7 +9,7 @@
           
           <ul>
             <li v-for="peer in peers" :key="peer.peerid">
-              {{peer.peerid}}: {{peer.state}}
+              {{peer.address.peerid}}: State {{peer.state}}, Best block: #{{peer.bestblock.blockno}} {{peer.bestblock.blockhash}}
             </li>
           </ul>
         </div>
@@ -40,10 +40,7 @@ export default {
   methods: {
     async load() {
       const result = await this.$store.dispatch('blockchain/fetchPeers');
-      this.peers = result.peersList.map((item, index) => ({
-        ...item,
-        state: result.statesList[index]
-      }));
+      this.peers = result.peersList;
     }
   },
   components: {
