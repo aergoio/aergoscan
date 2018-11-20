@@ -4,12 +4,19 @@
       <div class="island">
         <div class="island-title">
           Peers
+          <ReloadButton :action="load" style="float: right" />
         </div>
         <div class="island-content">
-          
-          <ul>
-            <li v-for="peer in peers" :key="peer.peerid">
-              {{peer.address.peerid}}: State {{peer.state}}, Best block: #{{peer.bestblock.blockno}} {{peer.bestblock.blockhash}}
+          <div v-if="error" class="error">{{error}}</div>
+
+          <ul class="peer-list">
+            <li v-for="peer in peers" :key="peer.address.peerid">
+              {{peer.address.peerid}}<br>
+              State: {{peer.state}}
+              <div class="best-block">
+                Block height: {{peer.bestblock.blockno}}<br>
+                <span class="monospace"><router-link :to="`/block/${peer.bestblock.blockhash}/`">{{peer.bestblock.blockhash}}</router-link></span>
+              </div>
             </li>
           </ul>
         </div>
@@ -19,10 +26,13 @@
 </template>
 
 <script>
+import ReloadButton from '../components/ReloadButton';
+
 export default {
   data () {
     return {
-      peers: null
+      peers: null,
+      error: null,
     }
   },
   created () {
@@ -39,14 +49,40 @@ export default {
   },
   methods: {
     async load() {
-      const result = await this.$store.dispatch('blockchain/fetchPeers');
-      this.peers = result.peersList;
+      try {
+        this.peers = await this.$store.dispatch('blockchain/fetchPeers');
+        this.peers.sort((a, b) => a.address.peerid.localeCompare(b.address.peerid));
+      } catch (e) {
+        this.error = '' + e;
+      }
     }
   },
   components: {
+    ReloadButton,
   },
 };
 </script>
 
 <style lang="scss">
+.peer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  
+  li {
+    width: 250px;
+    display: inline-block;
+    text-align: center;
+    border: 1px solid #ccc;
+    margin: 0 15px 15px 0;
+    padding: 10px;
+    word-break: break-all;
+
+    .best-block {
+      border-top: 1px solid #efefef;
+      padding-top: 6px;
+      margin-top: 6px;
+    }
+  }
+}
 </style>

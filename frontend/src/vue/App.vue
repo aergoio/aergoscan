@@ -296,6 +296,10 @@ a {
   }
 }
 
+.error {
+  color: #d20811;
+}
+
 .temp-notice {
   text-align: center;
   background-color: #ff005d;

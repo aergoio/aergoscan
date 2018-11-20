@@ -69,9 +69,9 @@ export default {
       this.$store.dispatch('blockchain/getBlock', { blockNoOrHash: blockNoOrHash }).then(async (block) => {
         await waitMinimum();
         this.$data.blockDetail = block;
-      }).catch(error => {
+      })/*.catch(error => {
         this.error = ''+error;
-      });
+      });*/
     },
     moment
   },
