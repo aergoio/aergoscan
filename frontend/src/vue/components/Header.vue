@@ -14,7 +14,10 @@
 
       <form class="search" v-on:submit.prevent.capture="performSearch">
         <div class="search-wrap">
-          <input type="search" v-model="query" class="search-field" placeholder="Search for address, tx hash, block hash or height" v-on:keyup="predictSearch" v-on:keyup.enter="performSearch">
+          <input type="search" v-model="query" class="search-field" placeholder="Search for address, tx hash, block hash or height"
+            v-on:keyup="predictSearch"
+            v-on:keyup.enter.stop="performSearch"
+            ref="searchField">
           <div v-if="predictedType" class="search-prediction">
             
             <div v-if="predictedType == 'blockno'" v-on:click="gotoBlock(predictedString)">
@@ -53,7 +56,7 @@ export default {
       query: '',
       predictedType: null,
       predictedString: '',
-      debounceSearch: null
+      debounceSearch: null,
     }
   },
   created () {
@@ -67,6 +70,7 @@ export default {
       try {
         const response = await this.$fetch.get(`${cfg.API_URL}/stats/search`, {q: query});
         const result = await response.json();
+        this.predictedType = '';
         if (result.blocks.length) {
           this.predictedType = 'blockhash';
           this.predictedString = result.blocks[0].hash;
@@ -107,17 +111,26 @@ export default {
       this.$router.push(`/transaction/${hash}`);
       this.predictedType = '';
     },
-    performSearch() {
-      if (this.predictedType === 'blockno') {
-        this.$router.push(`/block/${this.predictedString}`);
+    async performSearch() {
+      if (!this.predictedType) {
+        await this.querySearch(this.query);
+      }
+      if (!this.predictedType) {
+        return;
+      }
+      if (this.predictedType === 'blockno' || this.predictedType === 'blockhash') {
+        this.gotoBlock(this.predictedString);
       }
       if (this.predictedType === 'address') {
-        this.$router.push(`/account/${this.predictedString}`);
+        this.gotoAccount(this.predictedString);
       }
       if (this.predictedType === 'txhash') {
-        this.$router.push(`/transaction/${this.predictedString}`);
+        this.gotoTransaction(this.predictedString);
       }
-      this.predictedType = '';
+      if (this.debounceSearch) {
+        clearTimeout(this.debounceSearch);
+      }
+      this.$refs.searchField.blur();
     }
   },
   components: {
