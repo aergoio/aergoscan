@@ -22,12 +22,12 @@
               <span class="type">block number</span>
               <span class="value">{{predictedString}}</span>?
             </div>
-            <div v-if="predictedType == 'hash'" v-on:click="gotoBlock(predictedString)">
+            <div v-if="predictedType == 'blockhash'" v-on:click="gotoBlock(predictedString)">
               Do you mean 
               <span class="type">block hash</span>
               <span class="value">{{predictedString}}</span>?
             </div>
-            <div v-if="predictedType == 'hash'" v-on:click="gotoTransaction(predictedString)">
+            <div v-if="predictedType == 'txhash'" v-on:click="gotoTransaction(predictedString)">
               Do you mean 
               <span class="type">transaction hash</span>
               <span class="value">{{predictedString}}</span>?
@@ -46,13 +46,14 @@
 </template>
 
 <script>
-
+import cfg from '../../config.js';
 export default {
   data () {
     return {
       query: '',
       predictedType: null,
-      predictedString: ''
+      predictedString: '',
+      debounceSearch: null
     }
   },
   created () {
@@ -62,17 +63,37 @@ export default {
   computed: {
   },
   methods: {
+    async querySearch(query) {
+      try {
+        const response = await this.$fetch.get(`${cfg.API_URL}/stats/search`, {q: query});
+        const result = await response.json();
+        if (result.blocks.length) {
+          this.predictedType = 'blockhash';
+          this.predictedString = result.blocks[0].hash;
+        } else if (result.transactions.length) {
+          this.predictedType = 'txhash';
+          this.predictedString = result.transactions[0].hash;
+        } else if (result.addresses.length) {
+          this.predictedType = 'address';
+          this.predictedString = result.addresses[0].address;
+        }
+      } catch (e) {
+        console.error('Failed to connect to search API: ' + e);
+      }
+    },
     predictSearch() {
       if ('' + parseInt(this.query) === this.query) {
         this.predictedType = 'blockno';
         this.predictedString = ''+parseInt(this.query);
-      } else if (this.query[0] == 'A') {
-        this.predictedType = 'address';
-        this.predictedString = this.query;
-      } else {
-        this.predictedType = 'hash';
-        this.predictedString = this.query;
-      } 
+      } else if (this.query.length > 5) {
+        // search debounced
+        if (this.debounceSearch) {
+          clearTimeout(this.debounceSearch);
+        }
+        this.debounceSearch = setTimeout(async () => {
+          await this.querySearch(this.query);
+        }, 250);
+      }
     },
     gotoBlock(numberOrHash) {
       this.$router.push(`/block/${numberOrHash}`);

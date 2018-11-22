@@ -1,5 +1,5 @@
 import express from 'express';
-import { searchBlock, aggregateBlocks, getBestBlock, getBlockCount, searchTransactions } from './db';
+import { searchBlock, aggregateBlocks, getBestBlock, getBlockCount, searchTransactions, searchAddress } from './db';
 const app = express();
 
 app.get('/', (req, res) => res.send('aergoscan stats API'))
@@ -24,6 +24,46 @@ app.get('/accountTransactions', async (req, res) => {
                 ]
             }
         }));
+    } catch(e) {
+        return res.json({error: e});
+    }
+});
+
+/**
+ * Search for tx hash, block hash, or address inside tx
+ */
+app.get('/search', async (req, res) => {
+    const query = req.query.q;
+    if (query.length < 5) {
+        return res.json({error: "Try a longer query"});
+    }
+    try {
+        const [
+            blocks,
+            transactions,
+            addresses
+        ] = await Promise.all([
+            // Get blocks with matching hash
+            searchBlock({
+                body: {
+                    query: {
+                        match: { _id: query }
+                    }
+                }
+            }),
+            // Get tx with matching hash
+            searchTransactions({
+                match: { _id: query }
+            }),
+            // Get matching addresses
+            searchAddress(query)
+        ]);
+
+        return res.json({
+            blocks,
+            transactions,
+            addresses
+        });
     } catch(e) {
         return res.json({error: e});
     }
