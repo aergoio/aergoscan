@@ -10,7 +10,7 @@
     </div>
     <transition-group name="animated-list" tag="div" style="height: 400px; overflow: auto;">
       <div class="row" v-if="!isConnected" key="connection-status">
-        <div class="cell">Connecting...</div>
+        <div class="cell" v-html="connectionStatusMessage"></div>
       </div>
       <div class="row clickable" v-for="tx in syncedTransactions" :key="tx.hash" v-on:click="viewTx(tx.hash)">
         <div class="cell" style="width: 75px">{{moment(tx.ts || tx.block.header.timestamp/1000000).format('HH:mm:ss')}}</div>
@@ -35,12 +35,14 @@ export default {
       initialTransactions: [],
       syncedTransactions: [],
       syncInterval: null,
+      connectionStatusMessage: 'Connecting...'
     }
   },
   created () {
   },
   async mounted () {
     this.$store.dispatch('blockchain/streamBlocks');
+    setTimeout(this.checkConnection, 3000);
     const response = await this.$fetch.get(`${cfg.API_URL}/stats/recentTransactions`);
     this.initialTransactions = (await response.json()).map(tx => ({...tx, ...tx.meta}));
     this.syncTxList();
@@ -49,6 +51,15 @@ export default {
   beforeDestroy () {
     clearInterval(this.syncInterval);
   },
+  watch: {
+    isConnected: function(val) {
+      if (!this.isConnected) {
+        setTimeout(this.checkConnection, 3000);
+      } else {
+        this.connectionStatusMessage = 'Connecting...';
+      }
+    }
+  },
   computed: {
     ...mapState({
       transactions: state => state.blockchain.recentTransactions,
@@ -56,6 +67,11 @@ export default {
     })
   },
   methods: {
+    checkConnection() {
+      if (!this.isConnected) {
+        this.connectionStatusMessage = 'Connecting...<br>It\'s taking longer than usual, please wait or try again later.';
+      }
+    },
     viewTx (hash) {
       this.$router.push({ name: 'transaction', params: { hash }});
     },

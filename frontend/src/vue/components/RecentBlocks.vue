@@ -8,7 +8,7 @@
     </div>
     <transition-group name="animated-list" tag="div" style="height: 400px; overflow: auto;">
       <div class="row" v-if="!isConnected" key="connection-status">
-        <div class="cell">Connecting...</div>
+        <div class="cell" v-html="connectionStatusMessage"></div>
       </div>
 
       <div class="row clickable" v-for="block in reverseBlocks" :key="block.hash" v-on:click="viewBlock(block.hash)" :class="{reorg: block.detectedReorg}">
@@ -30,12 +30,23 @@ import { mapState, mapActions } from 'vuex'
 export default {
   data () {
     return {
+      connectionStatusMessage: 'Connecting...'
     }
   },
   created () {
   },
+  watch: {
+    isConnected: function(val) {
+      if (!this.isConnected) {
+        setTimeout(this.checkConnection, 3000);
+      } else {
+        this.connectionStatusMessage = 'Connecting...';
+      }
+    }
+  },
   mounted () {
     this.$store.dispatch('blockchain/streamBlocks');
+    setTimeout(this.checkConnection, 3000);
   },
   beforeDestroy () {
   },
@@ -49,6 +60,11 @@ export default {
     }
   },
   methods: {
+    checkConnection() {
+      if (!this.isConnected) {
+        this.connectionStatusMessage = 'Connecting...<br>It\'s taking longer than usual, please wait or try again later.';
+      }
+    },
     viewBlock (hash) {
       this.$router.push(`/block/${hash}`);
     },
