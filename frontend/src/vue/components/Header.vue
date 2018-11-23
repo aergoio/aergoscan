@@ -86,6 +86,7 @@ export default {
       }
     },
     predictSearch() {
+      this.predictedType = '';
       if ('' + parseInt(this.query) === this.query) {
         this.predictedType = 'blockno';
         this.predictedString = ''+parseInt(this.query);
