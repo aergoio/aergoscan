@@ -65,22 +65,7 @@
 export default {
   data () {
     return {
-      txDetail: null
     }
-  },
-  created () {
-  },
-  watch: {
-    '$route' (to, from) {
-      this.load();
-    }
-  },
-  mounted () {
-    this.load();
-  },
-  beforeDestroy () {
-  },
-  components: {
   },
 };
 </script>
