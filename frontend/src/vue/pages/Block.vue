@@ -13,11 +13,17 @@
           <table class="detail-table" v-if="blockDetail">
             <tr><td>Block height:</td>
             <td>
-              <router-link :to="`/block/${blockDetail.header.blockno - 1}/`">&laquo; Prev</router-link>
+              <router-link :to="`/block/${blockDetail.header.blockno - 1}/`" v-if="hasPrevious">&laquo; Prev</router-link>
               <span class="this-block-height">{{blockDetail.header.blockno}}</span>
               <router-link :to="`/block/${blockDetail.header.blockno + 1}/`">Next &raquo;</router-link>
             </td></tr>
-            <tr><td>Previous block:</td><td><router-link :to="`/block/${blockDetail.header.prevblockhash}/`" class="monospace">{{blockDetail.header.prevblockhash}}</router-link></td></tr>
+            <tr>
+              <td>Previous block:</td>
+              <td>
+                <router-link v-if="blockDetail.header.prevblockhash" :to="`/block/${blockDetail.header.prevblockhash}/`" class="monospace">{{blockDetail.header.prevblockhash}}</router-link>
+                <span v-if="!blockDetail.header.prevblockhash">(none)</span>
+              </td>
+            </tr>
             <tr><td>Time stamp:</td><td>{{moment(blockDetail.header.timestamp/1000000).format('dddd, MMMM Do YYYY, HH:mm:ss.SSS')}}</td></tr>
           </table>
         </div>
@@ -25,7 +31,7 @@
         <div class="island-title" v-if="blockDetail">
           {{blockDetail.body.txsList.length}} Transactions
         </div>
-        <TransactionList :items="blockDetail.body.txsList" class="island-content" v-if="blockDetail" />
+        <TransactionList :items="blockDetail.body.txsList" class="island-content" v-if="blockDetail && blockDetail.body.txsList.length" />
       </div>
 
     </div>
@@ -53,6 +59,11 @@ export default {
       this.load();
     }
   },
+  computed: {
+    hasPrevious() {
+      return this.blockDetail.header.blockno > 0;
+    }
+  },
   mounted () {
     this.load();
   },
@@ -69,9 +80,9 @@ export default {
       this.$store.dispatch('blockchain/getBlock', { blockNoOrHash: blockNoOrHash }).then(async (block) => {
         await waitMinimum();
         this.$data.blockDetail = block;
-      })/*.catch(error => {
+      }).catch(error => {
         this.error = ''+error;
-      });*/
+      });
     },
     moment
   },
