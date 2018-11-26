@@ -13,9 +13,12 @@
             <li v-for="peer in peers" :key="peer.address.peerid">
               {{peer.address.peerid}}<br>
               State: {{peer.state}}
-              <div class="best-block">
+              <div class="best-block" v-if="peer.bestblock">
                 Block height: {{peer.bestblock.blockno}}<br>
                 <span class="monospace"><router-link :to="`/block/${peer.bestblock.blockhash}/`">{{peer.bestblock.blockhash}}</router-link></span>
+              </div>
+              <div class="best-block" v-if="!peer.bestblock">
+                Block height unknown
               </div>
             </li>
           </ul>
@@ -73,6 +76,7 @@ export default {
     width: 250px;
     display: inline-block;
     text-align: center;
+    vertical-align: top;
     border: 1px solid #ccc;
     margin: 0 15px 15px 0;
     padding: 10px;

@@ -15,6 +15,7 @@
     "intersection-observer": "^0.5.1",
     "jdenticon": "^2.1.0",
     "moment": "^2.22.2",
+    "timed-async": "git+https://github.com/graup/timed-async.git",
     "vue": "^2.5.17",
     "vue-fetch": "^1.1.2",
     "vue-router": "^3.0.1",

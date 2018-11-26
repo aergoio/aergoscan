@@ -29,20 +29,21 @@ import moment from 'moment';
 import { mapState, mapActions } from 'vuex'
 import cfg from '../../config.js';
 
+const CONNECTING_MSG = 'Connecting...';
+const CONNECTING_SLOW_MSG = 'Connecting...<br>It\'s taking longer than usual, please wait or try again later.';
+
 export default {
   data () {
     return {
       initialTransactions: [],
       syncedTransactions: [],
-      syncInterval: null,
-      connectionStatusMessage: 'Connecting...'
+      syncInterval: null
     }
   },
   created () {
   },
   async mounted () {
     this.$store.dispatch('blockchain/streamBlocks');
-    setTimeout(this.checkConnection, 3000);
     const response = await this.$fetch.get(`${cfg.API_URL}/stats/recentTransactions`);
     this.initialTransactions = (await response.json()).map(tx => ({...tx, ...tx.meta}));
     this.syncTxList();
@@ -51,27 +52,14 @@ export default {
   beforeDestroy () {
     clearInterval(this.syncInterval);
   },
-  watch: {
-    isConnected: function(val) {
-      if (!this.isConnected) {
-        setTimeout(this.checkConnection, 3000);
-      } else {
-        this.connectionStatusMessage = 'Connecting...';
-      }
-    }
-  },
   computed: {
     ...mapState({
       transactions: state => state.blockchain.recentTransactions,
-      isConnected: state => state.blockchain.streamConnected
+      isConnected: state => state.blockchain.streamConnected,
+      connectionStatusMessage: state => state.blockchain.streamState === 'starting-slow' ? CONNECTING_SLOW_MSG : CONNECTING_MSG,
     })
   },
   methods: {
-    checkConnection() {
-      if (!this.isConnected) {
-        this.connectionStatusMessage = 'Connecting...<br>It\'s taking longer than usual, please wait or try again later.';
-      }
-    },
     viewTx (hash) {
       this.$router.push({ name: 'transaction', params: { hash }});
     },

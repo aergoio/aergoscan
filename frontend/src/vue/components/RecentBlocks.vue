@@ -27,44 +27,33 @@
 import moment from 'moment';
 import { mapState, mapActions } from 'vuex'
 
+const CONNECTING_MSG = 'Connecting...';
+const CONNECTING_SLOW_MSG = 'Connecting...<br>It\'s taking longer than usual, please wait or try again later.';
+
+
 export default {
   data () {
     return {
-      connectionStatusMessage: 'Connecting...'
     }
   },
   created () {
   },
-  watch: {
-    isConnected: function(val) {
-      if (!this.isConnected) {
-        setTimeout(this.checkConnection, 3000);
-      } else {
-        this.connectionStatusMessage = 'Connecting...';
-      }
-    }
-  },
   mounted () {
     this.$store.dispatch('blockchain/streamBlocks');
-    setTimeout(this.checkConnection, 3000);
   },
   beforeDestroy () {
   },
   computed: {
     ...mapState({
       blocks: state => state.blockchain.recentBlocks,
-      isConnected: state => state.blockchain.streamConnected
+      isConnected: state => state.blockchain.streamConnected,
+      connectionStatusMessage: state => state.blockchain.streamState === 'starting-slow' ? CONNECTING_SLOW_MSG : CONNECTING_MSG,
     }),
     reverseBlocks() {
       return this.blocks.slice().reverse();
     }
   },
   methods: {
-    checkConnection() {
-      if (!this.isConnected) {
-        this.connectionStatusMessage = 'Connecting...<br>It\'s taking longer than usual, please wait or try again later.';
-      }
-    },
     viewBlock (hash) {
       this.$router.push(`/block/${hash}`);
     },

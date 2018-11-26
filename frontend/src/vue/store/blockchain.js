@@ -1,10 +1,12 @@
 import aergo from '../../controller';
 import { Contract } from '@herajs/client';
+import { waitOrLoad } from 'timed-async';
 
 const HISTORY_MAX_BLOCKS = 60;
 const HISTORY_MAX_TRANSACTIONS = 100;
 
 const state = {
+    streamState: 'initial',
     streamConnected: false,
     recentBlocks: [],
     recentTransactions: [],
@@ -22,18 +24,32 @@ let blockHeaderStream = null;
 let previousBlockNumber = 0;
 
 const actions = {
-    streamBlocks ({ commit, dispatch }) {
+    streamBlocks ({ commit, dispatch, state }) {
         if (blockHeaderStream !== null) {
             return;
         }
         console.log('Starting block stream');
+        if (state.streamState !== 'starting-slow') {
+            commit('setStreamState', 'starting');
+        }
+        
+        const loadingFinished = waitOrLoad(() => {
+            commit('setStreamState', 'starting-slow');
+        });
         blockHeaderStream = aergo.getBlockStream();
         blockHeaderStream.on('data', (blockHeader) => {
             commit('addBlock', blockHeader);
-            commit('setConnected', true);
-        }).on('end', (res) => {
+            if (!state.streamConnected) {
+                commit('setConnected', true);
+                commit('setStreamState', 'started');
+                loadingFinished();
+            }
+        }).on('end', () => {
             console.log('Block stream ended, trying to reconnect in 5 seconds...');
-            commit('setConnected', false);
+            if (state.streamConnected) {
+                commit('setConnected', false);
+                commit('setStreamState', 'ended');
+            }
             setTimeout(() => {
                 dispatch('restartStreamBlocks');
             }, 5000);
@@ -155,6 +171,9 @@ const mutations = {
     },
     setConnected (state, isConnected) {
         state.streamConnected = isConnected;
+    },
+    setStreamState (state, streamState) {
+        state.streamState = streamState;
     }
 }
 
