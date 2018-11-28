@@ -1,0 +1,11 @@
+# Run with 
+# docker-compose -f docker-compose.yml -f docker-compose.node.yml up
+
+version: '3'
+services:
+    build: ./aergo
+    volumes:
+      - ./data/aergo:/aergo/data
+    ports:
+      - 7846
+      - 7845

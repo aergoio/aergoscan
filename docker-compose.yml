@@ -8,17 +8,7 @@ services:
     ports:
       - "8080:80"
     depends_on:
-      - node
       - backend
-  node:
-    build: ./aergo
-    volumes:
-      - ./data/aergo:/aergo/data
-    ports:
-      - 7846
-      - "7845"
-    expose:
-      - 7845
   backend:
     build: ./backend
     expose:
@@ -43,6 +33,7 @@ services:
       - 9200
     volumes:
       - esdata:/usr/share/elasticsearch/data
+    command: ["elasticsearch", "-Elogger.level=WARN"]
 
 volumes:
   esdata:
