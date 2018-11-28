@@ -30,19 +30,18 @@ Alternatively you can just connect to any already running node by setting the en
 ### Reindex meta db
 
 The backend contains a database for blockchain meta data. It attempts to sync correctly even during reorganizations,
-but 
-After a reorg, this is currently the only way to fix the meta db:
+but sometimes it can fail. In that case you can resync the database using by starting the backend with `AERGOSCAN_REINDEX=true`.
 
     AERGOSCAN_REINDEX=true docker-compose up
 
 ### Scripts for testing
 
 ```console
-# Start a node with specified version, in testmode
+# Start a node with specified version, in testmode (optional)
 docker run --rm -p 7845:7845 -v /path/to/aergo/home/:/aergo/ aergo/node:0.8.1 aergosvr --config /aergo/config.toml --testmode
 
 # Start aergoscan listening on that node
-AERGO_NODE=172.30.1.17:7845 AERGOSCAN_REINDEX=true docker-compose up --build
+AERGO_NODE=192.168.0.123:7845 AERGOSCAN_REINDEX=true docker-compose up --build
 ```
 
 Wait until `backend` is connected to the node (new blocks are being shown in the log), then open 127.0.0.1:8080 in the browser and create some test transactions.
