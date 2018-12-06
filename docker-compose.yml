@@ -5,6 +5,7 @@ services:
       context: ./
       args:
         AERGO_NODE: ${AERGO_NODE}
+        API_URL: ${API_URL}
     ports:
       - "8080:80"
     depends_on:

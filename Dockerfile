@@ -5,6 +5,8 @@ RUN npm install
 COPY frontend .
 ARG AERGO_NODE
 ENV AERGO_NODE ${AERGO_NODE}
+ARG API_URL
+ENV API_URL ${API_URL}
 RUN npm run build
 
 
