@@ -3,6 +3,7 @@
 
 version: '3'
 services:
+  node:
     build: ./aergo
     volumes:
       - ./data/aergo:/aergo/data
