@@ -14,7 +14,7 @@
 
           <div v-if="accountDetail">
             <p>
-              Balance: <span v-html="$options.filters.formatToken(accountDetail.balance)"></span> ({{accountDetail.balance}} aer)
+              Balance: <span v-html="$options.filters.formatToken(accountDetail.balance.toString())"></span> ({{accountDetail.balance.toString()}} aer)
             </p>
           </div>
         </div>
@@ -37,7 +37,6 @@
 <script>
 import aergo from '../../controller';
 import moment from 'moment';
-import { mapState } from 'vuex'
 import AccountBox from '../components/AccountBox';
 import ContractAbi from '../components/ContractAbi';
 import TransactionList from '../components/TransactionList';
@@ -46,10 +45,10 @@ import cfg from '../../config.js';
 export default {
   data () {
     return {
-      accountDetail: null,
       contractAbi: null,
       transactions: [],
-      error: null
+      error: null,
+      accountDetail: null
     }
   },
   created () {
@@ -76,9 +75,10 @@ export default {
       let address = this.$route.params.address;
       this.error = null;
       try {
-        this.accountDetail = await this.$store.dispatch('blockchain/getAccount', { address });
+        this.accountDetail = Object.freeze(await this.$store.dispatch('blockchain/getAccount', { address }));
       } catch (e) {
         this.error = 'Account not found';
+        console.error(e);
         return;
       }
       try {

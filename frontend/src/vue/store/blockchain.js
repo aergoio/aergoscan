@@ -96,17 +96,15 @@ const actions = {
             return null;
         }
     },
-    getAccount ({ dispatch, state }, { address }) {
+    async getAccount ({ dispatch, state }, { address }) {
         if (state.accountsByAddress[address]) {
-            return new Promise((resolve) => {
-                resolve(state.accountsByAddress[address]);
-            }); 
+            return state.accountsByAddress[address];
         }
-        return dispatch('fetchAccount', { address });
+        return await dispatch('fetchAccount', { address });
     },
     async fetchAccount ({ commit }, { address }) {
         const account = await aergo.getState(address);
-        commit('setAccountDetail', { account });
+        commit('setAccountDetail', { address, account });
         return account;
     },
     getABI ({ dispatch }, { address }) {
@@ -163,8 +161,8 @@ const mutations = {
     setTxDetail (state, {tx}) {
         state.txByHash[tx.hash] = tx;
     },
-    setAccountDetail (state, {account}) {
-        state.accountsByAddress[account.address] = account;
+    setAccountDetail (state, {address, account}) {
+        state.accountsByAddress[address] = account;
     },
     setProvider (state, {provider}) {
         state.provider = provider;
