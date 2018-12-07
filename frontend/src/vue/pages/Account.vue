@@ -88,7 +88,7 @@ export default {
         const response = await this.$fetch.get(`${cfg.API_URL}/stats/accountTransactions`, { address });
         this.transactions = (await response.json()).map(tx => ({...tx, ...tx.meta}));
       } catch (e) {
-        this.error = e;
+        console.log(e);
       }
     },
     moment

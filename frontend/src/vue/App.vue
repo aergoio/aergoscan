@@ -274,6 +274,10 @@ a {
   .value {
     font-weight: 500;
   }
+  .sep {
+    display: inline-block;
+    width: 4px;
+  }
 }
 
 .label {

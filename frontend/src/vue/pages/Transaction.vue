@@ -15,8 +15,8 @@
             <div class="transaction-flow-diagram">
               <AccountBox :address="txDetail.tx.from" />
               <span class="flow-arrow"></span>
-              <AccountBox v-if="txDetail.tx.to" :address="txDetail.tx.to" />
-              <div class="account-box null-address" v-if="!txDetail.tx.to">Contract Creation</div>
+              <AccountBox v-if="txDetail.tx.to && txDetail.tx.to.length" :address="txDetail.tx.to" />
+              <div class="account-box null-address" v-if="!txDetail.tx.to || !txDetail.tx.to.length">Contract Creation</div>
             </div>
             
             <table class="detail-table">

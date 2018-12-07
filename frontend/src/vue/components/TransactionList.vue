@@ -11,7 +11,7 @@
 
     <RecycleScroller class="scroller" :items="items" :item-height="scrollerItemHeight" keyField="hash" page-mode>
       <div slot-scope="{ item }" class="row clickable linearize" v-on:click="viewTx(item.hash)">
-        <div class="cell" style="flex: 2" v-if="showTimes">{{moment(item.ts).fromNow()}}</div>
+        <div class="cell" style="flex: 2" v-if="showTimes" :title="moment(item.ts)">{{moment(item.ts).fromNow()}}</div>
         <div class="cell hash" style="flex: 5">{{item.hash}}</div>
         <div class="cell" style="flex: 4" v-if="!baseAccount">{{item.from | shortAddress}} -> {{item.to | shortAddress}}</div>
         <div class="cell" style="flex: 4;" v-if="baseAccount && item.from !== item.to">
