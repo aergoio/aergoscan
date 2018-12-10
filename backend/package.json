@@ -1,12 +1,10 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "Backend for aergoscan, mostly gathering stats",
+  "description": "Backend for aergoscan, mostly API for chain metadata in elasticsearch db",
   "main": "src/index.js",
   "scripts": {
-    "start": "concurrently \"npm:start-server\" \"npm:start-tracker\"",
-    "start-server": "node bin/server.js",
-    "start-tracker": "node bin/tracker.js"
+    "start": "node bin/server.js"
   },
   "author": "",
   "license": "MIT",
@@ -24,7 +22,6 @@
     "@babel/core": "^7.1.0",
     "@babel/node": "^7.0.0",
     "@babel/preset-env": "^7.1.0",
-    "concurrently": "^4.0.1",
     "regenerator-runtime": "^0.12.1"
   }
 }

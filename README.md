@@ -11,7 +11,9 @@ The docker-compose file included in this repo is not meant for production use.
 1. Install Docker if you haven't already. If you are on Linux, you may also have to install docker-compose.
 2. `docker-compose up`
 
-This will start a webserver, backend, and local Aergo testnet with zero configuration.
+This will start a webserver, API backend, and blockchain indexer.
+
+If you also want a local Aergo testnet with zero configuration, try `docker-compose -f docker-compose.yml -f docker-compose.node.yml up`.
 
 The webserver is accessible at http://127.0.0.1:8080
 
@@ -29,8 +31,8 @@ Alternatively you can just connect to any already running node by setting the en
 
 ### Reindex meta db
 
-The backend contains a database for blockchain meta data. It attempts to sync correctly even during reorganizations,
-but sometimes it can fail. In that case you can resync the database using by starting the backend with `AERGOSCAN_REINDEX=true`.
+This contains an indexer that syncs a database with blockchain meta data. It attempts to sync correctly even during reorganizations,
+but sometimes it can fail. In that case you can resync the database by starting the indexer with `AERGOSCAN_REINDEX=true`.
 
     AERGOSCAN_REINDEX=true docker-compose up
 
@@ -44,4 +46,4 @@ docker run --rm -p 7845:7845 -v /path/to/aergo/home/:/aergo/ aergo/node:0.8.1 ae
 AERGO_NODE=192.168.0.123:7845 AERGOSCAN_REINDEX=true docker-compose up --build
 ```
 
-Wait until `backend` is connected to the node (new blocks are being shown in the log), then open 127.0.0.1:8080 in the browser and create some test transactions.
+Wait until `indexer` is connected to the node (new blocks are being shown in the log), then open 127.0.0.1:8080 in the browser and create some test transactions.

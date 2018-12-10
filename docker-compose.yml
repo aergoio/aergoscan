@@ -1,4 +1,4 @@
-version: '3'
+version: '3.1'
 services:
   nginx:
     build:
@@ -10,6 +10,14 @@ services:
       - "8080:80"
     depends_on:
       - backend
+  indexer:
+    build: ./indexer
+    depends_on:
+      - db
+    environment:
+      ES_URL: "${ES_URL:-db:9200}"
+      AERGO_NODE: "${AERGO_NODE:-node:7845}"
+      AERGOSCAN_REINDEX: "${AERGOSCAN_REINDEX:-false}"
   backend:
     build: ./backend
     expose:
@@ -20,7 +28,6 @@ services:
       - db
     environment:
       - AERGO_NODE
-      - AERGOSCAN_REINDEX
   db:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
     ulimits:

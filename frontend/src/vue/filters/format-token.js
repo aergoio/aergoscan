@@ -10,7 +10,8 @@ export function formatToken(value, unit = null) {
         digits = constants.UNITS.NATIVE_TOKEN.baseDigits;
     }
     let display = ('' + value);
-    if (digits > 0) {
+    if (value === 0 || JSBI.EQ(value, 0)) display = '0';
+    else if (typeof value !== 'undefined' && digits > 0) {
         // pad to 0 . 000 000 000 000 000 100
         display = display.padStart(digits + 1, '0') 
         // insert floating point separator into string
@@ -22,7 +23,6 @@ export function formatToken(value, unit = null) {
         // turn spaces into html to not mess up copy and paste
         display = display.replace(/\s/g, '<span class="sep"></span>');
     }
-    if (value === 0 || JSBI.EQ(value, 0)) display = '0';
     return `<span class="formatted-value token" title="${value}"><span class="value">${display}</span> <span class="unit">${unit}</span></span>`;
 }
 
