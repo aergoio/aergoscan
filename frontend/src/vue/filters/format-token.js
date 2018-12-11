@@ -19,7 +19,9 @@ export function formatToken(value, unit = null) {
         // insert spaces for formatting
         display = formatNumber(display, ' ', ' ');
         // remove trailing groups of three 0
-        display = display.replace(/\.?(\s000)+$/, '');
+        display = display.replace(/(\s000)+$/, '');
+        // remove all trailing 0
+        // display = display.replace(/0+$/, '');
         // turn spaces into html to not mess up copy and paste
         display = display.replace(/\s/g, '<span class="sep"></span>');
     }

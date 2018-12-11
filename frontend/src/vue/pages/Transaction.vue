@@ -15,8 +15,8 @@
             <div class="transaction-flow-diagram">
               <AccountBox :address="txDetail.tx.from" />
               <span class="flow-arrow"></span>
-              <AccountBox v-if="txDetail.tx.to && txDetail.tx.to.length" :address="txDetail.tx.to" />
-              <div class="account-box null-address" v-if="!txDetail.tx.to || !txDetail.tx.to.length">Contract Creation</div>
+              <AccountBox v-if="txDetail.tx.to && txDetail.tx.to.toString().length" :address="txDetail.tx.to" />
+              <div class="account-box null-address" v-if="!txDetail.tx.to || !txDetail.tx.to.toString().length">Contract Creation</div>
             </div>
             
             <table class="detail-table">
@@ -39,7 +39,9 @@
         <div class="island-title" v-if="txReceipt">Receipt</div>
         <div class="island-content" v-if="txReceipt">
           
-          <AccountBox v-if="txReceipt.contractaddress" :address="txReceipt.contractaddress" />
+          <div class="transaction-flow-diagram">
+            <AccountBox v-if="txReceipt.contractaddress" :address="txReceipt.contractaddress" />
+          </div>
 
           <table class="detail-table">
             <tr><td>Status:</td><td class="monospace">{{txReceipt.status}}</td></tr>

@@ -78,7 +78,11 @@ export default {
       this.blockDetail = null;
       this.error = '';
       try {
-        this.blockDetail = await timedAsync(async () => await this.$store.dispatch('blockchain/getBlock', { blockNoOrHash: blockNoOrHash }));
+        const blockDetail = await timedAsync(async () => await this.$store.dispatch('blockchain/getBlock', { blockNoOrHash: blockNoOrHash }));
+        for (let tx of blockDetail.body.txsList) {
+          tx.amount = Object.freeze(tx.amount); // prevent Vue from adding observer to BigInt
+        }
+        this.blockDetail = blockDetail;
       } catch (error) {
         this.error = ''+error;
         console.error(error);

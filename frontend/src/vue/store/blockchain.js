@@ -69,7 +69,7 @@ const actions = {
         return dispatch('fetchBlock', { blockNoOrHash });
     },
     async fetchBlock ({ commit }, { blockNoOrHash }) {
-        const block = await aergo.getBlock(blockNoOrHash);
+        const block = Object.freeze(await aergo.getBlock(blockNoOrHash));
         commit('setBlockDetail', { block });
         return block;
     },
@@ -82,7 +82,7 @@ const actions = {
         return dispatch('fetchTransaction', { hash });
     },
     async fetchTransaction ({ commit }, { hash }) {
-        const tx = await aergo.getTransaction(hash);
+        const tx = Object.freeze(await aergo.getTransaction(hash));
         commit('setTxDetail', { tx });
         return tx;
     },
@@ -182,12 +182,3 @@ export default {
   actions,
   mutations
 }
-
-
-
-
-
-// blocks
-
-// tx?
-
