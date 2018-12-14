@@ -20,7 +20,7 @@
             }</span>)
             <span class="btn-call" v-if="!isLoading[idx]" v-on:click="queryContract(idx)">Query</span>
             <span class="btn-call" v-if="isLoading[idx]">Loading...</span>
-            <div v-if="interactiveResults[idx]" class="code-highlight-pre">-> <span v-html="syntaxHighlight(interactiveResults[idx])"></span></div>
+            <div v-if="typeof interactiveResults[idx] !== undefined && interactiveResults[idx] !== null" class="code-highlight-pre">-> <span v-html="syntaxHighlight(interactiveResults[idx])"></span></div>
           </div>
         </div>
       </div>
