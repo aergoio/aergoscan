@@ -25,6 +25,8 @@
               </td>
             </tr>
             <tr><td>Time stamp:</td><td>{{moment(blockDetail.header.timestamp/1000000).format('dddd, MMMM Do YYYY, HH:mm:ss.SSS')}}</td></tr>
+            <tr><td>Produced by:</td><td><Identicon :text="blockDetail.header.pubkey" size="18" class="mini-identicon" /> {{blockDetail.header.pubkey}}</td></tr>
+            <tr><td>Coinbase account:</td><td><Identicon :text="blockDetail.header.coinbaseaccount" size="18" class="mini-identicon" /> <router-link :to="`/account/${blockDetail.header.coinbaseaccount}/`">{{blockDetail.header.coinbaseaccount.toString()}}</router-link></td></tr>
           </table>
         </div>
 
@@ -44,6 +46,7 @@ import moment from 'moment';
 import { mapState } from 'vuex';
 import TransactionList from '../components/TransactionList';
 import { timedAsync } from 'timed-async';
+import Identicon from '../components/Identicon';
 
 export default {
   data () {
@@ -80,7 +83,7 @@ export default {
       try {
         const blockDetail = await timedAsync(async () => await this.$store.dispatch('blockchain/getBlock', { blockNoOrHash: blockNoOrHash }));
         for (let tx of blockDetail.body.txsList) {
-          tx.amount = Object.freeze(tx.amount); // prevent Vue from adding observer to BigInt
+          tx.amount = Object.freeze(tx.amount); // prevent Vue from adding observer to Amount
         }
         this.blockDetail = blockDetail;
       } catch (error) {
@@ -92,6 +95,7 @@ export default {
   },
   components: {
     TransactionList,
+    Identicon,
   }
 };
 </script>

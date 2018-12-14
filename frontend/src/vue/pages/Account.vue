@@ -6,16 +6,24 @@
           Account Details
         </div>
         <div class="island-content">
-          <AccountBox v-if="accountDetail" :address="$route.params.address" />
+          <div class="transaction-flow-diagram">
+            <AccountBox v-if="accountDetail" :address="$route.params.address" />
+          </div>
           
           <div v-if="error">Error: {{error}}</div>
 
           <div v-if="!accountDetail && !error">Loading...</div>
 
           <div v-if="accountDetail">
-            <p>
-              Balance: <span v-html="$options.filters.formatToken(accountDetail.balance.toString())"></span> ({{accountDetail.balance.toString()}} aer)
-            </p>
+
+            <table class="detail-table">
+              <tr><td>Balance:</td><td>
+                <span v-html="$options.filters.formatToken(accountDetail.balance, 'aergo')"></span>
+                ({{accountDetail.balance.toString()}})  
+              </td></tr>
+              <tr><td>Nonce:</td><td>{{accountDetail.nonce}}</td></tr>
+            </table>
+
           </div>
         </div>
 

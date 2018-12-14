@@ -278,6 +278,10 @@ a {
     display: inline-block;
     width: 4px;
   }
+  .point {
+    display: inline-block;
+    padding: 0 2px;
+  }
 }
 
 .label {
@@ -309,6 +313,12 @@ a {
   background-color: #ff005d;
   padding: 6px;
   color: #fff;
+}
+
+.mini-identicon {
+  display: inline-block;
+  border: 1px solid #ddd;
+  vertical-align: middle;
 }
 
 </style>

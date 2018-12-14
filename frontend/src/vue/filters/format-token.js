@@ -1,30 +1,21 @@
-import { constants } from '@herajs/client';
 import { formatNumber } from './format-number';
-import JSBI from 'jsbi';
+import { Amount } from '@herajs/client';
 
 export function formatToken(value, unit = null) {
-    let digits = 0;
     if (!unit) {
-        unit = constants.UNITS.NATIVE_TOKEN.baseLabelShort;
-        unit = 'AERGO';
-        digits = constants.UNITS.NATIVE_TOKEN.baseDigits;
+        unit = 'aergo';
     }
-    let display = ('' + value);
-    if (value === 0 || JSBI.EQ(value, 0)) display = '0';
-    else if (typeof value !== 'undefined' && digits > 0) {
-        // pad to 0 . 000 000 000 000 000 100
-        display = display.padStart(digits + 1, '0') 
-        // insert floating point separator into string
-        display = display.replace(new RegExp(`(?=\\d{${digits}}$)`), '.');
-        // insert spaces for formatting
-        display = formatNumber(display, ' ', ' ');
-        // remove trailing groups of three 0
-        display = display.replace(/(\s000)+$/, '');
-        // remove all trailing 0
-        // display = display.replace(/0+$/, '');
-        // turn spaces into html to not mess up copy and paste
-        display = display.replace(/\s/g, '<span class="sep"></span>');
-    }
+    let [amount, ] = (new Amount(value, 'aer')).toUnit(unit).toString().split(' ');
+
+    if (!amount) amount = '0';
+
+    // insert spaces for formatting
+    let display = formatNumber(amount, ' ', ' ');
+    // turn spaces into html to not mess up copy and paste
+    display = display.replace(/\s/g, '<span class="sep"></span>');
+    // add class for period
+    display = display.replace('.', '<span class="point">.</span>');
+
     return `<span class="formatted-value token" title="${value}"><span class="value">${display}</span> <span class="unit">${unit}</span></span>`;
 }
 

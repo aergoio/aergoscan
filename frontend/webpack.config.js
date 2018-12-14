@@ -103,7 +103,7 @@ module.exports = (env, argv) => {
       alias: {
         '@': path.resolve(__dirname),
         '@assets': path.resolve(__dirname, 'src/assets'),
-        'vue$': 'vue/dist/vue.runtime.esm.js'
+        'vue$': 'vue/dist/vue.runtime.esm.js',
       },
       modules: [
         path.resolve(__dirname, 'node_modules'),
