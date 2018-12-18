@@ -9,7 +9,7 @@
           <div class="stat-label">last<br>block</div>
         </div>
         <div class="stat">
-          <div class="stat-value" v-if="reverseBlocks.length">{{reverseBlocks[0].body.txsList.length | formatNumber('&#8239;')}}</div>
+          <div class="stat-value" v-if="reverseBlocks.length">{{reverseBlocks[0].txcount | formatNumber('&#8239;')}}</div>
           <div class="stat-value" v-if="!reverseBlocks.length">...</div>
           <div class="stat-label">tps<br>(now)</div>
         </div>
@@ -124,14 +124,14 @@ export default {
         if (this.realTimeStats.length === 0 && this.blocks.length > 1) {
           this.realTimeStats.push(...this.blocks.map(b => ({
             x: Math.trunc(b.header.timestamp/1000000000)*1000,
-            y: b.body.txsList.length
+            y: b.txcount
           })));
         }
         // add new block
         const newBlock = this.blocks[this.blocks.length - 1];
         this.realTimeStats.push({
           x: Math.trunc(newBlock.header.timestamp/1000000000)*1000,
-          y: newBlock.body.txsList.length
+          y: newBlock.txcount
         });
         // remove old blocks
         while (this.realTimeStats.length > 60) {

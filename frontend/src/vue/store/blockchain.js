@@ -36,7 +36,7 @@ const actions = {
         const loadingFinished = waitOrLoad(() => {
             commit('setStreamState', 'starting-slow');
         });
-        blockHeaderStream = aergo.getBlockStream();
+        blockHeaderStream = aergo.getBlockMetadataStream();
         blockHeaderStream.on('data', (blockHeader) => {
             commit('addBlock', blockHeader);
             if (!state.streamConnected) {
@@ -146,11 +146,13 @@ const mutations = {
         previousBlockNumber = block.header.blockno;
 
         // Add block txs
+        /*
         if (block.body.txsList.length) {
             block.body.txsList.forEach(tx => tx.block = block);
             state.recentTransactions.push(...block.body.txsList);
             while (state.recentTransactions.length > HISTORY_MAX_TRANSACTIONS) state.recentTransactions.shift();
         }
+        */
         
         // Limit memory usage
         while (state.recentBlocks.length > HISTORY_MAX_BLOCKS) state.recentBlocks.shift();

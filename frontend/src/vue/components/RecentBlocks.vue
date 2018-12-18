@@ -16,7 +16,7 @@
           {{block.header.blockno}}
         </div>
         <div class="cell" style="width: 85px">{{moment(block.header.timestamp/1000000).format('HH:mm:ss')}}</div>
-        <div class="cell">{{block.body.txsList.length}} tx</div>
+        <div class="cell">{{block.txcount}} tx</div>
         <div class="cell"><span class="icon icon-view"></span></div>
       </div>
     </transition-group>

@@ -63,8 +63,9 @@ export default {
     viewTx (hash) {
       this.$router.push({ name: 'transaction', params: { hash }});
     },
-    syncTxList() {
-      this.syncedTransactions = this.transactions.slice().reverse().concat(this.initialTransactions);
+    async syncTxList() {
+      const response = await this.$fetch.get(`${cfg.API_URL}/stats/recentTransactions`);
+      this.syncedTransactions = (await response.json()).map(tx => ({...tx, ...tx.meta}));
     },
     moment
   },
