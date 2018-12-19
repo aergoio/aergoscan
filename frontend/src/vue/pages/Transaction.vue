@@ -29,7 +29,7 @@
               </tr>
               <tr v-if="txDetail.tx.payload">
                 <td>Payload:</td>
-                <td class="monospace">{{payloadAsString}}</td>
+                <td><PayloadFormatter :payload="txDetail.tx.payload" :txType="txDetail.tx.type" /></td>
               </tr>
             </table>
             
@@ -61,6 +61,7 @@ import aergo from '../../controller';
 import moment from 'moment';
 import { mapState } from 'vuex'
 import AccountBox from '../components/AccountBox';
+import PayloadFormatter from '../components/PayloadFormatter';
 
 export default {
   data () {
@@ -84,12 +85,9 @@ export default {
   },
   components: {
     AccountBox,
+    PayloadFormatter,
   },
   computed: {
-    payloadAsString() {
-      if (!this.txDetail || !this.txDetail.tx.payload) return '';
-      return Buffer.from(this.txDetail.tx.payload).toString()
-    }
   },
   methods: {
     async load() {

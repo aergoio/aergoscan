@@ -302,6 +302,9 @@ a {
     background-color: #f57336;
     color: #fff;
   }
+  &.label-action {
+    font-weight: 500;
+  }
 }
 
 .error {
