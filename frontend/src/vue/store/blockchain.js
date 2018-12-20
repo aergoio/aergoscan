@@ -62,6 +62,7 @@ const actions = {
     },
     getBlock ({ dispatch, state }, { blockNoOrHash }) {
         if (state.blocksByHash[blockNoOrHash]) {
+            console.log('return block from cache', blockNoOrHash);
             return new Promise((resolve) => {
                 resolve(state.blocksByHash[blockNoOrHash]);
             }); 
