@@ -2,11 +2,12 @@
   <div class="table-like">
     <div class="row header">
       <div class="cell" style="width: 85px">Number</div>
-      <div class="cell" style="width: 85px">Time</div>
-      <div class="cell">Transactions</div>
-      <div class="cell"><span class="icon icon-view" style="visibility: hidden"></span></div>
+      <div class="cell" style="width: 80px">Time</div>
+      <div class="cell">BP</div>
+      <div class="cell">TXs</div>
+      <div class="cell"><span class="icon icon-view" style="visibility: hidden; margin-right: 16px;"></span></div>
     </div>
-    <transition-group name="animated-list" tag="div" style="height: 400px; overflow: auto;">
+    <transition-group name="animated-list" tag="div" style="height: 400px; overflow-x: hidden; overflow-y: scroll;">
       <div class="row" v-if="!isConnected" key="connection-status">
         <div class="cell" v-html="connectionStatusMessage"></div>
       </div>
@@ -15,7 +16,8 @@
         <div class="cell" style="width: 85px">
           {{block.header.blockno}}
         </div>
-        <div class="cell" style="width: 85px">{{moment(block.header.timestamp/1000000).format('HH:mm:ss')}}</div>
+        <div class="cell" style="width: 80px">{{moment(block.header.timestamp/1000000).format('HH:mm:ss')}}</div>
+        <div class="cell"><Identicon :text="block.header.pubkey" size="16" class="tiny-identicon tooltipped-s" v-tooltip="block.header.pubkey" /></div>
         <div class="cell">{{block.txcount}} tx</div>
         <div class="cell"><span class="icon icon-view"></span></div>
       </div>
@@ -26,6 +28,7 @@
 <script>
 import moment from 'moment';
 import { mapState, mapActions } from 'vuex'
+import Identicon from '../components/Identicon';
 
 const CONNECTING_MSG = 'Connecting...';
 const CONNECTING_SLOW_MSG = 'Connecting...<br>It\'s taking longer than usual, please wait or try again later.';
@@ -52,6 +55,9 @@ export default {
     reverseBlocks() {
       return this.blocks.slice().reverse();
     }
+  },
+  components: {
+    Identicon,
   },
   methods: {
     viewBlock (hash) {

@@ -318,10 +318,5 @@ a {
   color: #fff;
 }
 
-.mini-identicon {
-  display: inline-block;
-  border: 1px solid #ddd;
-  vertical-align: middle;
-}
 
 </style>

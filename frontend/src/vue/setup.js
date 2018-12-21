@@ -11,11 +11,13 @@ import store from './store/index';
 import { shortAddress } from './filters/address';
 import { formatToken } from './filters/format-token';
 import { formatNumber } from './filters/format-number';
+import { tooltip } from './directives/tooltip';
 
 
 export default async function setup(opts) {
     Vue.use(VueRouter);
     Vue.use(VueFetch, { polyfill: true });
+    Vue.directive('tooltip', tooltip);
 
     Vue.component('Button', Button);
     Vue.filter('shortAddress', shortAddress);

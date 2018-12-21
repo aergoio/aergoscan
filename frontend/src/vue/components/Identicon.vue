@@ -23,4 +23,13 @@ export default {
 .identicon {
   line-height: 1;
 }
+.mini-identicon {
+  display: inline-block;
+  border: 1px solid #ddd;
+  vertical-align: middle;
+}
+.tiny-identicon {
+  display: inline-block;
+  vertical-align: middle;
+}
 </style>

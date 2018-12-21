@@ -24,7 +24,10 @@
                 <span v-if="!blockDetail.header.prevblockhash">(none)</span>
               </td>
             </tr>
-            <tr><td>Time stamp:</td><td>{{moment(blockDetail.header.timestamp/1000000).format('dddd, MMMM Do YYYY, HH:mm:ss.SSS')}}</td></tr>
+            <tr>
+              <td>Time stamp:</td>
+              <td>{{moment(blockDetail.header.timestamp/1000000).format('dddd, MMMM Do YYYY, HH:mm:ss.SSS')}} ({{moment(blockDetail.header.timestamp/1000000).fromNow()}})</td>
+            </tr>
             <tr>
               <td>Produced by:</td>
               <td v-if="blockDetail.header.pubkey"><Identicon :text="blockDetail.header.pubkey" size="18" class="mini-identicon" /> {{blockDetail.header.pubkey}}</td>
@@ -94,6 +97,7 @@ export default {
           tx.amount = Object.freeze(tx.amount); // prevent Vue from adding observer to Amount
         }
         this.blockDetail = blockDetail;
+        console.log(blockDetail);
       } catch (error) {
         this.error = ''+error;
         console.error(error);

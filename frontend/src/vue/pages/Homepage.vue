@@ -187,10 +187,10 @@ export default {
   background-image: url('~@assets/img/view.svg');
 }
 .animated-list-move {
-  transition: transform .75s;
+  transition: transform .5s;
 }
 .animated-list-enter-active/*, .animated-list-leave-to*/ {
-  transition: all .75s;
+  transition: all .5s;
 }
 .animated-list-enter, .animated-list-leave-to {
   opacity: 0;

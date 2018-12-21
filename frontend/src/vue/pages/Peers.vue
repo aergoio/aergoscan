@@ -164,6 +164,10 @@ export default {
   width: 100%;
   border-collapse: collapse;
 
+  .monospace {
+    font-size: 85%;
+  }
+
   thead {
     th {
       text-align: left;
