@@ -50,6 +50,8 @@
 
 <script>
 import cfg from '../../config.js';
+import { Address } from '@herajs/client';
+
 export default {
   data () {
     return {
@@ -90,7 +92,19 @@ export default {
       if ('' + parseInt(this.query) === this.query) {
         this.predictedType = 'blockno';
         this.predictedString = ''+parseInt(this.query);
-      } else if (this.query.length > 5) {
+      } else if (this.query.length <= 12) {
+        this.predictedType = 'address';
+        this.predictedString = this.query;
+      } else if (this.query.length > 12) {
+        try {
+          // Try as address
+          new Address(this.query);
+          this.predictedType = 'address';
+          this.predictedString = this.query;
+          return;
+        } catch (e) {
+        }
+
         // search debounced
         if (this.debounceSearch) {
           clearTimeout(this.debounceSearch);

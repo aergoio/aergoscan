@@ -84,6 +84,7 @@ export default {
       this.error = null;
       try {
         this.accountDetail = Object.freeze(await this.$store.dispatch('blockchain/getAccount', { address }));
+        console.log(this.accountDetail);
       } catch (e) {
         this.error = 'Account not found';
         console.error(e);

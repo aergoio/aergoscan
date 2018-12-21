@@ -1,10 +1,10 @@
 <template>
   <div class="table-like">
     <div class="row header">
-      <div class="cell" style="width: 85px">Number</div>
+      <div class="cell">Number</div>
       <div class="cell" style="width: 80px">Time</div>
-      <div class="cell">BP</div>
-      <div class="cell">TXs</div>
+      <div class="cell"><span class="tooltipped-n" v-tooltip="'Block producer pubkey'">BP</span></div>
+      <div class="cell"><span class="tooltipped-n" v-tooltip="'Number of transactions'">TXs</span></div>
       <div class="cell"><span class="icon icon-view" style="visibility: hidden; margin-right: 16px;"></span></div>
     </div>
     <transition-group name="animated-list" tag="div" style="height: 400px; overflow-x: hidden; overflow-y: scroll;">

@@ -8,12 +8,12 @@
           <div class="stat-value" v-if="!reverseBlocks.length">...</div>
           <div class="stat-label">last<br>block</div>
         </div>
-        <div class="stat">
+        <div class="stat tooltipped-s" v-tooltip="'Transaction number in most recent block'">
           <div class="stat-value" v-if="reverseBlocks.length">{{reverseBlocks[0].txcount | formatNumber('&#8239;')}}</div>
           <div class="stat-value" v-if="!reverseBlocks.length">...</div>
           <div class="stat-label">tps<br>(now)</div>
         </div>
-        <div class="stat">
+        <div class="stat tooltipped-s" v-tooltip="'Peak transaction number'">
           <router-link class="stat-value" :to="`/block/${maxTps.meta.no}/`" v-if="maxTps">{{maxTps.meta.txs | formatNumber('&#8239;')}}</router-link>
           <div class="stat-value" v-if="!maxTps">...</div>
           <div class="stat-label">tps<br>(peak)</div>
