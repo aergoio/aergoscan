@@ -21,6 +21,15 @@
                 <span v-html="$options.filters.formatToken(accountDetail.balance, 'aergo')"></span>
                 ({{accountDetail.balance.toString()}})  
               </td></tr>
+              
+              <tr v-if="staking">
+                <td>Staked amount:</td>
+                <td>
+                  <span v-html="$options.filters.formatToken(staking.amount, 'aergo')"></span>
+                  (since <router-link :to="`/block/${staking.when}/`">{{staking.when}}</router-link>)
+                </td>
+              </tr>
+              
               <tr><td>Nonce:</td><td>{{accountDetail.nonce}}</td></tr>
             </table>
 
@@ -56,7 +65,8 @@ export default {
       contractAbi: null,
       transactions: [],
       error: null,
-      accountDetail: null
+      accountDetail: null,
+      staking: null
     }
   },
   created () {
@@ -84,12 +94,19 @@ export default {
       this.error = null;
       try {
         this.accountDetail = Object.freeze(await this.$store.dispatch('blockchain/getAccount', { address }));
-        console.log(this.accountDetail);
       } catch (e) {
         this.error = 'Account not found';
         console.error(e);
         return;
       }
+      // Staking info
+      try {
+        this.staking = Object.freeze(await this.$store.dispatch('blockchain/getStaking', { address }));
+      } catch (e) {
+        console.error(e);
+      }
+
+      // Contract
       try {
         if (this.accountDetail.codehash) {
           this.contractAbi = await this.$store.dispatch('blockchain/getABI', { address });
@@ -97,7 +114,7 @@ export default {
         const response = await this.$fetch.get(`${cfg.API_URL}/stats/accountTransactions`, { address });
         this.transactions = (await response.json()).map(tx => ({...tx, ...tx.meta}));
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     },
     moment

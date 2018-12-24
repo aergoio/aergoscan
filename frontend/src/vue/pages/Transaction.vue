@@ -21,7 +21,7 @@
             
             <table class="detail-table">
               <tr><td>Amount:</td><td v-html="$options.filters.formatToken(txDetail.tx.amount, 'aergo')"></td></tr>
-              <tr><td>Fee:</td><td v-html="$options.filters.formatToken(1, 'aer')"></td></tr>
+              <tr><td>Fee:</td><td v-html="$options.filters.formatToken(txFee, 'aer')"></td></tr>
               <tr><td>Nonce:</td><td>{{txDetail.tx.nonce}}</td></tr>
               <tr v-if="txDetail.block">
                 <td>Included in block:</td>
@@ -63,6 +63,8 @@ import { mapState } from 'vuex'
 import AccountBox from '../components/AccountBox';
 import PayloadFormatter from '../components/PayloadFormatter';
 
+const DEFAULT_TX_FEE = 1;
+
 export default {
   data () {
     return {
@@ -88,6 +90,9 @@ export default {
     PayloadFormatter,
   },
   computed: {
+    txFee() {
+      return (this.txDetail.tx.type === 1 ? 0 : DEFAULT_TX_FEE);
+    }
   },
   methods: {
     async load() {

@@ -97,7 +97,6 @@ export default {
           tx.amount = Object.freeze(tx.amount); // prevent Vue from adding observer to Amount
         }
         this.blockDetail = blockDetail;
-        console.log(blockDetail);
       } catch (error) {
         this.error = ''+error;
         console.error(error);

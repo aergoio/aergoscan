@@ -318,5 +318,34 @@ a {
   color: #fff;
 }
 
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    th {
+      text-align: left;
+      font-weight: 500;
+      white-space: nowrap;
+
+      &.sortable {
+        cursor: pointer;
+        user-select: none;
+
+        &.sorted:after {
+          content: " ⊤";
+        }
+        &.sorted.sortingAsc:after {
+          content: " ⊥";
+        }
+      }
+    }
+  }
+  td, th {
+    border-bottom: 1px solid #ddd;
+    padding: .75em;
+  }
+}
+
 
 </style>

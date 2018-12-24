@@ -108,6 +108,16 @@ const actions = {
         commit('setAccountDetail', { address, account });
         return account;
     },
+    async getTopVotes ({ }, { count }) {
+        return await aergo.getTopVotes(count);;
+    },
+    async getStaking ({ dispatch }, { address }) {
+        return await dispatch('fetchStaking', { address });
+    },
+    async fetchStaking ({}, { address }) {
+        const staking = await aergo.getStaking(address);
+        return staking;
+    },
     getABI ({ dispatch }, { address }) {
         return dispatch('fetchABI', { address });
     },

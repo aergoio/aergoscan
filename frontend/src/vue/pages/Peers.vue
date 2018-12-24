@@ -9,7 +9,7 @@
         <div class="island-content">
           <div v-if="error" class="error">{{error}}</div>
 
-          <table class="peer-table">
+          <table class="data-table peer-table">
             <thead>
               <tr>
                 <th v-on:click="sortBy('address.peerid')" class="sortable" :class="{sorted: sorting === 'address.peerid', sortingAsc}">Peer ID</th>
@@ -127,7 +127,6 @@ export default {
       } else {
         this.sorting = key;
       }
-      console.log('sorting by', this.sorting, this.sortingAsc);
     },
     moment,
   },
@@ -138,58 +137,7 @@ export default {
 </script>
 
 <style lang="scss">
-.peer-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  
-  li {
-    width: 250px;
-    display: inline-block;
-    text-align: center;
-    vertical-align: top;
-    border: 1px solid #ccc;
-    margin: 0 15px 15px 0;
-    padding: 10px;
-    word-break: break-all;
-
-    .best-block {
-      border-top: 1px solid #efefef;
-      padding-top: 6px;
-      margin-top: 6px;
-    }
-  }
-}
-.peer-table {
-  width: 100%;
-  border-collapse: collapse;
-
-  .monospace {
-    font-size: 85%;
-  }
-
-  thead {
-    th {
-      text-align: left;
-      font-weight: 500;
-      white-space: nowrap;
-
-      &.sortable {
-        cursor: pointer;
-        user-select: none;
-
-        &.sorted:after {
-          content: " ⊤";
-        }
-        &.sorted.sortingAsc:after {
-          content: " ⊥";
-        }
-      }
-    }
-  }
-  td, th {
-    border-bottom: 1px solid #ddd;
-    padding: .75em;
-  }
+.peer-table .monospace {
+  font-size: 85%;
 }
 </style>
