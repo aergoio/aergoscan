@@ -1,12 +1,50 @@
 import express from 'express';
-import { searchBlock, aggregateBlocks, getBestBlock, getBlockCount, searchTransactions, searchAddress } from './db';
+import { ApiClient } from './db';
+import cfg from './config';
 const app = express();
 
-app.get('/', (req, res) => res.send('aergoscan stats API'))
+// Nested router for chainId
+const chainRouter = express.Router();
+const apiRouter = express.Router({mergeParams: true});
 
-app.get('/recentTransactions', async (req, res) => {
+app.use('/', chainRouter);
+app.use((err, req, res, next) => {
+    if (err) {
+        return res.status(500).json({ error: err.message });
+    }
+    next();
+});
+
+chainRouter.use('/:chainId', apiRouter);
+chainRouter.route('/').get((req, res) => res.send('Welcome to the Aergoscan API. Please select a chain id.'));
+
+chainRouter.param('chainId', function(req, res, next, chainId) {
+    if (cfg.AVAILABLE_NETWORKS.indexOf(chainId) === -1) {
+        return next(new Error('invalid chain id'));
+    }
+    req.apiClient = new ApiClient(req.params.chainId);
+    next();
+});
+
+apiRouter.route('/').get((req, res) =>  res.send(`Aergoscan API for chain ${req.params.chainId}.`));
+
+/**
+ * Query best block
+ */
+apiRouter.route('/bestBlock').get(async (req, res) => {
     try {
-        return res.json(await searchTransactions({
+        return res.json(await req.apiClient.getBestBlock());
+    } catch(e) {
+        return res.json({error: e});
+    }
+});
+
+/**
+ * Query recent transactions
+ */
+apiRouter.route('/recentTransactions').get(async (req, res) => {
+    try {
+        return res.json(await req.apiClient.searchTransactions({
             match_all: {}
         }));
     } catch(e) {
@@ -14,9 +52,12 @@ app.get('/recentTransactions', async (req, res) => {
     }
 });
 
-app.get('/accountTransactions', async (req, res) => {
+/**
+ * Query transactions for one account
+ */
+apiRouter.route('/accountTransactions').get(async (req, res) => {
     try {
-        return res.json(await searchTransactions({
+        return res.json(await req.apiClient.searchTransactions({
             bool: {
                 should: [
                     { term: { from: req.query.address } },
@@ -32,7 +73,7 @@ app.get('/accountTransactions', async (req, res) => {
 /**
  * Search for tx hash, block hash, or address inside tx
  */
-app.get('/search', async (req, res) => {
+apiRouter.route('/search').get(async (req, res) => {
     const query = req.query.q;
     if (query.length < 5) {
         return res.json({error: "Try a longer query"});
@@ -44,7 +85,7 @@ app.get('/search', async (req, res) => {
             addresses
         ] = await Promise.all([
             // Get blocks with matching hash
-            searchBlock({
+            req.apiClient.searchBlock({
                 body: {
                     query: {
                         match: { _id: query }
@@ -52,11 +93,11 @@ app.get('/search', async (req, res) => {
                 }
             }),
             // Get tx with matching hash
-            searchTransactions({
+            req.apiClient.searchTransactions({
                 match: { _id: query }
             }),
             // Get matching addresses
-            searchAddress(query)
+            req.apiClient.searchAddress(query)
         ]);
 
         return res.json({
@@ -69,44 +110,54 @@ app.get('/search', async (req, res) => {
     }
 });
 
-app.get('/tx', async (req, res) => {
-    const [
-        txPerSecond,
-        txPerMinute,
-        txPerHour,
-        txPerDay,
-        maxTps,
-        bestBlock,
-        blockCount
-    ] = await Promise.all([
-        aggregateBlocks({ gte: "now-60s/s", lt: "now" }, "1s"),
-        aggregateBlocks({ gte: "now-60m/m", lt: "now" }, "1m"),
-        aggregateBlocks({ gte: "now-24h/h", lt: "now" }, "1h"),
-        aggregateBlocks({ gte: "now-30d/d", lt: "now" }, "1d"),
-        searchBlock({
-            body: {
-                size: 1,
-                sort: {
-                    txs: { "order" : "desc" }
-                },
-            }
-        }, true),
-        getBestBlock(),
-        getBlockCount()
-    ]);
+/**
+ * TX stats (per minute, hour, day, month)
+ */
+apiRouter.route('/tx').get(async (req, res) => {
+    try {
+        const [
+            txPerSecond,
+            txPerMinute,
+            txPerHour,
+            txPerDay,
+            txPerMonth,
+            maxTps,
+            bestBlock,
+            blockCount
+        ] = await Promise.all([
+            req.apiClient.aggregateBlocks({ gte: "now-60s/s", lt: "now" }, "1s"),
+            req.apiClient.aggregateBlocks({ gte: "now-60m/m", lt: "now" }, "1m"),
+            req.apiClient.aggregateBlocks({ gte: "now-24h/h", lt: "now" }, "1h"),
+            req.apiClient.aggregateBlocks({ gte: "now-30d/d", lt: "now" }, "1d"),
+            req.apiClient.aggregateBlocks({ gte: "now-10y/y", lt: "now" }, "1M"),
+            req.apiClient.searchBlock({
+                body: {
+                    size: 1,
+                    sort: {
+                        txs: { "order" : "desc" }
+                    },
+                }
+            }, true),
+            req.apiClient.getBestBlock(),
+            req.apiClient.getBlockCount()
+        ]);
 
-    const txTotal = txPerDay.map(day => day.sum_txs.value).reduce((a, b) => a + b, 0);
+        const txTotal = txPerMonth.map(day => day.sum_txs.value).reduce((a, b) => a + b, 0);
     
-    return res.json({
-        blockCount,
-        maxTps,
-        txTotal,
-        bestBlock,
-        txPerSecond,
-        txPerMinute,
-        txPerHour,
-        txPerDay
-    })
+        return res.json({
+            blockCount,
+            maxTps,
+            txTotal,
+            bestBlock,
+            txPerSecond,
+            txPerMinute,
+            txPerHour,
+            txPerDay,
+            txPerMonth
+        })
+    } catch(e) {
+        return res.json({error: e});
+    }
 });
 
 export default app;
