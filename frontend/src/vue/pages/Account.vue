@@ -111,7 +111,7 @@ export default {
         if (this.accountDetail.codehash) {
           this.contractAbi = await this.$store.dispatch('blockchain/getABI', { address });
         }
-        const response = await this.$fetch.get(`${cfg.API_URL}/stats/accountTransactions`, { address });
+        const response = await this.$fetch.get(`${cfg.API_URL}/accountTransactions`, { address });
         this.transactions = (await response.json()).map(tx => ({...tx, ...tx.meta}));
       } catch (e) {
         console.error(e);

@@ -152,7 +152,7 @@ export default {
     },
     async updateStats () {
       try {
-        const response = await this.$fetch.get(`${cfg.API_URL}/stats/tx`);
+        const response = await this.$fetch.get(`${cfg.API_URL}/tx`);
         this.txStats = await response.json();
         if (!this.initialStatsLoaded) {
           this.initialTxStats = this.txStats;

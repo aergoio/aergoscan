@@ -70,7 +70,7 @@ export default {
   methods: {
     async querySearch(query) {
       try {
-        const response = await this.$fetch.get(`${cfg.API_URL}/stats/search`, {q: query});
+        const response = await this.$fetch.get(`${cfg.API_URL}/search`, {q: query});
         const result = await response.json();
         this.predictedType = '';
         if (result.blocks.length) {
