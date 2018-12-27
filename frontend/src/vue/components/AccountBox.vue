@@ -2,7 +2,7 @@
   <router-link :to="`/account/${address}/`" class="account-box">
 
     <Identicon :text="''+address" size="50" />
-    <span class="address">{{''+address}}</span>
+    <span class="address">{{''+(label || address)}}</span>
   </router-link>
 </template>
 
@@ -10,7 +10,7 @@
 import Identicon from './Identicon';
 
 export default {
-  props: ['address'],
+  props: ['address', 'label'],
   data () {
     return {
     }

@@ -7,7 +7,7 @@
         </div>
         <div class="island-content">
           <div class="transaction-flow-diagram">
-            <AccountBox v-if="accountDetail" :address="$route.params.address" />
+            <AccountBox v-if="accountDetail" :address="realAddress" :label="$route.params.address" />
           </div>
           
           <div v-if="error">Error: {{error}}</div>
@@ -17,6 +17,11 @@
           <div v-if="accountDetail">
 
             <table class="detail-table">
+              <tr v-if="ownerAddress">
+                <td>Alias for:</td>
+                <td>{{ownerAddress}}</td>
+              </tr>
+
               <tr><td>Balance:</td><td>
                 <span v-html="$options.filters.formatToken(accountDetail.balance, 'aergo')"></span>
                 ({{accountDetail.balance.toString()}})  
@@ -26,7 +31,9 @@
                 <td>Staked amount:</td>
                 <td>
                   <span v-html="$options.filters.formatToken(staking.amount, 'aergo')"></span>
-                  (since <router-link :to="`/block/${staking.when}/`">{{staking.when}}</router-link>)
+                  <span v-if="staking.when">
+                    (since <router-link :to="`/block/${staking.when}/`">{{staking.when}}</router-link>)
+                  </span>
                 </td>
               </tr>
               
@@ -58,6 +65,7 @@ import AccountBox from '../components/AccountBox';
 import ContractAbi from '../components/ContractAbi';
 import TransactionList from '../components/TransactionList';
 import cfg from '../../config.js';
+import { Address } from '@herajs/client';
 
 export default {
   data () {
@@ -66,7 +74,8 @@ export default {
       transactions: [],
       error: null,
       accountDetail: null,
-      staking: null
+      staking: null,
+      ownerAddress: null
     }
   },
   created () {
@@ -87,11 +96,42 @@ export default {
     TransactionList,
   },
   computed: {
+    realAddress() {
+      return this.ownerAddress || this.$route.params.address;
+    }
   },
   methods: {
     async load() {
-      let address = this.$route.params.address;
+      let address;
       this.error = null;
+      this.ownerAddress = null;
+      this.staking = null;
+      this.accountDetail = null;
+      this.contractAbi = null;
+      this.transactions = [];
+
+      // Check address
+      try {
+        address = new Address(this.$route.params.address);
+      } catch (e) {
+        this.error = 'Invalid address';
+        console.error(e);
+        return;
+      }
+      
+      // Owner
+      try {
+        if (address.isName) {
+          const nameInfo = await this.$store.dispatch('blockchain/getNameInfo', { name: address.encoded });
+          this.ownerAddress = nameInfo.owner.toString();
+        }
+      } catch (e) {
+        this.error = 'Unregistered name';
+        console.error(e);
+        return;
+      }
+
+      // State
       try {
         this.accountDetail = Object.freeze(await this.$store.dispatch('blockchain/getAccount', { address }));
       } catch (e) {
@@ -99,6 +139,7 @@ export default {
         console.error(e);
         return;
       }
+
       // Staking info
       try {
         this.staking = Object.freeze(await this.$store.dispatch('blockchain/getStaking', { address }));

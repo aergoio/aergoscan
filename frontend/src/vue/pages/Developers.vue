@@ -7,8 +7,8 @@
             Welcome to Aergoscan
           </div>
           <div class="island-content">
-            <p>Aergoscan is showing the status of the pre-testnet.</p>
-            <p>This is an early test deployment of the Aergo main blockchain.</p>
+            <p>Aergoscan is showing the status of the testnet.</p>
+            <p>This is a deployment of the Aergo main blockchain for testing purposes.</p>
             <p>You can use this website to view blocks as they get created, transactions and accounts (including contracts).</p>
           </div>
         </div>

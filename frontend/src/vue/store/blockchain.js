@@ -118,6 +118,12 @@ const actions = {
         const staking = await aergo.getStaking(address);
         return staking;
     },
+    getNameInfo ({ dispatch }, { name }) {
+        return dispatch('fetchNameInfo', { name });
+    },
+    async fetchNameInfo ({ }, { name }) {
+        return await aergo.getNameInfo(name);
+    },
     getABI ({ dispatch }, { address }) {
         return dispatch('fetchABI', { address });
     },

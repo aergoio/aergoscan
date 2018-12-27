@@ -17,7 +17,7 @@ export default {
   data () {
     return {
       blockHeight: 0,
-      network: 'pretestnet'
+      network: 'testnet'
     }
   },
   created () {
