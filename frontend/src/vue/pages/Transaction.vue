@@ -62,8 +62,7 @@ import moment from 'moment';
 import { mapState } from 'vuex'
 import AccountBox from '../components/AccountBox';
 import PayloadFormatter from '../components/PayloadFormatter';
-
-const DEFAULT_TX_FEE = 1;
+import cfg from '../../config';
 
 export default {
   data () {
@@ -91,7 +90,7 @@ export default {
   },
   computed: {
     txFee() {
-      return (this.txDetail.tx.type === 1 ? 0 : DEFAULT_TX_FEE);
+      return (this.txDetail.tx.type === 1 ? 0 : cfg.CHAIN.coinbasefee);
     }
   },
   methods: {

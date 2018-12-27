@@ -23,17 +23,22 @@
               </tr>
 
               <tr><td>Balance:</td><td>
-                <span v-html="$options.filters.formatToken(accountDetail.balance, 'aergo')"></span>
-                ({{accountDetail.balance.toString()}})  
+                <span v-html="$options.filters.formatToken(fullBalance, 'aergo')"></span>
               </td></tr>
               
               <tr v-if="staking">
-                <td>Staked amount:</td>
+                <td>– Staked amount:</td>
                 <td>
                   <span v-html="$options.filters.formatToken(staking.amount, 'aergo')"></span>
                   <span v-if="staking.when">
-                    (since <router-link :to="`/block/${staking.when}/`">{{staking.when}}</router-link>)
+                    (since block <router-link :to="`/block/${staking.when}/`">{{staking.when}}</router-link>)
                   </span>
+                </td>
+              </tr>
+              <tr v-if="staking">
+                <td>– Unstaked amount:</td>
+                <td>
+                  <span v-html="$options.filters.formatToken(unstakedBalance, 'aergo')"></span>
                 </td>
               </tr>
               
@@ -66,6 +71,8 @@ import ContractAbi from '../components/ContractAbi';
 import TransactionList from '../components/TransactionList';
 import cfg from '../../config.js';
 import { Address } from '@herajs/client';
+import JSBI from 'jsbi';
+import { Amount } from '@herajs/client';
 
 export default {
   data () {
@@ -98,6 +105,15 @@ export default {
   computed: {
     realAddress() {
       return this.ownerAddress || this.$route.params.address;
+    },
+    fullBalance() {
+      if (!this.staking) {
+        return this.accountDetail.balance;
+      }
+      return new Amount(JSBI.add(this.accountDetail.balance.value, this.staking.amount.value).toString(), 'aer');
+    },
+    unstakedBalance() {
+      return this.accountDetail.balance;
     }
   },
   methods: {
@@ -121,7 +137,7 @@ export default {
       
       // Owner
       try {
-        if (address.isName) {
+        if (address.isName && ['aergo.name', 'aergo.system'].indexOf(address.toString()) === -1) {
           const nameInfo = await this.$store.dispatch('blockchain/getNameInfo', { name: address.encoded });
           this.ownerAddress = nameInfo.owner.toString();
           address = this.ownerAddress;
@@ -132,20 +148,22 @@ export default {
         return;
       }
 
-      // State
+      // State and staking
       try {
-        this.accountDetail = Object.freeze(await this.$store.dispatch('blockchain/getAccount', { address }));
+        if (!address.isName || address.isName && this.ownerAddress) {
+          let [accountDetail, staking] = await Promise.all([
+            await this.$store.dispatch('blockchain/getAccount', { address }),
+            await this.$store.dispatch('blockchain/getStaking', { address })
+          ]);
+          this.accountDetail = Object.freeze(accountDetail);
+          this.staking = Object.freeze(staking);
+        } else {
+          this.accountDetail = Object.freeze(await this.$store.dispatch('blockchain/getAccount', { address }));
+        }
       } catch (e) {
         this.error = 'Account not found';
         console.error(e);
         return;
-      }
-
-      // Staking info
-      try {
-        this.staking = Object.freeze(await this.$store.dispatch('blockchain/getStaking', { address }));
-      } catch (e) {
-        console.error(e);
       }
 
       // Contract
