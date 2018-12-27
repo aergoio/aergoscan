@@ -45,13 +45,13 @@
 
         <div class="island-title" v-if="this.accountDetail && this.accountDetail.codehash">Contract</div>
         <div class="island-content" v-if="this.accountDetail && this.accountDetail.codehash">
-          <ContractAbi :abi="contractAbi" :codehash="this.accountDetail.codehash" :address="$route.params.address" />
+          <ContractAbi :abi="contractAbi" :codehash="this.accountDetail.codehash" :address="realAddress" />
         </div>
 
         <div class="island-title" v-if="transactions.length">
           {{transactions.length == 50 ? "Last 50" : transactions.length}} Transactions
         </div>
-        <TransactionList :items="transactions" class="island-content" showTimes="true" :baseAccount="$route.params.address" v-if="transactions.length" />
+        <TransactionList :items="transactions" class="island-content" showTimes="true" :baseAccount="realAddress" v-if="transactions.length" />
       </div>
 
     </div>
@@ -154,7 +154,7 @@ export default {
           this.contractAbi = await this.$store.dispatch('blockchain/getABI', { address });
         }
         const response = await this.$fetch.get(`${cfg.API_URL}/accountTransactions`, { address });
-        this.transactions = (await response.json()).map(tx => ({...tx, ...tx.meta}));
+        this.transactions = (await response.json()).map(tx => Object.freeze(({...tx, ...tx.meta})));
       } catch (e) {
         console.error(e);
       }
