@@ -124,6 +124,7 @@ export default {
         if (address.isName) {
           const nameInfo = await this.$store.dispatch('blockchain/getNameInfo', { name: address.encoded });
           this.ownerAddress = nameInfo.owner.toString();
+          address = this.ownerAddress;
         }
       } catch (e) {
         this.error = 'Unregistered name';
