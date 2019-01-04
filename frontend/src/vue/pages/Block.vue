@@ -58,6 +58,8 @@ import { mapState } from 'vuex';
 import TransactionList from '../components/TransactionList';
 import { timedAsync } from 'timed-async';
 import Identicon from '../components/Identicon';
+import { sha256 } from 'hash.js';
+import bs58 from 'bs58';
 
 export default {
   data () {
@@ -97,6 +99,19 @@ export default {
           tx.amount = Object.freeze(tx.amount); // prevent Vue from adding observer to Amount
         }
         this.blockDetail = blockDetail;
+
+        // Try to calculate peer id from pubkey
+        /*
+        this.bpId = bs58.encode(
+          Buffer.concat(
+            [
+              Buffer.from([0, 0x25, 8, 2, 0x12, 0x21, 3]),
+              Buffer.from(sha256().update(bs58.decode(this.blockDetail.header.pubkey)).digest())
+            ]
+          )
+        );
+        console.log(this.bpId);
+        */
       } catch (error) {
         this.error = ''+error;
         console.error(error);

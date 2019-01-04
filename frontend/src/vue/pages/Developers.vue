@@ -29,9 +29,8 @@
           </div>
           <div class="island-content">
             
-            <p>The AERGO developer portal is currently under construction.</p>
-            <p>To get started, please refer to our <a href="https://github.com/aergoio/aergo/wiki">Wiki</a>.</p>
-            <p>Also, please refer to these ressources:</p>
+            <p>To get started, please refer to our <a href="http://docs.aergo.io/en/latest/">Official Guide</a>.</p>
+            <p>Also, check out these ressources:</p>
             <ul>
               <li><a href="https://twitter.com/aergo_IO">Twitter</a></li>
               <li><a href="https://medium.com/aergo">Medium</a></li>
@@ -46,8 +45,7 @@
           </div>
           <div class="island-content">
             
-            <p>You can sign up here if you want to get started developing using the pre-testnet.</p>
-            <p>Please send us an email to <a href="mailto:tech@aergo.io">tech@aergo.io</a> with the following information:</p>
+            <p>If you need more technical information about Aergo, send us an email to <a href="mailto:tech@aergo.io">tech@aergo.io</a> with the following information:</p>
             <ul>
               <li>Your name</li>
               <li>Your company, occupation, or project</li>
