@@ -9,9 +9,10 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@herajs/client": "0.4.1",
+    "@herajs/client": "0.4.2",
     "bs58check": "^2.1.2",
     "chart.js": "^2.7.2",
+    "hash.js": "^1.1.7",
     "intersection-observer": "^0.5.1",
     "jdenticon": "^2.1.0",
     "moment": "^2.22.2",
