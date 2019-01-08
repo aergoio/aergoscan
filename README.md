@@ -47,3 +47,24 @@ AERGO_NODE=192.168.0.123:7845 AERGOSCAN_REINDEX=true docker-compose up --build
 ```
 
 Wait until `indexer` is connected to the node (new blocks are being shown in the log), then open 127.0.0.1:8080 in the browser and create some test transactions.
+
+### Quick deployment
+
+If you just quickly need a working Aergoscan on a server that already has a fullnode, you can also use the docker-compose setup for deployment.
+The performance of this won't be great, so for actual user-facing deployments it is recommended to use a proper ES cluster, static file hosting, etc.
+
+```console
+# most cloud machines don't have enough virtual memory for elastic search by default
+sudo sysctl -w vm.max_map_count=262144
+
+# clone this repo
+git clone https://github.com/aergoio/aergoscan && cd aergoscan
+
+# Edit docker-compose.yml port bindings (i.e. put nginx at 80:80, and remove the public ports of the db)
+vim docker-compose.yml
+
+# Run the containers, using the machine's IP.
+AERGO_NODE=MACHINE_IP:7845 API_URL=MACHINE_IP/stats/chain docker-compose up --build -d
+```
+
+If you want a hostname, you have to edit the nginx/localhost.conf file before building the containers and then use the hostname instead of the MACHINE_IP in the above command.
