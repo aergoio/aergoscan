@@ -53,6 +53,30 @@ apiRouter.route('/recentTransactions').get(async (req, res) => {
 });
 
 /**
+ * Query transactions, allow search query (q, sort, size, from)
+ * For q, see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
+ */
+apiRouter.route('/transactions').get(async (req, res) => {
+    try {
+        return res.json(await req.apiClient.quickSearchTransactions(req.query.q, req.query.sort, parseInt(req.query.from || 0), Math.min(1000, parseInt(req.query.size || 10))));
+    } catch(e) {
+        return res.json({error: e});
+    }
+});
+
+/**
+ * Query blocks, allow search query (q, sort, size, from)
+ * For q, see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
+ */
+apiRouter.route('/blocks').get(async (req, res) => {
+    try {
+        return res.json(await req.apiClient.quickSearchBlocks(req.query.q, req.query.sort, parseInt(req.query.from || 0), Math.min(1000, parseInt(req.query.size || 10))));
+    } catch(e) {
+        return res.json({error: e});
+    }
+});
+
+/**
  * Query transactions for one account
  */
 apiRouter.route('/accountTransactions').get(async (req, res) => {
@@ -69,6 +93,8 @@ apiRouter.route('/accountTransactions').get(async (req, res) => {
         return res.json({error: e});
     }
 });
+
+
 
 /**
  * Search for tx hash, block hash, or address inside tx

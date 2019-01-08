@@ -52,6 +52,27 @@ export class ApiClient {
         });
     }
 
+    quickSearchBlocks (q, sort="no", from=0, size=10) {
+        return new Promise(async (resolve) => {
+            const query = {
+                requestTimeout: 2000,
+                index: this.BLOCK_INDEX,
+                q,
+                sort,
+                from,
+                size
+            };
+            const response = await db.search(query);
+            const resp = {
+                total: response.hits.total,
+                from,
+                size,
+                hits: response.hits.hits.map(item => ({hash: item._id, meta: item._source}))
+            };
+            return resolve(resp);
+        });
+    }
+
     searchTransactions (query, extraBody) {
         return new Promise(async (resolve) => {
             const q = {
@@ -70,6 +91,27 @@ export class ApiClient {
             }
             const response = await db.search(q);
             return resolve(response.hits.hits.map(item => ({hash: item._id, meta: item._source})));
+        });
+    }
+
+    quickSearchTransactions (q, sort="blockno", from=0, size=10) {
+        return new Promise(async (resolve) => {
+            const query = {
+                requestTimeout: 2000,
+                index: this.TX_INDEX,
+                q,
+                sort,
+                from,
+                size
+            };
+            const response = await db.search(query);
+            const resp = {
+                total: response.hits.total,
+                from,
+                size,
+                hits: response.hits.hits.map(item => ({hash: item._id, meta: item._source}))
+            };
+            return resolve(resp);
         });
     }
 
