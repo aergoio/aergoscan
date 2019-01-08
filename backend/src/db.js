@@ -36,7 +36,7 @@ export class ApiClient {
     searchBlock(opts, single = false) {
         return new Promise(async (resolve, reject) => {
             const response = await db.search({
-                requestTimeout: 2000,
+                requestTimeout: 5000,
                 index: this.BLOCK_INDEX,
                 ...opts
             });
@@ -54,7 +54,7 @@ export class ApiClient {
 
     async quickSearchBlocks (q, sort="no", from=0, size=10) {
         const query = {
-            requestTimeout: 2000,
+            requestTimeout: 5000,
             index: this.BLOCK_INDEX,
             q,
             sort,
@@ -73,7 +73,7 @@ export class ApiClient {
 
     async searchTransactions (query, extraBody) {
         const q = {
-            requestTimeout: 2000,
+            requestTimeout: 5000,
             index: this.TX_INDEX,
             body: {
                 query,
@@ -92,7 +92,7 @@ export class ApiClient {
 
     async quickSearchTransactions (q, sort="blockno", from=0, size=10) {
         const query = {
-            requestTimeout: 2000,
+            requestTimeout: 5000,
             index: this.TX_INDEX,
             q,
             sort,
@@ -111,7 +111,7 @@ export class ApiClient {
 
     async searchAddress (address) {
         const q = {
-            requestTimeout: 2000,
+            requestTimeout: 5000,
             index: this.TX_INDEX,
             body: {
                 aggs: {
