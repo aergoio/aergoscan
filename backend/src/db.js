@@ -52,92 +52,84 @@ export class ApiClient {
         });
     }
 
-    quickSearchBlocks (q, sort="no", from=0, size=10) {
-        return new Promise(async (resolve) => {
-            const query = {
-                requestTimeout: 2000,
-                index: this.BLOCK_INDEX,
-                q,
-                sort,
-                from,
-                size
-            };
-            const response = await db.search(query);
-            const resp = {
-                total: response.hits.total,
-                from,
-                size,
-                hits: response.hits.hits.map(item => ({hash: item._id, meta: item._source}))
-            };
-            return resolve(resp);
-        });
+    async quickSearchBlocks (q, sort="no", from=0, size=10) {
+        const query = {
+            requestTimeout: 2000,
+            index: this.BLOCK_INDEX,
+            q,
+            sort,
+            from,
+            size
+        };
+        const response = await db.search(query);
+        const resp = {
+            total: response.hits.total,
+            from,
+            size,
+            hits: response.hits.hits.map(item => ({hash: item._id, meta: item._source}))
+        };
+        return resp;
     }
 
-    searchTransactions (query, extraBody) {
-        return new Promise(async (resolve) => {
-            const q = {
-                requestTimeout: 2000,
-                index: this.TX_INDEX,
-                body: {
-                    query,
-                    size: 50,
-                    sort: {
-                        blockno: { "order" : "desc" }
-                    },
-                }
-            };
-            if (extraBody) {
-                Object.assign(q.body, extraBody);
+    async searchTransactions (query, extraBody) {
+        const q = {
+            requestTimeout: 2000,
+            index: this.TX_INDEX,
+            body: {
+                query,
+                size: 50,
+                sort: {
+                    blockno: { "order" : "desc" }
+                },
             }
-            const response = await db.search(q);
-            return resolve(response.hits.hits.map(item => ({hash: item._id, meta: item._source})));
-        });
+        };
+        if (extraBody) {
+            Object.assign(q.body, extraBody);
+        }
+        const response = await db.search(q);
+        return response.hits.hits.map(item => ({hash: item._id, meta: item._source}));
     }
 
-    quickSearchTransactions (q, sort="blockno", from=0, size=10) {
-        return new Promise(async (resolve) => {
-            const query = {
-                requestTimeout: 2000,
-                index: this.TX_INDEX,
-                q,
-                sort,
-                from,
-                size
-            };
-            const response = await db.search(query);
-            const resp = {
-                total: response.hits.total,
-                from,
-                size,
-                hits: response.hits.hits.map(item => ({hash: item._id, meta: item._source}))
-            };
-            return resolve(resp);
-        });
+    async quickSearchTransactions (q, sort="blockno", from=0, size=10) {
+        const query = {
+            requestTimeout: 2000,
+            index: this.TX_INDEX,
+            q,
+            sort,
+            from,
+            size
+        };
+        const response = await db.search(query);
+        const resp = {
+            total: response.hits.total,
+            from,
+            size,
+            hits: response.hits.hits.map(item => ({hash: item._id, meta: item._source}))
+        };
+        return resp;
     }
 
-    searchAddress (address) {
-        return new Promise(async (resolve) => {
-            const q = {
-                requestTimeout: 2000,
-                index: this.TX_INDEX,
-                body: {
-                    aggs: {
-                        address: {
-                            terms: {
-                                field: "to",
-                                size: 1
-                            }
+    async searchAddress (address) {
+        const q = {
+            requestTimeout: 2000,
+            index: this.TX_INDEX,
+            body: {
+                aggs: {
+                    address: {
+                        terms: {
+                            field: "to",
+                            size: 1
                         }
-                    },
-                    query: {
-                        match: { to: address },
-                    },
-                    size: 0,
-                }
-            };
-            const response = await db.search(q);
-            return resolve(response.aggregations.address.buckets.map(item => ({address: item.key})));
-        });
+                    }
+                },
+                query: {
+                    match: { to: address },
+                },
+                size: 0,
+            }
+        };
+        const response = await db.search(q);
+        return response.aggregations.address.buckets.map(item => ({address: item.key}));
     }
 
     getBestBlock () {
