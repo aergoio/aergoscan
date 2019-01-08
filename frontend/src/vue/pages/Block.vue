@@ -30,8 +30,8 @@
             </tr>
             <tr>
               <td>Produced by:</td>
-              <td v-if="blockDetail.header.pubkey"><Identicon :text="blockDetail.header.pubkey" size="18" class="mini-identicon" /> {{blockDetail.header.pubkey}}</td>
-              <td v-if="!blockDetail.header.pubkey">Unknown</td>
+              <td v-if="bpId"><Identicon :text="bpId" size="18" class="mini-identicon" /> {{bpId}}</td>
+              <td v-if="!bpId">Unknown</td>
             </tr>
             <tr>
               <td>Coinbase account:</td>
@@ -101,17 +101,27 @@ export default {
         this.blockDetail = blockDetail;
 
         // Try to calculate peer id from pubkey
-        /*
-        this.bpId = bs58.encode(
-          Buffer.concat(
-            [
-              Buffer.from([0, 0x25, 8, 2, 0x12, 0x21, 3]),
-              Buffer.from(sha256().update(bs58.decode(this.blockDetail.header.pubkey)).digest())
-            ]
-          )
-        );
-        console.log(this.bpId);
-        */
+        const pubkey = bs58.decode(this.blockDetail.header.pubkey);
+        if (pubkey.length <= 42) {
+          this.bpId = bs58.encode(
+            Buffer.concat(
+              [
+                Buffer.from([0, pubkey.length]),
+                pubkey
+              ]
+            )
+          );
+        } else {
+          const hash  = Buffer.from(sha256().update(pubkey).digest());
+          this.bpId = bs58.encode(
+            Buffer.concat(
+              [
+                Buffer.from([0, 27, 8, 2, 0x12, hash.length]),
+                hash
+              ]
+            )
+          );
+        }
       } catch (error) {
         this.error = ''+error;
         console.error(error);
