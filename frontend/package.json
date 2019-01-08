@@ -36,7 +36,7 @@
     "regenerator-runtime": "^0.12.1",
     "webpack": "^4.19.1",
     "webpack-cli": "^3.1.0",
-    "webpack-dev-server": "^3.1.8",
+    "webpack-dev-server": "^3.1.11",
     "autoprefixer": "^9.1.5",
     "css-loader": "^1.0.0",
     "extricate-loader": "^3.0.0",
