@@ -28,8 +28,9 @@ export const waitForDb = () => {
 
 export class ApiClient {
     constructor(chainId = 'chain') {
+        if (chainId === 'testnet') chainId = 'chain'; // TODO: remove after index was renamed
+
         this.chainId = chainId;
-        if (this.chainId === 'testnet') this.chainId = 'chain'; // TODO: remove after index was renamed
         this.BLOCK_INDEX = `${chainId}_block`;
         this.TX_INDEX = `${chainId}_tx`;
     }

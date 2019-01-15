@@ -19,7 +19,7 @@ chainRouter.use('/:chainId', apiRouter);
 chainRouter.route('/').get((req, res) => {
     return res.json({
         msg: 'Welcome to the Aergoscan API. Please select a chain id.',
-        chains: cfg.AVAILABLE_NETWORKS.map(chainId => `${req.protocol}://${req.get('host')}/${chainId}/`)
+        chains: cfg.AVAILABLE_NETWORKS.map(chainId => `${cfg.HOST}/${chainId}/`)
     });
 });
 
@@ -35,7 +35,7 @@ apiRouter.route('/').get((req, res) => {
     return res.json({
         id: req.params.chainId,
         msg: `Aergoscan API for chain ${req.params.chainId}.`,
-        resources: ['bestBlock', 'blocks', 'transactions'].map(resource => `${req.protocol}://${req.get('host')}/${req.params.chainId}/${resource}/`)
+        resources: ['bestBlock', 'blocks', 'transactions'].map(resource => `${cfg.HOST}/${req.params.chainId}/${resource}/`)
     });
 });
 
