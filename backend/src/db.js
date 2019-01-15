@@ -27,29 +27,28 @@ export const waitForDb = () => {
 };
 
 export class ApiClient {
-    constructor(chainId = 'chain_') {
+    constructor(chainId = 'chain') {
         this.chainId = chainId;
+        if (this.chainId === 'testnet') this.chainId = 'chain'; // TODO: remove after index was renamed
         this.BLOCK_INDEX = `${chainId}_block`;
         this.TX_INDEX = `${chainId}_tx`;
     }
 
-    searchBlock(opts, single = false) {
-        return new Promise(async (resolve, reject) => {
-            const response = await db.search({
-                requestTimeout: 5000,
-                index: this.BLOCK_INDEX,
-                ...opts
-            });
-            if (single) {
-                if (response.hits.total == 0) {
-                    return reject(new Error('Not found'));
-                }
-                const item = response.hits.hits[0];
-                return resolve({hash: item._id, meta: item._source});
-            } else {
-                return resolve(response.hits.hits.map(item => ({hash: item._id, meta: item._source})));
-            }
+    async searchBlock(opts, single = false) {
+        const response = await db.search({
+            requestTimeout: 5000,
+            index: this.BLOCK_INDEX,
+            ...opts
         });
+        if (single) {
+            if (response.hits.total == 0) {
+                throw Error('Not found');
+            }
+            const item = response.hits.hits[0];
+            return {hash: item._id, meta: item._source};
+        } else {
+            return response.hits.hits.map(item => ({hash: item._id, meta: item._source}));
+        }
     }
 
     async quickSearchBlocks (q, sort="no", from=0, size=10) {
@@ -111,7 +110,7 @@ export class ApiClient {
 
     async searchAddress (address) {
         const q = {
-            requestTimeout: 5000,
+            requestTimeout: 2000,
             index: this.TX_INDEX,
             body: {
                 aggs: {
@@ -132,8 +131,8 @@ export class ApiClient {
         return response.aggregations.address.buckets.map(item => ({address: item.key}));
     }
 
-    getBestBlock () {
-        return this.searchBlock({
+    async getBestBlock () {
+        return await this.searchBlock({
             body: {
                 size: 1,
                 sort: {
