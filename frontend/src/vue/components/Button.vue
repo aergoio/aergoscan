@@ -21,6 +21,7 @@ export default {
 
 <style lang="scss">
 .btn {
+  display: inline-block;
   border: 1px solid #aaa;
   line-height: 22px;
   border-radius: 100px;

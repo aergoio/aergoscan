@@ -12,14 +12,20 @@
             <p>You can use this website to view blocks as they get created, transactions and accounts (including contracts).</p>
           </div>
         </div>
+
         <div class="island">
           <div class="island-title">
-            Explore
+            Developer registration
           </div>
           <div class="island-content">
-            <p>Stay tuned for a showcase of what's possible with Aergo.</p>
+            
+            <p>If you want to receive updates regarding Aergo and the testnet, please register here.</p>
+            <a href="https://my.sendinblue.com/users/subscribe/js_id/3l4b4/id/3" class="btn primary" target="_blank">Register</a>
+
           </div>
         </div>
+
+        
       </div>
 
       <div class="side-by-side">
@@ -32,6 +38,7 @@
             <p>To get started, please refer to our <a href="http://docs.aergo.io/en/latest/">Official Guide</a>.</p>
             <p>Also, check out these ressources:</p>
             <ul>
+              <li><a href="https://discord.gg/YuPCCeH">Discord</a></li>
               <li><a href="https://twitter.com/aergo_IO">Twitter</a></li>
               <li><a href="https://medium.com/aergo">Medium</a></li>
               <li><a href="https://github.com/aergoio">Github</a></li>
@@ -41,17 +48,10 @@
 
         <div class="island">
           <div class="island-title">
-            Developer registration
+            Explore
           </div>
           <div class="island-content">
-            
-            <p>If you need more technical information about Aergo, send us an email to <a href="mailto:tech@aergo.io">tech@aergo.io</a> with the following information:</p>
-            <ul>
-              <li>Your name</li>
-              <li>Your company, occupation, or project</li>
-              <li>Your use case for the testnet</li>
-            </ul>
-
+            <p>Stay tuned for a showcase of what's possible with Aergo.</p>
           </div>
         </div>
       </div>
