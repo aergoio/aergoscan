@@ -14,7 +14,7 @@
           <div class="stat-label">tps<br>(now)</div>
         </div>
         <div class="stat tooltipped-s" v-tooltip="'Peak transaction number'">
-          <router-link class="stat-value" :to="`/block/${maxTps.meta.no}/`" v-if="maxTps">{{maxTps.meta.txs | formatNumber('&#8239;')}}</router-link>
+          <router-link class="stat-value" :to="`/block/${maxTps.hash}/`" v-if="maxTps">{{maxTps.meta.txs | formatNumber('&#8239;')}}</router-link>
           <div class="stat-value" v-if="!maxTps">...</div>
           <div class="stat-label">tps<br>(peak)</div>
         </div>

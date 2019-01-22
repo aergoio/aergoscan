@@ -29,7 +29,7 @@
               </tr>
               <tr v-if="txDetail.tx.payload">
                 <td>Payload:</td>
-                <td><PayloadFormatter :payload="txDetail.tx.payload" :txType="txDetail.tx.type" /></td>
+                <td><PayloadFormatter :payload="txDetail.tx.payload" :txType="txDetail.tx.type" :recipient="txDetail.tx.to" /></td>
               </tr>
             </table>
             
