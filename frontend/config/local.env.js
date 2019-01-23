@@ -1,6 +1,6 @@
 let BACKEND_URL = 'http://127.0.0.1:8080';
 
-let API_URL = `${BACKEND_URL}/stats`;
+let API_URL = `${BACKEND_URL}/api/chain`;
 if (process.env.API_URL) {
     const api_clean = process.env.API_URL.replace(/https?:\/\//,'');
     API_URL = `http://${api_clean}`;
