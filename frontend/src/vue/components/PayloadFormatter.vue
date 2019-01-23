@@ -3,7 +3,7 @@
     <span class="label label-action" v-if="action">{{action}}</span>
     <span class="monospace">{{rest}}</span>
     <span v-if="address">
-      <router-link :to="`/account/${address}/`">{{address}}}</router-link>
+      <router-link :to="`/account/${address}/`">{{address}}</router-link>
     </span>
     <span class="list-payload" v-if="listPayload.length">
       <span v-for="item of listPayload" :key="item">
