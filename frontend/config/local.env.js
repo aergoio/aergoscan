@@ -2,8 +2,11 @@ let BACKEND_URL = 'http://127.0.0.1:8080';
 
 let API_URL = `${BACKEND_URL}/api/chain`;
 if (process.env.API_URL) {
-    const api_clean = process.env.API_URL.replace(/https?:\/\//,'');
-    API_URL = `http://${api_clean}`;
+    if (process.env.API_URL.startsWith('http')) {
+        API_URL = process.env.API_URL;
+    } else {
+        API_URL = `http://${process.env.API_URL}`;
+    }
 }
 
 let AERGO_URL = `${BACKEND_URL}/aergo`;
