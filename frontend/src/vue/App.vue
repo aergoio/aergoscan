@@ -144,7 +144,7 @@ a {
       font-weight: 500;
     }
   }
-  .island-content + .island-title {
+  .island-content:not(.table-like) + .island-title {
     margin-top: -32px;
   }
 }

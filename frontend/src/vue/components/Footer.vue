@@ -2,7 +2,7 @@
   <div id="footer">
     <div class="wrap">
       <div>
-        &copy; 2018 <a id="logo" href="https://aergo.io"></a>
+        &copy; {{(new Date()).getFullYear()}} <a id="logo" href="https://aergo.io"></a>
       </div>
 
       <div>

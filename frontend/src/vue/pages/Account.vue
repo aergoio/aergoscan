@@ -48,6 +48,38 @@
           </div>
         </div>
 
+        <div class="island-title" v-if="namesCurrent.length">Registered names</div>
+        <div class="island-content table-like" v-if="namesCurrent.length">
+          <div class="row header">
+            <div class="cell" style="flex: 6">Name</div>
+            <div class="cell" style="flex: 2">Registered in block</div>
+            <div class="cell" style="flex: 5">Registered in transaction</div>
+          </div>
+          <div class="row linearize" v-for="name in namesCurrent" :key="name.tx">
+            <div class="cell" style="flex: 6"><router-link :to="`/account/${name.name}/`">{{name.name}}</router-link></div>
+            <div class="cell" style="flex: 2"><router-link :to="`/block/${name.blockno}/`">{{name.blockno}}</router-link></div>
+            <div class="cell hash" style="flex: 5"><router-link :to="`/transaction/${name.tx}/`">{{name.tx}}</router-link></div>
+          </div>
+        </div>
+
+        <div class="island-title" v-if="namesPrevious.length">Previously registered names</div>
+        <div class="island-content table-like" v-if="namesPrevious.length">
+          <div class="row header">
+            <div class="cell" style="flex: 2">Name</div>
+            <div class="cell" style="flex: 1"></div>
+            <div class="cell" style="flex: 6">Current owner</div>
+            
+          </div>
+          <div class="row linearize" v-for="name in namesPrevious" :key="name.tx">
+            <div class="cell" style="flex: 2"><router-link :to="`/account/${name.name}/`">{{name.name}}</router-link></div>
+            <div class="cell" style="flex: 1"></div>
+            <div class="cell" style="flex: 6">
+              <router-link :to="`/account/${name.currentAddress}/`">{{name.currentAddress}}</router-link>
+            </div>
+            
+          </div>
+        </div>
+
         <div class="island-title" v-if="this.accountDetail && this.accountDetail.codehash">Contract</div>
         <div class="island-content" v-if="this.accountDetail && this.accountDetail.codehash">
           <ContractAbi :abi="contractAbi" :codehash="this.accountDetail.codehash" :address="realAddress" />
@@ -73,6 +105,7 @@ import cfg from '../../config.js';
 import { Address } from '@herajs/client';
 import JSBI from 'jsbi';
 import { Amount } from '@herajs/client';
+import { callbackify } from 'util';
 
 export default {
   data () {
@@ -82,7 +115,8 @@ export default {
       error: null,
       accountDetail: null,
       staking: null,
-      ownerAddress: null
+      ownerAddress: null,
+      names: [],
     }
   },
   created () {
@@ -114,6 +148,16 @@ export default {
     },
     unstakedBalance() {
       return this.accountDetail.balance;
+    },
+    namesCurrent() {
+      if (this.realAddress && this.names.length)
+        return this.names.filter(name => name.currentAddress == this.realAddress);
+      return [];
+    },
+    namesPrevious() {
+      if (this.realAddress && this.names.length)
+        return this.names.filter(name => name.currentAddress != this.realAddress);
+      return [];
     }
   },
   methods: {
@@ -125,6 +169,7 @@ export default {
       this.accountDetail = null;
       this.contractAbi = null;
       this.transactions = [];
+      this.names = [];
 
       // Check address
       try {
@@ -146,6 +191,23 @@ export default {
         this.error = 'Unregistered name';
         console.error(e);
         return;
+      }
+
+      // Assigned names
+      try {
+        if (!address.isName) {
+          const response = await this.$fetch.get(`${cfg.API_URL}/names`, { q: `address:${address}`, size: 10 });
+          const data = (await response.json());
+          const names = data.hits;
+          for (let name of names) {
+            const response = await this.$fetch.get(`${cfg.API_URL}/names`, { q: `name:${name.name}`, size: 1 });
+            const data = (await response.json());
+            name.currentAddress = data.hits[0].address;
+          }
+          this.names = names;
+        }
+      } catch (e) {
+        console.error(e);
       }
 
       // State and staking
