@@ -28,11 +28,10 @@ export const waitForDb = () => {
 
 export class ApiClient {
     constructor(chainId = 'chain') {
-        if (chainId === 'testnet') chainId = 'chain'; // TODO: remove after index was renamed
-
         this.chainId = chainId;
         this.BLOCK_INDEX = `${chainId}_block`;
         this.TX_INDEX = `${chainId}_tx`;
+        this.NAME_INDEX = `${chainId}_name`; 
     }
 
     async searchBlock(opts, single = false) {
@@ -105,6 +104,25 @@ export class ApiClient {
             from,
             size,
             hits: response.hits.hits.map(item => ({hash: item._id, meta: item._source}))
+        };
+        return resp;
+    }
+
+    async quickSearchNames (q, sort="blockno:desc", from=0, size=1) {
+        const query = {
+            requestTimeout: 5000,
+            index: this.NAME_INDEX,
+            q,
+            sort,
+            from,
+            size
+        };
+        const response = await db.search(query);
+        const resp = {
+            total: response.hits.total,
+            from,
+            size,
+            hits: response.hits.hits.map(item => item._source)
         };
         return resp;
     }

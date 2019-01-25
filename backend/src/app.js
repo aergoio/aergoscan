@@ -88,6 +88,18 @@ apiRouter.route('/blocks').get(async (req, res) => {
 });
 
 /**
+ * Query blocks, allow search query (q, sort, size, from)
+ * For q, see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
+ */
+apiRouter.route('/names').get(async (req, res) => {
+    try {
+        return res.json(await req.apiClient.quickSearchNames(req.query.q, req.query.sort, parseInt(req.query.from || 0), Math.min(100, parseInt(req.query.size || 1))));
+    } catch(e) {
+        return res.json({error: e});
+    }
+});
+
+/**
  * Query transactions for one account
  */
 apiRouter.route('/accountTransactions').get(async (req, res) => {
