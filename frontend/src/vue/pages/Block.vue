@@ -26,7 +26,7 @@
             </tr>
             <tr>
               <td>Time stamp:</td>
-              <td>{{moment(blockDetail.header.timestamp/1000000).format('dddd, MMMM Do YYYY, HH:mm:ss.SSS')}} ({{moment(blockDetail.header.timestamp/1000000).fromNow()}})</td>
+              <td>{{moment(blockDetail.header.timestamp/1000000).format('dddd, MMMM Do YYYY, HH:mm:ss')}} ({{moment(blockDetail.header.timestamp/1000000).fromNow()}})</td>
             </tr>
             <tr>
               <td>Produced by:</td>

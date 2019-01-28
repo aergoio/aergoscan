@@ -1,12 +1,23 @@
 import { formatNumber } from './format-number';
 import { Amount } from '@herajs/client';
 
-export function formatToken(value, unit = null) {
-    if (!unit) {
-        unit = 'aergo';
-    }
-    let [amount, ] = (new Amount(value, 'aer')).toUnit(unit).toString().split(' ');
+const tryUnits = ['aergo', 'gaer', 'aer'];
 
+export function formatToken(value, unit = null) {
+    value = (new Amount(value, 'aer'));
+    let amount;
+    if (unit) {
+        [amount, ] = value.toUnit(unit).toString().split(' ');
+    } else {
+        // if no unit given, try formatting from biggest to smallest
+        let i = 0;
+        while(true) {
+            unit = tryUnits[i++];
+            [amount, ] = value.toUnit(unit).toString().split(' ');
+            if (i > 2 || !amount.match(/^0\.0{3,}/)) break;
+            // try next smaller unit if too many leading zeros
+        }
+    }
     if (!amount) amount = '0';
 
     // insert spaces for formatting

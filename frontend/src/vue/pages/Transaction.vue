@@ -27,6 +27,10 @@
                 <td>Included in block:</td>
                 <td class="monospace"><router-link :to="`/block/${txDetail.block.hash}/`">{{txDetail.block.hash}}</router-link></td>
               </tr>
+              <tr v-if="txMeta.ts">
+                <td>Timestamp:</td>
+                <td>{{moment(txMeta.ts).format('dddd, MMMM Do YYYY, HH:mm:ss')}} ({{moment(txMeta.ts).fromNow()}})</td>
+              </tr>
               <tr v-if="txDetail.tx.payload">
                 <td>Payload:</td>
                 <td><PayloadFormatter :payload="txDetail.tx.payload" :txType="txDetail.tx.type" :recipient="txDetail.tx.to" /></td>
@@ -45,11 +49,13 @@
 
           <table class="detail-table">
             <tr><td>Status:</td><td class="monospace">{{txReceipt.status}}</td></tr>
-            <tr><td>Result:</td><td class="monospace">{{txReceipt.result}}</td></tr>
+            <tr><td>Result:</td><td>
+              <span class="monospace" v-if="txReceipt.result">{{txReceipt.result}}</span>
+              <span v-if="!txReceipt.result" class="label">(empty)</span>
+            </td></tr>
           </table>
            
         </div>
-
       </div>
 
     </div>
@@ -69,6 +75,7 @@ export default {
     return {
       txDetail: null,
       txReceipt: null,
+      txMeta: {},
       error: null,
     }
   },
@@ -97,13 +104,24 @@ export default {
     async load() {
       this.error = null;
       let hash = this.$route.params.hash;
-      try {
-        this.txDetail = await this.$store.dispatch('blockchain/getTransaction', { hash });
-      } catch (e) {
-        this.error = '' + e;
-        return;
-      }
-      this.txReceipt = await this.$store.dispatch('blockchain/getTransactionReceipt', { hash });
+
+      (async () => {
+        try {
+          this.txDetail = await this.$store.dispatch('blockchain/getTransaction', { hash });
+        } catch (e) {
+          this.error = '' + e;
+          return;
+        }
+      })();
+      (async () => {
+        this.txReceipt = await this.$store.dispatch('blockchain/getTransactionReceipt', { hash });
+      })();
+      (async () => {
+        const response = await (await this.$fetch.get(`${cfg.API_URL}/transactions`, { q: `_id:${hash}` })).json();
+        if (response.hits.length) {
+          this.txMeta = response.hits[0].meta;
+        }
+      })();
       
     },
     moment

@@ -192,22 +192,7 @@ export default {
         return;
       }
 
-      // Assigned names
-      try {
-        if (!address.isName) {
-          const response = await this.$fetch.get(`${cfg.API_URL}/names`, { q: `address:${address}`, size: 10 });
-          const data = (await response.json());
-          const names = data.hits;
-          for (let name of names) {
-            const response = await this.$fetch.get(`${cfg.API_URL}/names`, { q: `name:${name.name}`, size: 1 });
-            const data = (await response.json());
-            name.currentAddress = data.hits[0].address;
-          }
-          this.names = names;
-        }
-      } catch (e) {
-        console.error(e);
-      }
+      
 
       // State and staking
       try {
@@ -225,6 +210,23 @@ export default {
         this.error = 'Account not found';
         console.error(e);
         return;
+      }
+
+      // Assigned names
+      try {
+        if (!address.isName) {
+          const response = await this.$fetch.get(`${cfg.API_URL}/names`, { q: `address:${address}`, size: 10 });
+          const data = (await response.json());
+          const names = data.hits;
+          for (let name of names) {
+            const response = await this.$fetch.get(`${cfg.API_URL}/names`, { q: `name:${name.name}`, size: 1 });
+            const data = (await response.json());
+            name.currentAddress = data.hits[0].address;
+          }
+          this.names = names;
+        }
+      } catch (e) {
+        console.error(e);
       }
 
       // Contract

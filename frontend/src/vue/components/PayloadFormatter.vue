@@ -1,5 +1,7 @@
  <template>
   <span>
+    <span v-if="!payload.length" class="label">(empty)</span>
+
     <span class="label label-action" v-if="action">{{action}}</span>
     <span class="monospace">{{rest}}</span>
     <span v-if="address">
