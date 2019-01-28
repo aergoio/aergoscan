@@ -28,7 +28,7 @@
                 <td class="monospace"><router-link :to="`/block/${txDetail.block.hash}/`">{{txDetail.block.hash}}</router-link></td>
               </tr>
               <tr v-if="txMeta.ts">
-                <td>Timestamp:</td>
+                <td>Time stamp:</td>
                 <td>{{moment(txMeta.ts).format('dddd, MMMM Do YYYY, HH:mm:ss')}} ({{moment(txMeta.ts).fromNow()}})</td>
               </tr>
               <tr v-if="txDetail.tx.payload">

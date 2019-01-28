@@ -106,19 +106,20 @@ export default {
       try {
         const peers = await this.$store.dispatch('blockchain/fetchPeers');
         for (let peer of peers) {
-          peer.bestblock.time = 0;
           if (!peer.bestblock) continue;
+          peer.bestblock.time = 0;
           try {
             this.$store.dispatch('blockchain/getBlock', {blockNoOrHash: peer.bestblock.blockhash}).then(block => {
               peer.bestblock.time = block.header.timestamp;
             });
           } catch(e) {
-
+            console.error(e);
           }
         }
         this.peers = peers;
       } catch (e) {
         this.error = '' + e;
+        console.error(e);
       }
     },
     sortBy(key) {
