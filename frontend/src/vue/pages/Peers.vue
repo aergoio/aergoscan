@@ -21,7 +21,8 @@
             </thead>
             <tr v-for="peer in peersSorted" :key="peer.address.peerid">
               <td class="monospace">
-                {{peer.address.peerid}}
+                <span v-if="peerVotes.indexOf(peer.address.peerid) === -1">{{peer.address.peerid}}</span>
+                <router-link :to="`/votes/?highlight=${peer.address.peerid}`" v-if="peerVotes.indexOf(peer.address.peerid) !== -1">{{peer.address.peerid}}</router-link>
               </td>
               <td>
                 {{peer.state}}
@@ -66,6 +67,7 @@ export default {
   data () {
     return {
       peers: null,
+      peerVotes: [],
       error: null,
       sorting: 'address.peerid',
       sortingAsc: false,
@@ -104,8 +106,20 @@ export default {
   methods: {
     async load() {
       try {
+        (async () => {
+          try {
+            const votesList = await this.$store.dispatch('blockchain/getTopVotes', { count: 50 });
+            this.peerVotes = votesList.map(vote => vote.candidate);
+            console.log(this.peerVotes);
+          } catch (e) {
+            console.error(e);
+          }
+        })();
+
         const peers = await this.$store.dispatch('blockchain/fetchPeers');
+
         for (let peer of peers) {
+          this.peerVotes[peer.address.peerid] = {};
           if (!peer.bestblock) continue;
           peer.bestblock.time = 0;
           try {
