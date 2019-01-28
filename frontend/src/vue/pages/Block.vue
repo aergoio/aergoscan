@@ -30,7 +30,7 @@
             </tr>
             <tr>
               <td>Produced by:</td>
-              <td v-if="bpId"><Identicon :text="bpId" size="18" class="mini-identicon" /> {{bpId}}</td>
+              <td v-if="bpId"><Identicon :text="bpId" size="18" class="mini-identicon" /> <router-link :to="`/votes/?highlight=${bpId}`">{{bpId}}</router-link></td>
               <td v-if="!bpId">Unknown</td>
             </tr>
             <tr>

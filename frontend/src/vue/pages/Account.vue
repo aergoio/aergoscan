@@ -105,7 +105,6 @@ import cfg from '../../config.js';
 import { Address } from '@herajs/client';
 import JSBI from 'jsbi';
 import { Amount } from '@herajs/client';
-import { callbackify } from 'util';
 
 export default {
   data () {

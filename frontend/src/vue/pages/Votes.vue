@@ -17,7 +17,7 @@
                 <th style="text-align: right">Votes</th>
               </tr>
             </thead>
-            <tr v-for="(item, index) in votesList" :key="item.candidate">
+            <tr v-for="(item, index) in votesList" :key="item.candidate" :class="{highlight: $route.query.highlight === item.candidate}">
               <td>{{index+1}}</td>
               <td class="monospace">
                 <Identicon :text="item.candidate" size="16" class="mini-identicon" />
@@ -81,4 +81,7 @@ export default {
 </script>
 
 <style lang="scss">
+.highlight td {
+  background-color: rgba(255, 188, 0, 0.1);;
+}
 </style>
