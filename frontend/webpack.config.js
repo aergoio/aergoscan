@@ -40,6 +40,8 @@ module.exports = (env, argv) => {
     mode: devMode ? 'development' : 'production',
     entry: [
       'regenerator-runtime/runtime',
+      'proxy-polyfill',
+      'promise-polyfill/src/polyfill',
       './src/index.js',
     ],
     output: {

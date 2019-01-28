@@ -1,4 +1,5 @@
 import "./assets/style/main.scss";
+
 import setupVue from './vue/setup';
 import cfg from './config.js';
 
