@@ -12,7 +12,7 @@ if (process.env.API_URL) {
 let AERGO_URL = `${BACKEND_URL}/aergo`;
 if (process.env.AERGO_NODE) {
     if (process.env.API_URL.startsWith('http')) {
-        API_URL = process.env.AERGO_NODE;
+        AERGO_URL = process.env.AERGO_NODE;
     } else {
         const aergo_node_clean = process.env.AERGO_NODE.replace(/https?:\/\//,'');
         AERGO_URL = `http://${aergo_node_clean}`;
