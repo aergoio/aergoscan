@@ -1,6 +1,6 @@
 let BACKEND_URL = 'http://127.0.0.1:8080';
 
-let API_URL = `${BACKEND_URL}/api/chain`;
+let API_URL = `${BACKEND_URL}/api/testnet`;
 if (process.env.API_URL) {
     if (process.env.API_URL.startsWith('http')) {
         API_URL = process.env.API_URL;
