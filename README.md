@@ -40,7 +40,7 @@ but sometimes it can fail. In that case you can resync the database by starting 
 
 ```console
 # Start a node with specified version, in testmode (optional)
-docker run --rm -p 7845:7845 -v /path/to/aergo/home/:/aergo/ aergo/node:0.8.1 aergosvr --config /aergo/config.toml --testmode
+docker run --rm -p 7845:7845 -v /path/to/aergo/home/:/aergo/ aergo/node:0.10.1 aergosvr --config /aergo/testmode.toml
 
 # Start aergoscan listening on that node
 AERGO_NODE=192.168.0.123:7845 AERGOSCAN_REINDEX=true docker-compose up --build
