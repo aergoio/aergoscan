@@ -14,6 +14,7 @@ const state = {
     accountsByAddress: {},
     txByHash: {},
     provider: aergo.client,
+    chainInfo: {}
 }
 
 const getters = {
@@ -59,6 +60,10 @@ const actions = {
         blockHeaderStream.cancel();
         blockHeaderStream = null;
         dispatch('streamBlocks');
+    },
+    async updateChainInfo ({ commit }) {
+        const info = await aergo.getChainInfo();
+        commit('setChainInfo', info);
     },
     getBlock ({ dispatch, state }, { blockNoOrHash }) {
         if (state.blocksByHash[blockNoOrHash]) {
@@ -191,7 +196,10 @@ const mutations = {
     },
     setStreamState (state, streamState) {
         state.streamState = streamState;
-    }
+    },
+    setChainInfo (state, chainInfo) {
+        state.chainInfo = chainInfo;
+    },
 }
 
 export default {

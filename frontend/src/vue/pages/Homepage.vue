@@ -4,7 +4,7 @@
 
       <div class="stats">
         <div class="stat">
-          <div class="stat-value" v-if="reverseBlocks.length">{{reverseBlocks[0].header.blockno | formatNumber('&#8239;')}}</div>
+          <router-link class="stat-value" :to="`/block/${reverseBlocks[0].hash}/`" v-if="reverseBlocks.length">{{reverseBlocks[0].header.blockno | formatNumber('&#8239;')}}</router-link>
           <div class="stat-value" v-if="!reverseBlocks.length">...</div>
           <div class="stat-label">last<br>block</div>
         </div>
@@ -13,7 +13,7 @@
           <div class="stat-value" v-if="!reverseBlocks.length">...</div>
           <div class="stat-label">tps<br>(now)</div>
         </div>
-        <div class="stat tooltipped-s" v-tooltip="'Peak transaction number'">
+        <div class="stat tooltipped-s" v-tooltip="'Peak transaction number. Click to go to block'">
           <router-link class="stat-value" :to="`/block/${maxTps.hash}/`" v-if="maxTps">{{maxTps.meta.txs | formatNumber('&#8239;')}}</router-link>
           <div class="stat-value" v-if="!maxTps">...</div>
           <div class="stat-label">tps<br>(peak)</div>
@@ -22,6 +22,11 @@
           <div class="stat-value" v-if="txTotal">{{txTotal | formatNumber('&#8239;')}}</div>
           <div class="stat-value" v-if="!txTotal">...</div>
           <div class="stat-label">total<br>tx</div>
+        </div>
+        <div class="stat tooltipped-s" v-tooltip="'Number of block producers. Click to go to list'">
+          <router-link class="stat-value" :to="`/votes/`" v-if="chainInfo">{{chainInfo.bpnumber}}</router-link>
+          <div class="stat-value" v-if="!chainInfo">...</div>
+          <div class="stat-label">BP<br>number</div>
         </div>
       </div>
 
@@ -89,7 +94,8 @@ export default {
   },
   computed: {
     ...mapState({
-      blocks: state => state.blockchain.recentBlocks
+      blocks: state => state.blockchain.recentBlocks,
+      chainInfo: state => state.blockchain.chainInfo
     }),
     reverseBlocks() {
       return this.blocks.slice().reverse();

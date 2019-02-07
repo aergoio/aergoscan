@@ -3,7 +3,7 @@
     <div class="page-content">
       <div class="island">
         <div class="island-title">
-          Top 50 Votes
+          BP Candidates Top 50 <span v-if="bpNumber">({{bpNumber}} active)</span>
           <ReloadButton :action="load" style="float: right" />
         </div>
         <div class="island-content">
@@ -17,7 +17,7 @@
                 <th style="text-align: right">Votes</th>
               </tr>
             </thead>
-            <tr v-for="(item, index) in votesList" :key="item.candidate" :class="{highlight: $route.query.highlight === item.candidate}">
+            <tr v-for="(item, index) in votesList" :key="item.candidate" :class="{highlight: $route.query.highlight === item.candidate, lastSelected: bpNumber && bpNumber === (index+1)}">
               <td>{{index+1}}</td>
               <td class="monospace">
                 <Identicon :text="item.candidate" size="16" class="mini-identicon" />
@@ -38,6 +38,7 @@
 import ReloadButton from '../components/ReloadButton';
 import moment from 'moment';
 import Identicon from '../components/Identicon';
+import { mapState } from 'vuex'
 
 export default {
   data () {
@@ -57,6 +58,15 @@ export default {
     this.load();
   },
   beforeDestroy () {
+  },
+  computed: {
+    ...mapState({
+      chainInfo: state => state.blockchain.chainInfo
+    }),
+    bpNumber() {
+      if (this.chainInfo.bpnumber) return this.chainInfo.bpnumber;
+      else return 0;
+    }
   },
   methods: {
     async load() {
@@ -82,6 +92,10 @@ export default {
 
 <style lang="scss">
 .highlight td {
-  background-color: rgba(255, 188, 0, 0.1);;
+  background-color: rgba(255, 188, 0, 0.1);
+}
+.lastSelected td {
+  border-color: red;
+  border-width: 2px;
 }
 </style>

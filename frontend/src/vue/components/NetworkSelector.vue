@@ -28,12 +28,16 @@ export default {
   computed: {
     ...mapState({
       blocks: state => state.blockchain.recentBlocks,
-      isConnected: state => state.blockchain.streamConnected
+      isConnected: state => state.blockchain.streamConnected,
+      chainInfo: state => state.blockchain.chainInfo
     }),
     bestBlock() {
       return this.blocks[this.blocks.length - 1];
     },
     networkDisplay () {
+      try {
+        return this.chainInfo.chainid.magic;
+      } catch (e) {}
       return this.network.split(':').join(' ')
     },
     styleObject () {
