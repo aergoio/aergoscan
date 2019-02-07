@@ -19,6 +19,15 @@ if (process.env.AERGO_NODE) {
     }
 }
 
+if (process.env.AERGO_URL) {
+    if (process.env.AERGO_URL.startsWith('http')) {
+        AERGO_URL = process.env.AERGO_URL;
+    } else {
+        const aergo_node_clean = process.env.AERGO_URL.replace(/https?:\/\//,'');
+        AERGO_URL = `http://${aergo_node_clean}`;
+    }
+}
+
 module.exports = {
     NODE_ENV: JSON.stringify('development'),
     API_URL: JSON.stringify(API_URL),

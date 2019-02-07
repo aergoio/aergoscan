@@ -6,10 +6,11 @@ services:
       args:
         AERGO_NODE: ${AERGO_NODE}
         API_URL: ${API_URL}
+        CONFIG_NAME: "${CONFIG_NAME:-local}"
     ports:
       - "8080:80"
     depends_on:
-      - backend
+      - backend      
   indexer:
     build: ./indexer
     depends_on:

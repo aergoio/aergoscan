@@ -23,16 +23,17 @@ git clone https://github.com/aergoio/aergoscan && cd aergoscan
 vim docker-compose.yml
 
 # Build and run the containers, using the machine's IP.
-AERGO_NODE=MACHINE_IP:7845 API_URL=MACHINE_IP/api/chain docker-compose up --build -d
+AERGO_NODE=MACHINE_IP:7845 CONFIG_NAME=prod BACKEND_URL=MACHINE_IP docker-compose up --build -d
 ```
 
 You can now access Aergoscan at MACHINE_IP.
 
 ## Hostname setup
 
-If you want a hostname, you have to edit the `nginx/localhost.conf` file before building the containers and then use the hostname instead of the MACHINE_IP in the above command.
+If you want a hostname, you have to edit the `nginx/localhost.conf` file before building the containers and then use the hostname instead of the MACHINE_IP in the above command's BACKEND_URL.
 
 Example:
 
 ```console
-AERGO_NODE=https://sqltestnet.aergoscan.io/aergo API_URL=https://sqltestnet.aergoscan.io/api/chain docker-compose up --build -d
+AERGO_NODE=MACHINE_IP:7845 CONFIG_NAME=prod BACKEND_URL=https://hostname.tld docker-compose up --build -d
+```
