@@ -25,7 +25,7 @@ const actionLabels = {
     c: "create name",
     u: "update name",
   },
-  'aergo.update': {
+  'aergo.system': {
     s: "stake",
     u: "unstake",
     v: "vote"
