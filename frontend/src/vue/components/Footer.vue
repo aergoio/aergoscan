@@ -18,7 +18,7 @@ import NetworkSelector from './NetworkSelector';
 
 export default {
   data () {
-    return {
+    return {  
     }
   },
   created () {
@@ -56,6 +56,7 @@ export default {
   }
 
   position: fixed;
+  z-index: 99;
   bottom: 0;
   left: 0;
   right: 0;
