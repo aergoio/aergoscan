@@ -63,6 +63,15 @@ function getKey(obj, keyPath) {
   return result;
 }
 
+// cache getBlock request Promises to not request the same block multiple times
+const requests = {};
+function requestBlock($store, hash) {
+  if (!requests.hasOwnProperty(hash)) {
+    requests[hash] = $store.dispatch('blockchain/getBlock', {blockNoOrHash: hash});
+  }
+  return requests[hash];
+}
+
 export default {
   data () {
     return {
@@ -110,7 +119,6 @@ export default {
           try {
             const votesList = await this.$store.dispatch('blockchain/getTopVotes', { count: 50 });
             this.peerVotes = votesList.map(vote => vote.candidate);
-            console.log(this.peerVotes);
           } catch (e) {
             console.error(e);
           }
@@ -123,7 +131,7 @@ export default {
           if (!peer.bestblock) continue;
           peer.bestblock.time = 0;
           try {
-            this.$store.dispatch('blockchain/getBlock', {blockNoOrHash: peer.bestblock.blockhash}).then(block => {
+            requestBlock(this.$store, peer.bestblock.blockhash).then(block => {
               peer.bestblock.time = block.header.timestamp;
             });
           } catch(e) {
