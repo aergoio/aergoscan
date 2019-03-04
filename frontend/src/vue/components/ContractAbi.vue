@@ -4,6 +4,7 @@
       <div class="view-option" :class="{active: viewMode=='abi'}" v-on:click="setViewMode('abi')">ABI (JSON)</div>
       <div class="view-option" :class="{active: viewMode=='interactive'}" v-on:click="setViewMode('interactive')">Interactive</div>
       <div class="view-option" :class="{active: viewMode=='code'}" v-on:click="setViewMode('code')">Code</div>
+      <div class="view-option" :class="{active: viewMode=='events'}" v-on:click="setViewMode('events')">Events</div>
     </div>
     <div class="view-box">
       <div v-if="viewMode=='abi'">
@@ -25,11 +26,29 @@
         </div>
       </div>
       <div v-if="viewMode=='code'">
-        
         <div class="monospace" style="max-width: 29em">
           <p>{{codehash.length}} bytes</p>
           <div v-html="formattedCode" />
         </div>
+      </div>
+      <div v-if="viewMode=='events'">
+        <p align="right">
+          <ReloadButton :action="loadEvents" />
+        </p>
+        <table class="event-table">
+          <tr>
+            <th>Event name</th>
+            <th>Arguments</th>
+            <th>Block</th>
+            <th>Transaction</th>
+          </tr>
+          <tr v-for="event in events" :key="event.txhash + event.eventidx">
+            <td class="monospace">{{event.eventName}}</td>
+            <td class="monospace">{{event.args}}</td>
+            <td><router-link :to="`/block/${event.blockhash}/`">{{event.blockno}}</router-link></td>
+            <td><router-link :to="`/transaction/${event.txhash}/`">{{event.txhash}}</router-link></td>
+          </tr>
+        </table>
       </div>
     </div>
   </div>
@@ -37,6 +56,7 @@
 
 <script>
 import { loadAndWait } from '../utils/async';
+import ReloadButton from './ReloadButton';
 
 const defaultdict = (def) => new Proxy({}, {
   get: (target, name) => name in target ? target[name] : def
@@ -72,6 +92,7 @@ export default {
       interactiveResults: [],
       interactiveArguments: defaultdict({}),
       isLoading: [],
+      events: [],
     }
   },
   created () {
@@ -79,6 +100,11 @@ export default {
   },
   watch: {
     '$route' (to, from) {
+    },
+    'viewMode' (to, from) {
+      if (to === 'events') {
+        this.loadEvents();
+      }
     }
   },
   mounted () {
@@ -86,6 +112,7 @@ export default {
   beforeDestroy () {
   },
   components: {
+    ReloadButton,
   },
   computed: {
     functions() {
@@ -105,6 +132,19 @@ export default {
   methods: {
     setViewMode(mode) {
       this.viewMode = mode;
+    },
+    async loadEvents() {
+      const wait = loadAndWait();
+      try {
+        this.events = await this.$store.dispatch('blockchain/getEvents', {
+          eventName: null,
+          args: [],
+          address: this.address
+        });
+      } catch(e) {
+        console.error(e);
+      }
+      await wait();
     },
     async queryContract(funcIdx) {
       const wait = loadAndWait();
@@ -218,6 +258,13 @@ export default {
     border: 1px solid #fff;
     padding: 0 4px;
     line-height: 1em;
+  }
+}
+.event-table {
+  td, th {
+    text-align: left;
+    padding: 0 1em 0;
+    line-height: 2;
   }
 }
 </style>

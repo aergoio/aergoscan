@@ -148,7 +148,10 @@ const actions = {
     async queryContract ({}, {abi, address, name, args}) {
          const contract = Contract.fromAbi(abi).setAddress(address);
          return await aergo.queryContract(contract[name](...args));
-    }
+    },
+    async getEvents ({}, filter) {
+        return await aergo.getEvents(filter);
+   }
 }
 
 const mutations = {
