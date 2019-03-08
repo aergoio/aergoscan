@@ -3,7 +3,9 @@
     <span v-if="!payload.length" class="label">(empty)</span>
 
     <span class="label label-action" v-if="action">{{action}}</span>
+    <span class="monospace" v-if="name">{{name}}(</span>
     <span class="monospace">{{rest}}</span>
+    <span class="monospace" v-if="name">)</span>
     <span v-if="address">
       <router-link :to="`/account/${address}/`">{{address}}</router-link>
     </span>
@@ -40,6 +42,7 @@ export default {
       rest: "",
       listPayload: [],
       address: "",
+      name: ""
     }
   },
   watch: {
@@ -57,29 +60,17 @@ export default {
       }
       let payloadBuffer = Buffer.from(this.payload);
       let payload = payloadBuffer.toString();
-      if (this.txType === 1) {
-        const action = payload[0];
-        payload = payload.substr(1);
-        payloadBuffer = payloadBuffer.slice(1);
-        if (typeof actionLabels[this.recipient][action] !== 'undefined') {
-          this.action = actionLabels[this.recipient][action];
+      try {
+        let parsedData = JSON.parse(payload);
+        this.action = "function call";
+        this.name = parsedData.Name;
+        if (parsedData.Args) {
+          const argsString = JSON.stringify(parsedData.Args);
+          payload = argsString.substr(1, argsString.length-2);
         } else {
-          this.action = action;
+          payload = "";
         }
-        if (action === 'v') { // decode vote peer ids
-          const peerids = [];
-          while (payloadBuffer.length >= 39) {
-            peerids.push(payloadBuffer.slice(0, 39));
-            payloadBuffer = payloadBuffer.slice(39);
-          }
-          this.listPayload = peerids.map(id => bs58.encode(id));
-          payload = ''
-        }
-        if (this.recipient.toString() === 'aergo.name' && action === 'u') { // decode update name
-          const name = payload.substr(0, 12);
-          this.address = Address.encode(payloadBuffer.slice(13));
-          payload = `${name}`;
-        }
+      } catch(e) {
       }
       this.rest = payload;
     },
