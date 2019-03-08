@@ -35,7 +35,11 @@
         <p style="float: right">
           <ReloadButton :action="loadNewEvents" />
         </p>
-        Showing {{events.length}} events from block number {{eventsFromMin}} to {{eventsToMax}}.
+        Showing {{events.length}} events from block number <span class="loadedNumber">{{eventsFromMin}}</span> to <span class="loadedNumber">{{eventsToMax}}</span>.
+        <span v-on:click="loadPreviousEvents" v-if="canLoadMoreEvents && !isLoadingMoreEvents" class="btn-call">Load more</span>
+        <span v-if="isLoadingMoreEvents" class="btn-call">Loading...</span>
+        <span v-if="!canLoadMoreEvents">Loaded all events</span>
+
         <table class="event-table">
           <tr>
             <th>Event name</th>
@@ -50,8 +54,7 @@
             <td><router-link :to="`/transaction/${event.txhash}/`">{{event.txhash}}</router-link></td>
           </tr>
         </table>
-        <span v-on:click="loadPreviousEvents" v-if="canLoadMoreEvents">Load more</span>
-        <span v-if="!canLoadMoreEvents">Loaded all events</span>
+        
       </div>
     </div>
   </div>
@@ -102,6 +105,7 @@ export default {
       eventsTo: 0,
       eventsToMax: 0,
       eventsFromMin: -1,
+      isLoadingMoreEvents: false,
     }
   },
   created () {
@@ -153,6 +157,7 @@ export default {
     },
     async loadEvents(append=false, loadNew=false) {
       const wait = loadAndWait();
+      this.isLoadingMoreEvents = true;
       this.bestBlock = await this.$store.dispatch('blockchain/getBestBlock');
       this.eventsTo = this.eventsFrom || this.bestBlock.bestHeight;
       this.eventsFrom = Math.max(0, this.eventsTo - eventPage);
@@ -168,17 +173,19 @@ export default {
       if (!append) this.events = [];
       console.log('loading events', this.eventsFrom, this.eventsTo);
       try {
-        this.events.push(... await this.$store.dispatch('blockchain/getEvents', {
+        const events = await this.$store.dispatch('blockchain/getEvents', {
           eventName: null,
           args: [],
           address: this.address,
           blockto: this.eventsTo,
           blockfrom: this.eventsFrom
-        }));
+        });
+        await wait();
+        this.events.push(...events);
       } catch(e) {
         console.error(e);
       }
-      await wait();
+      this.isLoadingMoreEvents = false;
     },
     async queryContract(funcIdx) {
       const wait = loadAndWait();
@@ -282,23 +289,30 @@ export default {
     border: none;
     color: #fff;
   }
-  .btn-call {
-    font-size: .9em;
-    cursor: pointer;
-    text-transform: uppercase;
-    color: #fff;
-    border-radius: 3px;
+}
+.btn-call {
+  font-size: .9em;
+  cursor: pointer;
+  text-transform: uppercase;
+  color: #fff;
+  border-radius: 3px;
 
-    border: 1px solid #fff;
-    padding: 0 4px;
-    line-height: 1em;
-  }
+  border: 1px solid #fff;
+  padding: 0 4px;
+  line-height: 1em;
 }
 .event-table {
   td, th {
     text-align: left;
     padding: 0 1em 0 0;
     line-height: 2;
+    word-break: normal;
   }
+  th {
+    white-space: nowrap;
+  }
+}
+.loadedNumber {
+  color: #fff;
 }
 </style>
