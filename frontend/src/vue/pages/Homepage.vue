@@ -5,27 +5,27 @@
       <div class="stats">
         <div class="stat">
           <router-link class="stat-value" :to="`/block/${reverseBlocks[0].hash}/`" v-if="reverseBlocks.length">{{reverseBlocks[0].header.blockno | formatNumber('&#8239;')}}</router-link>
-          <div class="stat-value" v-if="!reverseBlocks.length">...</div>
+          <div class="stat-value loading" v-if="!reverseBlocks.length"></div>
           <div class="stat-label">last<br>block</div>
         </div>
         <div class="stat tooltipped-s" v-tooltip="'Transaction number in most recent block'">
           <div class="stat-value" v-if="reverseBlocks.length">{{reverseBlocks[0].txcount | formatNumber('&#8239;')}}</div>
-          <div class="stat-value" v-if="!reverseBlocks.length">...</div>
+          <div class="stat-value loading" v-if="!reverseBlocks.length"></div>
           <div class="stat-label">tps<br>(now)</div>
         </div>
         <div class="stat tooltipped-s" v-tooltip="'Peak transaction number. Click to go to block'">
           <router-link class="stat-value" :to="`/block/${maxTps.hash}/`" v-if="maxTps">{{maxTps.meta.txs | formatNumber('&#8239;')}}</router-link>
-          <div class="stat-value" v-if="!maxTps">...</div>
+          <div class="stat-value loading" v-if="!maxTps"></div>
           <div class="stat-label">tps<br>(peak)</div>
         </div>
         <div class="stat">
           <div class="stat-value" v-if="txTotal">{{txTotal | formatNumber('&#8239;')}}</div>
-          <div class="stat-value" v-if="!txTotal">...</div>
+          <div class="stat-value loading" v-if="!txTotal"></div>
           <div class="stat-label">total<br>tx</div>
         </div>
         <div class="stat tooltipped-s" v-tooltip="'Number of block producers. Click to go to list'">
           <router-link class="stat-value" :to="`/votes/`" v-if="chainInfo">{{chainInfo.bpnumber}}</router-link>
-          <div class="stat-value" v-if="!chainInfo">...</div>
+          <div class="stat-value loading" v-if="!chainInfo"></div>
           <div class="stat-label">BP<br>number</div>
         </div>
       </div>
@@ -283,8 +283,23 @@ export default {
       color: #F90F5F;
       font-weight: 500;
       font-size: 1.5em;
+
+      &.loading {
+        animation: dotLoading steps(3, end) infinite 1.5s;
+
+        &:after {
+          content: "·";
+        }
+      }
     }
   }
 }
-
+@keyframes dotLoading {
+  from {
+    text-indent: -10px;
+  }
+  to {
+    text-indent: 10px;
+  }
+}
 </style>

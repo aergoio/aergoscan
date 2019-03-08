@@ -65,6 +65,9 @@ const actions = {
         const info = await aergo.getChainInfo();
         commit('setChainInfo', info);
     },
+    async getBestBlock () {
+        return await aergo.blockchain();
+    },
     getBlock ({ dispatch, state }, { blockNoOrHash }) {
         if (state.blocksByHash[blockNoOrHash]) {
             console.log('return block from cache', blockNoOrHash);
@@ -148,7 +151,10 @@ const actions = {
     async queryContract ({}, {abi, address, name, args}) {
          const contract = Contract.fromAbi(abi).setAddress(address);
          return await aergo.queryContract(contract[name](...args));
-    }
+    },
+    async getEvents ({}, filter) {
+        return await aergo.getEvents(filter);
+   }
 }
 
 const mutations = {

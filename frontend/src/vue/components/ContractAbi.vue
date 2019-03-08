@@ -3,7 +3,8 @@
     <div class="view-selector">
       <div class="view-option" :class="{active: viewMode=='abi'}" v-on:click="setViewMode('abi')">ABI (JSON)</div>
       <div class="view-option" :class="{active: viewMode=='interactive'}" v-on:click="setViewMode('interactive')">Interactive</div>
-      <div class="view-option" :class="{active: viewMode=='code'}" v-on:click="setViewMode('code')">Code</div>
+      <!--<div class="view-option" :class="{active: viewMode=='code'}" v-on:click="setViewMode('code')">Codehash</div>-->
+      <div class="view-option" :class="{active: viewMode=='events'}" v-on:click="setViewMode('events')">Events</div>
     </div>
     <div class="view-box">
       <div v-if="viewMode=='abi'">
@@ -25,11 +26,32 @@
         </div>
       </div>
       <div v-if="viewMode=='code'">
-        
         <div class="monospace" style="max-width: 29em">
           <p>{{codehash.length}} bytes</p>
           <div v-html="formattedCode" />
         </div>
+      </div>
+      <div v-if="viewMode=='events'">
+        <p style="float: right">
+          <ReloadButton :action="loadNewEvents" />
+        </p>
+        Showing {{events.length}} events from block number {{eventsFromMin}} to {{eventsToMax}}.
+        <table class="event-table">
+          <tr>
+            <th>Event name</th>
+            <th>Arguments</th>
+            <th>Block</th>
+            <th>Transaction</th>
+          </tr>
+          <tr v-for="event in events" :key="event.txhash + event.eventidx">
+            <td class="monospace">{{event.eventName}}</td>
+            <td class="monospace">{{event.args}}</td>
+            <td><router-link :to="`/block/${event.blockhash}/`">{{event.blockno}}</router-link></td>
+            <td><router-link :to="`/transaction/${event.txhash}/`">{{event.txhash}}</router-link></td>
+          </tr>
+        </table>
+        <span v-on:click="loadPreviousEvents" v-if="canLoadMoreEvents">Load more</span>
+        <span v-if="!canLoadMoreEvents">Loaded all events</span>
       </div>
     </div>
   </div>
@@ -37,10 +59,13 @@
 
 <script>
 import { loadAndWait } from '../utils/async';
+import ReloadButton from './ReloadButton';
 
 const defaultdict = (def) => new Proxy({}, {
   get: (target, name) => name in target ? target[name] : def
 });
+
+const eventPage = 10000;
 
 function syntaxHighlight(json) {
     if (typeof json != 'string') {
@@ -72,6 +97,11 @@ export default {
       interactiveResults: [],
       interactiveArguments: defaultdict({}),
       isLoading: [],
+      events: [],
+      eventsFrom: 0,
+      eventsTo: 0,
+      eventsToMax: 0,
+      eventsFromMin: -1,
     }
   },
   created () {
@@ -79,6 +109,11 @@ export default {
   },
   watch: {
     '$route' (to, from) {
+    },
+    'viewMode' (to, from) {
+      if (to === 'events') {
+        this.loadEvents();
+      }
     }
   },
   mounted () {
@@ -86,6 +121,7 @@ export default {
   beforeDestroy () {
   },
   components: {
+    ReloadButton,
   },
   computed: {
     functions() {
@@ -101,10 +137,48 @@ export default {
       //return Buffer.from(this.accountDetail.codehash).toString();
       return Array.from(buf).map (b => b.toString (16).padStart (2, "0")).join (" ");
     },
+    canLoadMoreEvents() {
+      return this.eventsFromMin > 0;
+    }
   },
   methods: {
     setViewMode(mode) {
       this.viewMode = mode;
+    },
+    loadPreviousEvents() {
+      this.loadEvents(true);
+    },
+    loadNewEvents() {
+      this.loadEvents(true, true);
+    },
+    async loadEvents(append=false, loadNew=false) {
+      const wait = loadAndWait();
+      this.bestBlock = await this.$store.dispatch('blockchain/getBestBlock');
+      this.eventsTo = this.eventsFrom || this.bestBlock.bestHeight;
+      this.eventsFrom = Math.max(0, this.eventsTo - eventPage);
+      if (loadNew) {
+        this.eventsTo = this.bestBlock.bestHeight;
+        this.eventsFrom = this.eventsToMax + 1;
+      }
+      this.eventsToMax = Math.max(this.eventsToMax, this.eventsTo);
+      this.eventsFromMin = Math.min(this.eventsFromMin, this.eventsFrom);
+      if (this.eventsFromMin === -1) {
+        this.eventsFromMin = this.eventsFrom;
+      }
+      if (!append) this.events = [];
+      console.log('loading events', this.eventsFrom, this.eventsTo);
+      try {
+        this.events.push(... await this.$store.dispatch('blockchain/getEvents', {
+          eventName: null,
+          args: [],
+          address: this.address,
+          blockto: this.eventsTo,
+          blockfrom: this.eventsFrom
+        }));
+      } catch(e) {
+        console.error(e);
+      }
+      await wait();
     },
     async queryContract(funcIdx) {
       const wait = loadAndWait();
@@ -218,6 +292,13 @@ export default {
     border: 1px solid #fff;
     padding: 0 4px;
     line-height: 1em;
+  }
+}
+.event-table {
+  td, th {
+    text-align: left;
+    padding: 0 1em 0 0;
+    line-height: 2;
   }
 }
 </style>
