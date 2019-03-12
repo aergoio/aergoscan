@@ -38,7 +38,7 @@
         Showing {{events.length}} events from block number <span class="loadedNumber">{{eventsFromMin}}</span> to <span class="loadedNumber">{{eventsToMax}}</span>.
         <span v-on:click="loadPreviousEvents" v-if="canLoadMoreEvents && !isLoadingMoreEvents" class="btn-call">Load more</span>
         <span v-if="isLoadingMoreEvents" class="btn-call">Loading...</span>
-        <span v-if="!canLoadMoreEvents">Loaded all events</span>
+        <span v-if="!canLoadMoreEvents && !isLoadingMoreEvents">Loaded all events</span>
 
         <table class="event-table">
           <tr>
@@ -106,6 +106,7 @@ export default {
       eventsToMax: 0,
       eventsFromMin: -1,
       isLoadingMoreEvents: false,
+      bestBlock: false
     }
   },
   created () {
@@ -158,12 +159,15 @@ export default {
     async loadEvents(append=false, loadNew=false) {
       const wait = loadAndWait();
       this.isLoadingMoreEvents = true;
-      this.bestBlock = await this.$store.dispatch('blockchain/getBestBlock');
-      this.eventsTo = this.eventsFrom || this.bestBlock.bestHeight;
-      this.eventsFrom = Math.max(0, this.eventsTo - eventPage);
+      if (loadNew || !this.bestBlock) {
+        this.bestBlock = await this.$store.dispatch('blockchain/getBestBlock');
+      }
       if (loadNew) {
         this.eventsTo = this.bestBlock.bestHeight;
         this.eventsFrom = this.eventsToMax + 1;
+      } else {
+        this.eventsTo = this.eventsFrom || this.bestBlock.bestHeight;
+        this.eventsFrom = Math.max(0, this.eventsTo - eventPage);
       }
       this.eventsToMax = Math.max(this.eventsToMax, this.eventsTo);
       this.eventsFromMin = Math.min(this.eventsFromMin, this.eventsFrom);

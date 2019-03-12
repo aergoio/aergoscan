@@ -14,6 +14,12 @@
         {{item}}
       </span>
     </span>
+
+    <span class="list-payload" v-if="bps.length">
+      <span v-for="item of bps" :key="item">
+        <router-link :to="`/votes/?highlight=${item}`">{{item}}</router-link>
+      </span>
+    </span>
   </span>
 </template>
 
@@ -22,17 +28,6 @@ import Identicon from './Identicon';
 import bs58 from 'bs58';
 import { Address } from '@herajs/client';
 
-const actionLabels = {
-  'aergo.name': {
-    c: "create name",
-    u: "update name",
-  },
-  'aergo.system': {
-    s: "stake",
-    u: "unstake",
-    v: "vote"
-  }
-};
 
 export default {
   props: ['payload', 'txType', 'recipient'],
@@ -42,7 +37,8 @@ export default {
       rest: "",
       listPayload: [],
       address: "",
-      name: ""
+      name: "",
+      bps: []
     }
   },
   watch: {
@@ -62,12 +58,22 @@ export default {
       let payload = payloadBuffer.toString();
       try {
         let parsedData = JSON.parse(payload);
-        this.action = "function call";
-        this.name = parsedData.Name;
+        if (this.txType == 1) {
+          this.action = parsedData.Name.replace('v1', '');
+        } else {
+          this.action = "function call";
+          this.name = parsedData.Name;
+        }
+        
         if (parsedData.Args) {
           const argsString = JSON.stringify(parsedData.Args);
           payload = argsString.substr(1, argsString.length-2);
         } else {
+          payload = "";
+        }
+
+        if (this.action === 'voteBP') {
+          this.bps = parsedData.Args;
           payload = "";
         }
       } catch(e) {
