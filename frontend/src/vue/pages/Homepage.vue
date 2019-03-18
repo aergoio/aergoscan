@@ -8,20 +8,20 @@
           <div class="stat-value loading" v-if="!reverseBlocks.length"></div>
           <div class="stat-label">last<br>block</div>
         </div>
-        <div class="stat tooltipped-s" v-tooltip="'Transaction number in most recent block'">
-          <div class="stat-value" v-if="reverseBlocks.length">{{reverseBlocks[0].txcount | formatNumber('&#8239;')}}</div>
-          <div class="stat-value loading" v-if="!reverseBlocks.length"></div>
-          <div class="stat-label">tps<br>(now)</div>
+        <div class="stat">
+          <div class="stat-value" v-if="txTotal">{{txTotal | formatNumber('&#8239;')}}</div>
+          <div class="stat-value loading" v-if="!txTotal"></div>
+          <div class="stat-label">total<br>tx</div>
         </div>
         <div class="stat tooltipped-s" v-tooltip="'Peak transaction number. Click to go to block'">
           <router-link class="stat-value" :to="`/block/${maxTps.hash}/`" v-if="maxTps">{{maxTps.meta.txs | formatNumber('&#8239;')}}</router-link>
           <div class="stat-value loading" v-if="!maxTps"></div>
           <div class="stat-label">tps<br>(peak)</div>
         </div>
-        <div class="stat">
-          <div class="stat-value" v-if="txTotal">{{txTotal | formatNumber('&#8239;')}}</div>
-          <div class="stat-value loading" v-if="!txTotal"></div>
-          <div class="stat-label">total<br>tx</div>
+        <div class="stat tooltipped-s" v-tooltip="'Transactions in the last minute'">
+          <div class="stat-value" v-if="txPerMinute !== false">{{txPerMinute | formatNumber('&#8239;')}}</div>
+          <div class="stat-value loading" v-if="txPerMinute === false"></div>
+          <div class="stat-label">tpm<br>(now)</div>
         </div>
         <div class="stat tooltipped-s" v-tooltip="'Number of block producers. Click to go to list'">
           <router-link class="stat-value" :to="`/votes/`" v-if="chainInfo">{{chainInfo.bpnumber}}</router-link>
@@ -105,6 +105,9 @@ export default {
     },
     txTotal() {
       return typeof this.txStats.txTotal !== 'undefined' ? this.txStats.txTotal : false;
+    },
+    txPerMinute() {
+      return typeof this.txStats.txPerMinute !== 'undefined' ? this.txStats.txPerMinute[this.txStats.txPerMinute.length-1].sum_txs.value : false;
     },
     txData() {
       let source;
@@ -260,7 +263,9 @@ export default {
 
 .stats {
   display: flex;
-  margin: 0 0 15px;
+  flex-wrap: wrap;
+  margin: 0 0 -10px;
+  
 
   .stat {
     background-color: #fff;
@@ -271,6 +276,7 @@ export default {
     flex-direction: column;
     justify-content: center;
     margin-right: 25px;
+    margin-bottom: 25px;
 
     .stat-label {
       text-align: center;
