@@ -17,10 +17,16 @@
           <div v-if="accountDetail">
 
             <table class="detail-table">
-              <tr v-if="ownerAddress">
+              <tr v-if="destinationAddress">
                 <td>Alias for:</td>
-                <td>{{ownerAddress}}</td>
+                <td><router-link :to="`/account/${destinationAddress}/`">{{destinationAddress}}</router-link></td>
               </tr>
+
+              <tr v-if="ownerAddress && ownerAddress != destinationAddress">
+                <td>Name owned by:</td>
+                <td><router-link :to="`/account/${ownerAddress}/`">{{ownerAddress}}</router-link></td>
+              </tr>
+
 
               <tr><td>Balance:</td><td>
                 <span v-html="$options.filters.formatToken(fullBalance, 'aergo')"></span>
@@ -115,6 +121,7 @@ export default {
       accountDetail: null,
       staking: null,
       ownerAddress: null,
+      destinationAddress: null,
       names: [],
     }
   },
@@ -137,7 +144,7 @@ export default {
   },
   computed: {
     realAddress() {
-      return this.ownerAddress || this.$route.params.address;
+      return this.destinationAddress || this.$route.params.address;
     },
     fullBalance() {
       if (!this.staking) {
@@ -164,6 +171,7 @@ export default {
       let address;
       this.error = null;
       this.ownerAddress = null;
+      this.destinationAddress = null;
       this.staking = null;
       this.accountDetail = null;
       this.contractAbi = null;
@@ -184,7 +192,8 @@ export default {
         if (address.isName && ['aergo.name', 'aergo.system'].indexOf(address.toString()) === -1) {
           const nameInfo = await this.$store.dispatch('blockchain/getNameInfo', { name: address.encoded });
           this.ownerAddress = nameInfo.owner.toString();
-          address = this.ownerAddress;
+          this.destinationAddress = nameInfo.destination.toString();
+          address = this.destinationAddress;
         }
       } catch (e) {
         this.error = 'Unregistered name';
@@ -229,7 +238,7 @@ export default {
         console.error(e);
       }
 
-      // Contract
+      // Contract and transactions
       try {
         if (this.accountDetail.codehash) {
           this.contractAbi = await this.$store.dispatch('blockchain/getABI', { address });
