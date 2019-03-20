@@ -33,7 +33,7 @@ module.exports = (env, argv) => {
     // analyze bundle
     //new BundleAnalyzerPlugin(),
     // create HTML files
-    new HtmlWebpackPlugin({template: 'src/assets/html/index.html'}), // , chunks: ['popup', 'vendor'
+    new HtmlWebpackPlugin({ template: 'src/assets/html/index.html' }), // , chunks: ['popup', 'vendor'
   ];
 
   return {
