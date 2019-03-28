@@ -8,6 +8,8 @@
         <div class="island-content">
           <div v-if="error" class="error">{{error}}</div>
 
+          <div v-if="!chainInfo || !chainInfo.chainid">Loading...</div>
+
           <table class="kv-table" v-if="chainInfo && chainInfo.chainid">
             <tr><th>Chain ID</th><td>{{chainInfo.chainid.magic}}</td></tr>
             <tr><th>Public</th><td>{{chainInfo.chainid.public}}</td></tr>
@@ -18,8 +20,6 @@
             <tr><th>Consensus</th><td>{{chainInfo.chainid.consensus}}</td></tr>
             <tr><th>BP number</th><td>{{chainInfo.bpnumber}}</td></tr>
           </table>
-
-          <div v-if="!chainInfo || !chainInfo.chainid">Loading...</div>
         </div>
         <div class="island-title">
           BP List
@@ -27,7 +27,9 @@
         </div>
         <div class="island-content">
 
-          <table class="data-table">
+          <div v-if="!votesList || !votesList.length">Loading...</div>
+
+          <table class="data-table" v-if="votesList && votesList.length">
             <thead>
               <tr>
                 <th>Pos.</th>
