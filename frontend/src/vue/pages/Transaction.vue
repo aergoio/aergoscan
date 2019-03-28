@@ -21,7 +21,7 @@
             
             <table class="detail-table">
               <tr><td>Amount:</td><td v-html="$options.filters.formatToken(txDetail.tx.amount, 'aergo')"></td></tr>
-              <tr v-if="txReceipt"><td>Fee:</td><td v-html="$options.filters.formatToken(this.txReceipt.fee, 'gaer')"></td></tr>
+              <tr v-if="txReceipt"><td>Fee:</td><td v-html="$options.filters.formatToken(this.txReceipt.fee, 'aergo')"></td></tr>
               <tr><td>Nonce:</td><td>{{txDetail.tx.nonce}}</td></tr>
               <tr v-if="txDetail.block">
                 <td>Included in block:</td>
