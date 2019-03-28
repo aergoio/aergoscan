@@ -122,7 +122,7 @@ p, ul {
 }
 
 a {
-  color: #F90F5F;
+  color: #FF0097;
   text-decoration: none;
 
   &:hover {

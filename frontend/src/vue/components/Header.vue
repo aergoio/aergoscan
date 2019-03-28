@@ -155,8 +155,8 @@ export default {
 
 <style lang="scss" scoped>
 .header {
-  background-color: #1A1937;
-  color: #fff;
+  background-color: #fff;
+  color: #123;
 
   .wrap {
     display: flex;
@@ -173,14 +173,14 @@ export default {
 }
 
 .logo-wrap {
-  line-height: 100px;
+  line-height: 80px;
 }
 .logo {
   display: inline-block;
   vertical-align: middle;
-  background: url('~@assets/img/aergoscan.svg');
-  width: 220px;
-  height: 36px;
+  background: url('~@assets/img/aergoscan-new.svg');
+  width: 193px;
+  height: 45px;
   background-size: auto 100%;
   background-repeat: no-repeat;
 }
@@ -221,18 +221,17 @@ export default {
     transition: color .25s;
 
     &:hover {
-      color: #F90F5F;
+      color: #FF36AD;
     }
 
     &.router-link-exact-active {
-      
-      border-color: #F90F5F;
+      border-color: #FF36AD;
     }
   }
 }
 
 .search {
-  padding: 25px 0;
+  padding: 15px 0;
 
   @media (max-width: 40em) {
     width: 100%;
@@ -269,24 +268,24 @@ export default {
 
 .search-field {
   background: transparent;
-  border: 3px solid #F90F5F;
+  border: 2px solid #FF36AD;
   border-radius: 100px;
   padding: 0 20px;
   line-height: 40px;
   width: 100%;
   box-sizing: border-box;
-  color: #fff;
+  color: #000;
   font-size: 1.25em;
   appearance: textfield;
 
   &::placeholder {
-    color: rgba(255,255,255,0.7);
+    color: rgba(0,0,0,0.3);
     opacity: 1;
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 2px rgba(255,255,255,0.5);
+    box-shadow: 0 0 2px rgba(0,0,0,0.5);
   }
 }
 </style>

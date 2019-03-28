@@ -33,12 +33,12 @@ export default {
 
   &:focus {
     outline: none;
-    box-shadow: #F8105F 0 0 6px
+    box-shadow: #FF36AD 0 0 6px
   }
 
   &.primary {
-    background-color: #F8105F;
-    border-color: #F8105F;
+    background-color: #FF36AD;
+    border-color: #FF36AD;
     color: #FFFFFF;
   }
 

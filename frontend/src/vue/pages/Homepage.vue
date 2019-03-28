@@ -233,7 +233,7 @@ export default {
     }
   }
   .chart-selector {
-    border: 2px solid #F90F5F;
+    border: 2px solid #FF36AD;
     border-radius: 100px;
     padding: 2px;
     display: flex;
@@ -254,7 +254,7 @@ export default {
       }
       &.active {
         color: #fff;
-        background-color: #F90F5F;
+        background-color: #FF36AD;
       }
       transition: all .24s;
     }
@@ -286,7 +286,7 @@ export default {
     }
     .stat-value {
       text-align: center;
-      color: #F90F5F;
+      color: #FF0097;
       font-weight: 500;
       font-size: 1.5em;
 
