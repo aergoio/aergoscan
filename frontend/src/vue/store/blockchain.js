@@ -62,11 +62,14 @@ const actions = {
         dispatch('streamBlocks');
     },
     async updateChainInfo ({ commit }) {
-        const info = await aergo.getChainInfo();
+        const info = Object.freeze(await aergo.getChainInfo());
         commit('setChainInfo', info);
     },
     async getBestBlock () {
         return await aergo.blockchain();
+    },
+    async getConsensusInfo () {
+        return await aergo.getConsensusInfo();
     },
     getBlock ({ dispatch, state }, { blockNoOrHash }) {
         if (state.blocksByHash[blockNoOrHash]) {

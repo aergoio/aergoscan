@@ -21,7 +21,7 @@
             
             <table class="detail-table">
               <tr><td>Amount:</td><td v-html="$options.filters.formatToken(txDetail.tx.amount, 'aergo')"></td></tr>
-              <tr><td>Fee:</td><td v-html="$options.filters.formatToken(txFee, 'gaer')"></td></tr>
+              <tr v-if="txReceipt"><td>Fee:</td><td v-html="$options.filters.formatToken(this.txReceipt.fee, 'gaer')"></td></tr>
               <tr><td>Nonce:</td><td>{{txDetail.tx.nonce}}</td></tr>
               <tr v-if="txDetail.block">
                 <td>Included in block:</td>
@@ -96,9 +96,7 @@ export default {
     PayloadFormatter,
   },
   computed: {
-    txFee() {
-      return (this.txDetail.tx.type === 1 ? 0 : cfg.CHAIN.coinbasefee);
-    }
+
   },
   methods: {
     async load() {
@@ -114,7 +112,7 @@ export default {
         }
       })();
       (async () => {
-        this.txReceipt = await this.$store.dispatch('blockchain/getTransactionReceipt', { hash });
+        this.txReceipt = Object.freeze(await this.$store.dispatch('blockchain/getTransactionReceipt', { hash }));
       })();
       (async () => {
         const response = await (await this.$fetch.get(`${cfg.API_URL}/transactions`, { q: `_id:${hash}` })).json();
