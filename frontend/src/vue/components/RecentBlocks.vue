@@ -7,7 +7,7 @@
       <div class="cell"><span class="tooltipped-n" v-tooltip="'Number of transactions'">TXs</span></div>
       <div class="cell"><span class="icon icon-view" style="visibility: hidden; margin-right: 16px;"></span></div>
     </div>
-    <transition-group name="animated-list" tag="div" style="height: 400px; overflow-x: hidden; overflow-y: scroll;">
+    <transition-group name="animated-list" tag="div" class="scroll-list" style="height: 400px;">
       <div class="row" v-if="!isConnected" key="connection-status">
         <div class="cell" v-html="connectionStatusMessage"></div>
       </div>

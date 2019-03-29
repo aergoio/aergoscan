@@ -8,7 +8,7 @@
       <div class="cell"><span class="icon icon-view" style="visibility: hidden"></span></div>
       <!--<div class="cell">From -> To</div>-->
     </div>
-    <transition-group name="animated-list" tag="div" style="height: 400px; overflow: auto;">
+    <transition-group name="animated-list" tag="div" class="scroll-list" style="height: 400px;">
       <div class="row" v-if="!isConnected" key="connection-status">
         <div class="cell" v-html="connectionStatusMessage"></div>
       </div>
@@ -54,7 +54,7 @@ export default {
     ...mapState({
       transactions: state => state.blockchain.recentTransactions,
       isConnected: state => state.blockchain.streamConnected,
-      connectionStatusMessage: state => state.blockchain.streamState === 'starting-slow' ? CONNECTING_SLOW_MSG : CONNECTING_MSG,
+      connectionStatusMessage: state => state.blockchain.streamState === 'starting-slow' ? CONNECTING_SLOW_MSG : CONNECTING_MSG
     })
   },
   methods: {
@@ -64,6 +64,8 @@ export default {
     async syncTxList() {
       const response = await this.$fetch.get(`${cfg.API_URL}/recentTransactions`);
       this.syncedTransactions = (await response.json()).map(tx => ({...tx, ...tx.meta}));
+      // 2019-03-28 Workaround for errorneous data after resync
+      if (this.syncedTransactions.length && this.syncedTransactions[0].blockno >= 1785804) this.syncedTransactions = [];
     },
     moment
   },

@@ -347,5 +347,22 @@ a {
   }
 }
 
+.scroll-list {
+  overflow-y: scroll;
+
+  &::-webkit-scrollbar {
+      width: 8px;
+  }
+
+  &:hover {
+    &::-webkit-scrollbar {
+      background-color: transparent;
+      width: 8px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(0,0,0,.2)
+    }
+  }
+}
 
 </style>

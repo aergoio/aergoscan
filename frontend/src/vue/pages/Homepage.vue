@@ -9,8 +9,8 @@
           <div class="stat-label">last<br>block</div>
         </div>
         <div class="stat">
-          <div class="stat-value" v-if="txTotal">{{txTotal | formatNumber('&#8239;')}}</div>
-          <div class="stat-value loading" v-if="!txTotal"></div>
+          <div class="stat-value" v-if="txTotal !== false">{{txTotal | formatNumber('&#8239;')}}</div>
+          <div class="stat-value loading" v-if="txTotal === false"></div>
           <div class="stat-label">total<br>tx</div>
         </div>
         <div class="stat tooltipped-s" v-tooltip="'Peak transaction number. Click to go to block'">
