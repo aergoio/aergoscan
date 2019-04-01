@@ -22,6 +22,7 @@
               <td class="monospace">
                 <span v-if="peerVotes.indexOf(peer.address.peerid) === -1">{{peer.address.peerid}}</span>
                 <router-link :to="`/votes/?highlight=${peer.address.peerid}`" v-if="peerVotes.indexOf(peer.address.peerid) !== -1">{{peer.address.peerid}}</router-link>
+                <span v-if="peerVotes.indexOf(peer.address.peerid) !== -1" class="label">BP</span>
                 <span v-if="peer.address.peerid === selfPeerId" class="label">self</span>
               </td>
               <td>
