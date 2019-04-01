@@ -289,6 +289,7 @@ export default {
       color: #FF0097;
       font-weight: 500;
       font-size: 1.5em;
+      border: 0;
 
       &.loading {
         animation: dotLoading steps(3, end) infinite 1.5s;

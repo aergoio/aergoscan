@@ -35,7 +35,7 @@
                 {{moment(peer.bestblock.time/1000000).format('MMM Do YYYY, HH:mm:ss')}}
                 </span>
                 <span v-if="!peer.bestblock.time">
-                  not found
+                  not synced
                 </span>
               </td>
             </tr>
