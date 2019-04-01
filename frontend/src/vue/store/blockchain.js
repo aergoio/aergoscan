@@ -129,6 +129,9 @@ const actions = {
         const staking = await aergo.getStaking(address);
         return staking;
     },
+    async getNodeState({}, component) {
+        return aergo.getNodeState(component);
+    },
     getNameInfo ({ dispatch }, { name }) {
         return dispatch('fetchNameInfo', { name });
     },

@@ -23,6 +23,18 @@
               <tr><td>Amount:</td><td v-html="$options.filters.formatToken(txDetail.tx.amount, 'aergo')"></td></tr>
               <tr v-if="txReceipt"><td>Fee:</td><td v-html="$options.filters.formatToken(this.txReceipt.fee, 'aergo')"></td></tr>
               <tr><td>Nonce:</td><td>{{txDetail.tx.nonce}}</td></tr>
+              <tr v-if="txDetail.tx.payload">
+                <td>Payload:</td>
+                <td><PayloadFormatter :payload="txDetail.tx.payload" :txType="txDetail.tx.type" :recipient="txDetail.tx.to" /></td>
+              </tr>
+              <tr v-if="!txDetail.block">
+                <td>Status:</td>
+                <td>Pending</td>
+              </tr>
+              <tr v-if="txDetail.block">
+                <td>Status:</td>
+                <td>Confirmed</td>
+              </tr>
               <tr v-if="txDetail.block">
                 <td>Included in block:</td>
                 <td class="monospace"><router-link :to="`/block/${txDetail.block.hash}/`">{{txDetail.block.hash}}</router-link></td>
@@ -30,10 +42,6 @@
               <tr v-if="txMeta.ts">
                 <td>Time stamp:</td>
                 <td>{{moment(txMeta.ts).format('dddd, MMMM Do YYYY, HH:mm:ss')}} ({{moment(txMeta.ts).fromNow()}})</td>
-              </tr>
-              <tr v-if="txDetail.tx.payload">
-                <td>Payload:</td>
-                <td><PayloadFormatter :payload="txDetail.tx.payload" :txType="txDetail.tx.type" :recipient="txDetail.tx.to" /></td>
               </tr>
             </table>
             

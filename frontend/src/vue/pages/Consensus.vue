@@ -127,26 +127,4 @@ export default {
   border-color: #FF36AD;
   border-width: 2px;
 }
-.kv-table {
-  background-color: #FAFAFA;
-  border-collapse: collapse;
-  min-width: 350px;
-  margin: 0 0 1em;
-  
-  td, th {
-    border-bottom: 1px solid #E4E4E4;
-    line-height: 2rem;
-    padding: 0 1rem 0 .75rem;
-  }
-  th {
-    font-weight: 500;
-    text-align: left;
-    white-space: nowrap;
-  }
-  tr:last-child {
-    td, th {
-      border-bottom: 0;
-    }
-  }
-}
 </style>

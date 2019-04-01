@@ -13,7 +13,6 @@
             <thead>
               <tr>
                 <th v-on:click="sortBy('address.peerid')" class="sortable" :class="{sorted: sorting === 'address.peerid', sortingAsc}">Peer ID</th>
-                <th v-on:click="sortBy('state')" class="sortable" :class="{sorted: sorting === 'state', sortingAsc}">State</th>
                 <th v-on:click="sortBy('bestblock.blockno')" class="sortable" :class="{sorted: sorting === 'bestblock.blockno', sortingAsc}">Height</th>
                 <th>Block hash</th>
                 <th>Block time</th>
@@ -23,9 +22,7 @@
               <td class="monospace">
                 <span v-if="peerVotes.indexOf(peer.address.peerid) === -1">{{peer.address.peerid}}</span>
                 <router-link :to="`/votes/?highlight=${peer.address.peerid}`" v-if="peerVotes.indexOf(peer.address.peerid) !== -1">{{peer.address.peerid}}</router-link>
-              </td>
-              <td>
-                {{peer.state}}
+                <span v-if="peer.address.peerid === selfPeerId" class="label">self</span>
               </td>
               <td>
                 {{peer.bestblock.blockno}}
@@ -38,10 +35,21 @@
                 {{moment(peer.bestblock.time/1000000).format('MMM Do YYYY, HH:mm:ss')}}
                 </span>
                 <span v-if="!peer.bestblock.time">
-                  ???
+                  not found
                 </span>
               </td>
             </tr>
+          </table>
+        </div>
+      </div>
+      <div class="island" v-if="nodeInfo.version">
+        <div class="island-title">
+          This node
+        </div>
+        <div class="island-content">
+          <table class="kv-table">
+            <tr><th>Peer ID</th><td>{{selfPeerId}}</td></tr>
+            <tr><th>Version</th><td>{{nodeInfo.version}}</td></tr>
           </table>
         </div>
       </div>
@@ -80,6 +88,7 @@ export default {
       error: null,
       sorting: 'address.peerid',
       sortingAsc: false,
+      nodeInfo: {}
     }
   },
   created () {
@@ -93,6 +102,11 @@ export default {
     this.load();
   },
   computed: {
+    selfPeerId() {
+      if (!this.peers || this.peers.length === 0) return '';
+      const [selfPeer] = this.peers.filter(peer => peer.selfpeer);
+      return selfPeer.address.peerid;
+    },
     peersSorted() {
       if (this.peers === null) return [];
       let peers = [...this.peers];
@@ -119,6 +133,16 @@ export default {
           try {
             const votesList = await this.$store.dispatch('blockchain/getTopVotes', { count: 50 });
             this.peerVotes = votesList.map(vote => vote.candidate);
+          } catch (e) {
+            console.error(e);
+          }
+        })();
+
+        (async () => {
+          try {
+            const result = await this.$store.dispatch('blockchain/getNodeState', 'RPCSvc');
+            console.log(result);
+            this.nodeInfo.version = result.RPCSvc.actor.version;
           } catch (e) {
             console.error(e);
           }
