@@ -17,11 +17,11 @@ if (process.env.API_URL) {
 }
 
 let AERGO_URL = `${BACKEND_URL}/aergo`;
-if (process.env.AERGO_NODE) {
-    if (process.env.AERGO_NODE.startsWith('http')) {
-        AERGO_URL = process.env.AERGO_NODE;
+if (process.env.AERGO_URL) {
+    if (process.env.AERGO_URL.startsWith('http')) {
+        AERGO_URL = process.env.AERGO_URL;
     } else {
-        const aergo_node_clean = process.env.AERGO_NODE.replace(/https?:\/\//,'');
+        const aergo_node_clean = process.env.AERGO_URL.replace(/https?:\/\//,'');
         AERGO_URL = `https://${aergo_node_clean}/aergo`;
     }
 }
