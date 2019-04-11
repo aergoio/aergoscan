@@ -73,7 +73,7 @@
           <div class="row header">
             <div class="cell" style="flex: 2">Name</div>
             <div class="cell" style="flex: 1"></div>
-            <div class="cell" style="flex: 6">Current owner</div>
+            <div class="cell" style="flex: 6">Current address</div>
             
           </div>
           <div class="row linearize" v-for="name in namesPrevious" :key="name.tx">

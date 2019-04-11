@@ -56,24 +56,25 @@ export default {
       }
       let payloadBuffer = Buffer.from(this.payload);
       let payload = payloadBuffer.toString();
+      console.log(payload);
       try {
         let parsedData = JSON.parse(payload);
         if (this.txType == 1) {
-          this.action = parsedData.Name.replace('v1', '');
+          this.action = (parsedData.Name || parsedData.name).replace('v1', '');
         } else {
           this.action = "function call";
-          this.name = parsedData.Name;
+          this.name = (parsedData.Name || parsedData.name);
         }
         
-        if (parsedData.Args) {
-          const argsString = JSON.stringify(parsedData.Args);
+        if (parsedData.Args || parsedData.args) {
+          const argsString = JSON.stringify(parsedData.Args || parsedData.args);
           payload = argsString.substr(1, argsString.length-2);
         } else {
           payload = "";
         }
 
         if (this.action === 'voteBP') {
-          this.bps = parsedData.Args;
+          this.bps = parsedData.Args || parsedData.args;
           payload = "";
         }
       } catch(e) {

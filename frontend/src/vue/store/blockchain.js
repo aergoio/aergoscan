@@ -132,6 +132,9 @@ const actions = {
     async getNodeState({}, component) {
         return aergo.getNodeState(component);
     },
+    async getServerInfo() {
+        return aergo.getServerInfo();
+    },
     getNameInfo ({ dispatch }, { name }) {
         return dispatch('fetchNameInfo', { name });
     },
@@ -158,6 +161,10 @@ const actions = {
          const contract = Contract.fromAbi(abi).setAddress(address);
          return await aergo.queryContract(contract[name](...args));
     },
+    async queryContractState ({}, {abi, address, stateNames}) {
+        const contract = Contract.fromAbi(abi).setAddress(address);
+        return await aergo.queryContractState(contract.queryState(...stateNames));
+   },
     async getEvents ({}, filter) {
         return await aergo.getEvents(filter);
    }

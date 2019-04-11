@@ -49,8 +49,11 @@
         </div>
         <div class="island-content">
           <table class="kv-table">
-            <tr><th>Peer ID</th><td>{{selfPeerId}}</td></tr>
-            <tr><th>Version</th><td>{{nodeInfo.version}}</td></tr>
+            <tr><th>version</th><td>{{nodeInfo.version}}</td></tr>
+            <tr v-for="[key, value] in serverInfoItems" :key="key">
+              <th>{{key}}</th>
+              <td>{{value}}</td>
+            </tr>
           </table>
         </div>
       </div>
@@ -89,7 +92,8 @@ export default {
       error: null,
       sorting: 'address.peerid',
       sortingAsc: false,
-      nodeInfo: {}
+      nodeInfo: {},
+      serverInfo: null,
     }
   },
   created () {
@@ -103,6 +107,12 @@ export default {
     this.load();
   },
   computed: {
+    serverInfoItems() {
+      const items = new Map();
+      if (!this.serverInfo === null) return items;
+      items.set('peerid', this.serverInfo.statusMap.get('id'));
+      return Array.from(items);
+    },
     selfPeerId() {
       if (!this.peers || this.peers.length === 0) return '';
       const [selfPeer] = this.peers.filter(peer => peer.selfpeer);
@@ -144,6 +154,16 @@ export default {
             const result = await this.$store.dispatch('blockchain/getNodeState', 'RPCSvc');
             console.log(result);
             this.nodeInfo.version = result.RPCSvc.actor.version;
+          } catch (e) {
+            console.error(e);
+          }
+        })();
+
+        (async () => {
+          try {
+            const result = await this.$store.dispatch('blockchain/getServerInfo');
+            console.log(result);
+            this.serverInfo = result;
           } catch (e) {
             console.error(e);
           }
