@@ -36,7 +36,7 @@
                 <td>Confirmed</td>
               </tr>
               <tr v-if="txDetail.block">
-                <td>Included in block:</td>
+                <td nowrap>Included in block:</td>
                 <td class="monospace"><router-link :to="`/block/${txDetail.block.hash}/`">{{txDetail.block.hash}}</router-link></td>
               </tr>
               <tr v-if="txMeta.ts">

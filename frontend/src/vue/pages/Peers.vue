@@ -109,7 +109,7 @@ export default {
   computed: {
     serverInfoItems() {
       const items = new Map();
-      if (!this.serverInfo === null) return items;
+      if (this.serverInfo === null) return items;
       items.set('peerid', this.serverInfo.statusMap.get('id'));
       return Array.from(items);
     },

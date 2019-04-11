@@ -4,7 +4,7 @@
 
     <span class="label label-action" v-if="action">{{action}}</span>
     <span class="monospace" v-if="name">{{name}}(</span>
-    <span class="monospace">{{rest}}</span>
+    <span class="monospace" :class="{block: rest.length > 100}">{{rest}}</span>
     <span class="monospace" v-if="name">)</span>
     <span v-if="address">
       <router-link :to="`/account/${address}/`">{{address}}</router-link>
@@ -56,7 +56,6 @@ export default {
       }
       let payloadBuffer = Buffer.from(this.payload);
       let payload = payloadBuffer.toString();
-      console.log(payload);
       try {
         let parsedData = JSON.parse(payload);
         if (this.txType == 1) {
@@ -67,7 +66,8 @@ export default {
         }
         
         if (parsedData.Args || parsedData.args) {
-          const argsString = JSON.stringify(parsedData.Args || parsedData.args);
+          const argsString = JSON.stringify(parsedData.Args || parsedData.args, undefined, 2);
+          console.log(argsString)
           payload = argsString.substr(1, argsString.length-2);
         } else {
           payload = "";
@@ -96,5 +96,9 @@ export default {
   span:before {
     content: "· ";
   }
+}
+.monospace.block {
+  display: inline-block;
+  margin-left: 1em;
 }
 </style>

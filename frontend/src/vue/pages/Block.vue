@@ -28,12 +28,12 @@
               <td>Time stamp:</td>
               <td>{{moment(blockDetail.header.timestamp/1000000).format('dddd, MMMM Do YYYY, HH:mm:ss')}} ({{moment(blockDetail.header.timestamp/1000000).fromNow()}})</td>
             </tr>
-            <tr>
+            <tr v-if="blockDetail.header.blockno">
               <td>Produced by:</td>
               <td v-if="bpId"><Identicon :text="bpId" size="18" class="mini-identicon" /> <router-link :to="`/votes/?highlight=${bpId}`">{{bpId}}</router-link></td>
               <td v-if="!bpId">Unknown</td>
             </tr>
-            <tr>
+            <tr v-if="blockDetail.header.blockno">
               <td>Coinbase account:</td>
               <td v-if="blockDetail.header.coinbaseaccount.toString()"><Identicon :text="blockDetail.header.coinbaseaccount" size="18" class="mini-identicon" /> <router-link :to="`/account/${blockDetail.header.coinbaseaccount}/`">{{blockDetail.header.coinbaseaccount.toString()}}</router-link></td>
               <td v-if="!blockDetail.header.coinbaseaccount.toString()">None</td>
@@ -96,13 +96,15 @@ export default {
       try {
         const blockDetail = await timedAsync(async () => await this.$store.dispatch('blockchain/getBlock', { blockNoOrHash: blockNoOrHash }));
         for (let tx of blockDetail.body.txsList) {
-          tx.amount = Object.freeze(tx.amount); // prevent Vue from adding observer to Amount
+          tx.amount = Object.freeze(tx.amount);
         }
         this.blockDetail = blockDetail;
 
         // Try to calculate peer id from pubkey
         const pubkey = bs58.decode(this.blockDetail.header.pubkey);
-        if (pubkey.length <= 42) {
+        if (pubkey.length == 0) {
+          this.bpId = "";
+        } else if (pubkey.length <= 42) {
           this.bpId = bs58.encode(
             Buffer.concat(
               [

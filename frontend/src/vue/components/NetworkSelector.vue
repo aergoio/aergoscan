@@ -32,7 +32,7 @@ export default {
   data () {
     return {
       blockHeight: 0,
-      network: 'testnet',
+      network: '',
       expanded: false,
     }
   },
@@ -93,18 +93,6 @@ export default {
   methods: {
     toggleExpanded() {
       this.expanded = !this.expanded;
-    },
-    promptNetwork() {
-      return; // disabled until proper UI is built
-      const input = prompt('Enter network address (e.g. 127.0.0.1:7845)');
-      if (!input) return;
-      this.network = input;
-      const url = 'http://' + this.network;
-      const provider = new GrpcWebProvider({url: url});
-      console.log('Setting provider to', url);
-      this.$store.dispatch('blockchain/setProvider', { provider });
-      this.$data.isConnected = false;
-      this.updateStatus();
     },
     goto(url, current) {
       if (current) return;
