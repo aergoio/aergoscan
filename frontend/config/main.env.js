@@ -7,7 +7,7 @@ if (process.env.BACKEND_URL) {
     }
 }
 
-let API_URL = `${BACKEND_URL}/api/mainnet`;
+let API_URL = `${BACKEND_URL}/main`;
 if (process.env.API_URL) {
     if (process.env.API_URL.startsWith('http')) {
         API_URL = process.env.API_URL;
@@ -16,7 +16,7 @@ if (process.env.API_URL) {
     }
 }
 
-let AERGO_URL = `${BACKEND_URL}/aergo`;
+let AERGO_URL = `https://mainnet-api.aergo.io`;
 if (process.env.AERGO_URL) {
     if (process.env.AERGO_URL.startsWith('http')) {
         AERGO_URL = process.env.AERGO_URL;
