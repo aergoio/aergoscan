@@ -41,15 +41,15 @@
               </td>
             </tr>
           </table>
+          <p class="note" v-if="loadTime">Data retrieved from {{selfPeerId}} at {{loadTime.format('HH:mm:ss')}}.</p>
         </div>
       </div>
-      <div class="island" v-if="nodeInfo.version">
+      <div class="island" v-if="serverInfoItems">
         <div class="island-title">
-          This node
+          Server Info
         </div>
         <div class="island-content">
           <table class="kv-table">
-            <tr><th>version</th><td>{{nodeInfo.version}}</td></tr>
             <tr v-for="[key, value] in serverInfoItems" :key="key">
               <th>{{key}}</th>
               <td>{{value}}</td>
@@ -92,8 +92,8 @@ export default {
       error: null,
       sorting: 'address.peerid',
       sortingAsc: false,
-      nodeInfo: {},
       serverInfo: null,
+      loadTime: null
     }
   },
   created () {
@@ -111,6 +111,7 @@ export default {
       const items = new Map();
       if (this.serverInfo === null) return items;
       items.set('peerid', this.serverInfo.statusMap.get('id'));
+      items.set('version', this.serverInfo.statusMap.get('version'));
       return Array.from(items);
     },
     selfPeerId() {
@@ -151,16 +152,6 @@ export default {
 
         (async () => {
           try {
-            const result = await this.$store.dispatch('blockchain/getNodeState', 'RPCSvc');
-            console.log(result);
-            this.nodeInfo.version = result.RPCSvc.actor.version;
-          } catch (e) {
-            console.error(e);
-          }
-        })();
-
-        (async () => {
-          try {
             const result = await this.$store.dispatch('blockchain/getServerInfo');
             console.log(result);
             this.serverInfo = result;
@@ -184,6 +175,7 @@ export default {
           }
         }
         this.peers = peers;
+        this.loadTime = moment();
       } catch (e) {
         this.error = '' + e;
         console.error(e);
@@ -205,6 +197,13 @@ export default {
 </script>
 
 <style lang="scss">
+.peer-table {
+  margin-bottom: 1em;
+}
+.note {
+  color: #666;
+  font-size: .95em;
+}
 .peer-table .monospace {
   font-size: 85%;
 }
