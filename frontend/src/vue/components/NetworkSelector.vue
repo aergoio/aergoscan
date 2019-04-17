@@ -18,6 +18,10 @@ import { GrpcWebProvider } from '@herajs/client';
 import { mapState, mapActions } from 'vuex'
 
 const NETWORKS = {
+  'aergo.io': {
+    url: 'https://mainnet.aergoscan.io',
+    label: 'Mainnet'
+  },
   'testnet.aergo.io': {
     url: 'https://testnet.aergoscan.io',
     label: 'Testnet'
