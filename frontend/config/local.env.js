@@ -29,6 +29,7 @@ if (process.env.AERGO_URL) {
 }
 
 module.exports = {
+    DEPLOYMENT: JSON.stringify('local'),
     NODE_ENV: JSON.stringify('development'),
     API_URL: JSON.stringify(API_URL),
     AERGO_URL: JSON.stringify(AERGO_URL),

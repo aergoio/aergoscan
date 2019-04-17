@@ -8,6 +8,7 @@ if (process.env.BACKEND_URL) {
 }
 
 module.exports = {
+    DEPLOYMENT: JSON.stringify('testnet'),
     NODE_ENV: JSON.stringify('production'),
     API_URL: JSON.stringify(`${BACKEND_URL}/testnet`),
     AERGO_URL: JSON.stringify(`${BACKEND_URL}/aergo`),

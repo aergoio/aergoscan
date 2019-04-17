@@ -16,7 +16,7 @@ if (process.env.API_URL) {
     }
 }
 
-let AERGO_URL = `https://mainnet-api.aergo.io`;
+let AERGO_URL = `https://mainnet-api-http.aergo.io`;
 if (process.env.AERGO_URL) {
     if (process.env.AERGO_URL.startsWith('http')) {
         AERGO_URL = process.env.AERGO_URL;
@@ -27,6 +27,7 @@ if (process.env.AERGO_URL) {
 }
 
 module.exports = {
+    DEPLOYMENT: JSON.stringify('mainnet'),
     NODE_ENV: JSON.stringify('production'),
     API_URL: JSON.stringify(`${API_URL}`),
     AERGO_URL: JSON.stringify(`${AERGO_URL}`),
