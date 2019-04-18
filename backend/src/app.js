@@ -1,6 +1,7 @@
 import express from 'express';
 import { ApiClient } from './db';
 import cfg from './config';
+import chaininfos from '../chaininfo';
 const app = express();
 
 // Nested router for chainId
@@ -37,6 +38,22 @@ apiRouter.route('/').get((req, res) => {
         msg: `Aergoscan API for chain ${req.params.chainId}.`,
         resources: ['bestBlock', 'blocks', 'transactions'].map(resource => `${cfg.HOST}/${req.params.chainId}/${resource}/`)
     });
+});
+
+apiRouter.route('/chaininfo').get((req, res) => {
+    const chaininfo = chaininfos[req.params.chainId];
+    if (!chaininfo) {
+        return res.json({ error: 'chaininfo not found' });
+    }
+    return res.json(chaininfo);
+});
+
+apiRouter.route('/maxTokens').get((req, res) => {
+    const chaininfo = chaininfos[req.params.chainId];
+    if (!chaininfo) {
+        return res.send('chaininfo not found');
+    }
+    return res.send(chaininfo['MaxTokens']);
 });
 
 /**
