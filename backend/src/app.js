@@ -1,4 +1,5 @@
 import express from 'express';
+import { Amount } from '@herajs/client';
 import { ApiClient } from './db';
 import cfg from './config';
 import chaininfos from '../chaininfo';
@@ -53,7 +54,10 @@ apiRouter.route('/maxTokens').get((req, res) => {
     if (!chaininfo) {
         return res.send('chaininfo not found');
     }
-    return res.send(chaininfo['MaxTokens']);
+    const unit = req.query.unit || 'aer';
+    const amount = new Amount(chaininfo['MaxTokens'], 'aer');
+    const [value,] = amount.toUnit(unit).toString().split(" ");
+    return res.send(value);
 });
 
 /**
