@@ -60,6 +60,14 @@ apiRouter.route('/maxTokens').get((req, res) => {
     return res.send(value);
 });
 
+apiRouter.route('/totalTokens').get((req, res) => {
+    if (req.params.chainId !== 'main') res.send(`not available for chain ${req.params.chainId}`);
+    const unit = req.query.unit || 'aer';
+    const amount = new Amount("100000000", 'aergo');
+    const [value,] = amount.toUnit(unit).toString().split(" ");
+    return res.send(value);
+});
+
 /**
  * Query best block
  */
