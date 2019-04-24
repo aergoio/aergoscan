@@ -184,10 +184,7 @@ export default {
   },
   methods: {
     query(newQuery) {
-      return {
-        ...this.$route.query,
-        ...newQuery
-      }
+      return { ...this.$route.query, ...newQuery };
     },
     async load() {
       this.error = null;

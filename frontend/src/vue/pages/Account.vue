@@ -129,7 +129,7 @@ export default {
   },
   watch: {
     '$route' (to, from) {
-      this.load();
+      if (to.path !== from.path) this.load();
     }
   },
   mounted () {

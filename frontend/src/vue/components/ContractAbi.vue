@@ -1,18 +1,12 @@
 <template>
   <div>
-    <div class="view-selector">
-      <div class="view-option" :class="{active: viewMode=='abi'}" v-on:click="setViewMode('abi')">ABI (JSON)</div>
-      <div class="view-option" :class="{active: viewMode=='interactive'}" v-on:click="setViewMode('interactive')">Interactive</div>
-      <!--<div class="view-option" :class="{active: viewMode=='code'}" v-on:click="setViewMode('code')">Codehash</div>-->
-      <div class="view-option" :class="{active: viewMode=='events'}" v-on:click="setViewMode('events')">Events</div>
-    </div>
-    <div class="view-box">
-      <div v-if="viewMode=='abi'">
+    <Tabs theme="dark" :value="selectedTab" @tab-change="tabChanged">
+      <Tab title="ABI (JSON)" :route="{ query: query({tab: 'abi'}) }"><div class="aergo-tab-content">
         <div class="monospace code-highlight code-highlight-pre" v-html="formattedAbi"></div>
-      </div>
-      <div v-if="viewMode=='interactive'">
+      </div></Tab>
+      <Tab title="Interactive" :route="{ query: query({tab: 'interactive'}) }"><div class="aergo-tab-content">
         <div class="monospace interactive-contract code-highlight">
-          <div v-if="abi.functions.length == 0">Contract has no public functions.</div>
+          <div v-if="!abi || abi.functions.length == 0">Contract has no public functions.</div>
           <div v-for="(func, idx) in functions" :key="func.name" class="function-block">
             <span class="function">{{func.name}}</span>(<span v-if="func.arguments.length">{<br>
               <span v-for="(arg, idx) in func.arguments" :key="arg.name">
@@ -32,14 +26,8 @@
           </div>
 
         </div>
-      </div>
-      <div v-if="viewMode=='code'">
-        <div class="monospace" style="max-width: 29em">
-          <p>{{codehash.length}} bytes</p>
-          <div v-html="formattedCode" />
-        </div>
-      </div>
-      <div v-if="viewMode=='events'">
+      </div></Tab>
+      <Tab title="Events" :route="{ query: query({tab: 'events'}) }"><div class="aergo-tab-content">
         <p style="float: right">
           <ReloadButton :action="loadNewEvents" />
         </p>
@@ -63,14 +51,17 @@
           </tr>
         </table>
         
-      </div>
-    </div>
+      </div></Tab>
+    </Tabs>
   </div>
 </template>
 
 <script>
 import { loadAndWait } from '../utils/async';
 import ReloadButton from './ReloadButton';
+import { Tabs, Tab } from 'aergo-ui/src/components/tabs';
+
+const contractTabs = ['abi', 'interactive', 'events'];
 
 const defaultdict = (def) => new Proxy({}, {
   get: (target, name) => name in target ? target[name] : def
@@ -114,17 +105,19 @@ export default {
       eventsToMax: 0,
       eventsFromMin: -1,
       isLoadingMoreEvents: false,
-      bestBlock: false
+      bestBlock: false,
+      selectedTab: 0
     }
   },
   created () {
-    
+    if (this.$route.query.tab) {
+      this.selectedTab = contractTabs.indexOf(this.$route.query.tab) || 0;
+    }
   },
   watch: {
-    '$route' (to, from) {
-    },
-    'viewMode' (to, from) {
-      if (to === 'events') {
+    'selectedTab' (to, from) {
+      console.log(to);
+      if (to === 2) {
         this.loadEvents();
       }
     }
@@ -135,6 +128,7 @@ export default {
   },
   components: {
     ReloadButton,
+    Tabs, Tab
   },
   computed: {
     functions() {
@@ -142,6 +136,7 @@ export default {
       return this.abi.functions.filter(func => func.name !== 'constructor');
     },
     stateVariables() {
+      if (!this.abi) return [];
       return this.abi.state_variables;
     },
     formattedAbi() {
@@ -151,7 +146,6 @@ export default {
     formattedCode() {
       if (!this.codehash) return '';
       const buf = Buffer.from(this.codehash);
-      //return Buffer.from(this.accountDetail.codehash).toString();
       return Array.from(buf).map (b => b.toString (16).padStart (2, "0")).join (" ");
     },
     canLoadMoreEvents() {
@@ -159,6 +153,12 @@ export default {
     }
   },
   methods: {
+    tabChanged(index) {
+      this.selectedTab = index;
+    },
+    query(newQuery) {
+      return { ...this.$route.query, ...newQuery };
+    },
     setViewMode(mode) {
       this.viewMode = mode;
     },
