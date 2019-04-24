@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "@herajs/client": "0.8.6",
+    "aergo-ui": "git+https://github.com/aergoio/aergo-ui.git",
     "bs58check": "^2.1.2",
     "chart.js": "^2.7.2",
     "hash.js": "^1.1.7",

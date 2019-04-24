@@ -121,6 +121,12 @@ p, ul {
   margin: 0 0 1em 0;
 }
 
+h3 {
+  font-size: 1em;
+  font-weight: medium;
+  margin: 0 0 1em 0;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -168,9 +174,13 @@ a {
   cursor: pointer;
 }
 
-.monospace, .hash {
+.monospace, .hash, pre {
   font-family: 'SourceCodePro', monospace;
-  word-break: break-word;
+  word-break: break-all;
+}
+pre {
+  white-space: pre-wrap;
+  line-height: 1.3;
 }
 .hash {
   font-size: .9em;
@@ -393,5 +403,24 @@ a {
     }
   }
 }
-
+.icon {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+.icon-medium {
+  width: 16px;
+  height: 16px;
+}
+.icon-view {
+  background-image: url('~@assets/img/view.svg');
+}
+.icon-success {
+  background-image: url('~@assets/img/icon-success.svg');
+}
+.icon-fail {
+  background-image: url('~@assets/img/icon-fail.svg');
+}
 </style>

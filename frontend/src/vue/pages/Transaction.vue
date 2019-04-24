@@ -25,7 +25,7 @@
               <tr><td>Nonce:</td><td>{{txDetail.tx.nonce}}</td></tr>
               <tr v-if="txDetail.tx.payload">
                 <td>Payload:</td>
-                <td><PayloadFormatter :payload="txDetail.tx.payload" :txType="txDetail.tx.type" :recipient="txDetail.tx.to" /></td>
+                <td>{{txDetail.tx.payload.length}} bytes</td>
               </tr>
               <tr v-if="!txDetail.block">
                 <td>Status:</td>
@@ -48,21 +48,59 @@
           </div>
         </div>
 
-        <div class="island-title" v-if="txReceipt">Receipt</div>
+        <div class="island-title" v-if="txReceipt">Execution Details</div>
         <div class="island-content" v-if="txReceipt">
-          
-          <div class="transaction-flow-diagram">
-            <AccountBox v-if="txReceipt.contractaddress" :address="txReceipt.contractaddress" />
+
+          <h3>Contract</h3>
+          <div style="display: flex; margin-bottom: 1em">
+          <AccountBox v-if="txReceipt.contractaddress" :address="txReceipt.contractaddress" />
           </div>
 
-          <table class="detail-table">
-            <tr><td>Status:</td><td class="monospace">{{txReceipt.status}}</td></tr>
-            <tr><td>Result:</td><td>
-              <span class="monospace" v-if="txReceipt.result">{{txReceipt.result}}</span>
-              <span v-if="!txReceipt.result" class="label">(empty)</span>
-            </td></tr>
-          </table>
-           
+          <div class="side-by-side">
+            <div>
+              <h3>Payload</h3>
+
+              <Tabs theme="dark" :value="selectedPayloadTab">
+                <Tab title="Formatted" :route="{ query: query({payload: 'formatted'}) }">
+                  <div class="aergo-tab-content aergo-tab-content-bar" v-if="txDetail.tx.payload.length">{{formattedTitle}}</div>
+                  <div class="aergo-tab-content" :class="{'empty-result': !txDetail.tx.payload.length}">
+                    <PayloadFormatter :payload="txDetail.tx.payload" :txType="txDetail.tx.type" :recipient="txDetail.tx.to" v-if="txDetail.tx.payload" />
+                    <span v-if="!txDetail.tx.payload.length">(No payload)</span>
+                  </div>
+                </Tab>
+                <Tab title="JSON" :route="{ query: query({payload: 'json'}) }">
+                  <div class="aergo-tab-content monospace"><pre>{{payloadJson}}</pre></div>
+                </Tab>
+                <Tab title="Hex" :route="{ query: query({payload: 'hex'}) }">
+                  <div class="aergo-tab-content monospace">{{payloadHex}}</div>
+                </Tab>
+              </Tabs>
+
+            </div>
+
+            <div>
+              <h3>Result</h3>
+
+              <Tabs theme="dark" :value="selectedReceiptTab">
+                <Tab title="Formatted" :route="{ query: query({receipt: 'formatted'}) }">
+                  <div class="aergo-tab-content aergo-tab-content-bar">
+                    <span v-if="txReceipt.status=='SUCCESS' || txReceipt.status=='CREATED'" class="icon status-icon icon-medium icon-success"></span>
+                    <span v-if="txReceipt.status=='ERROR'" class="icon status-icon icon-medium icon-fail"></span>
+                    {{statusFormatted}}
+                  </div>
+                  <div class="aergo-tab-content tx-result" :class="{'empty-result': !txReceipt.result}">
+                    <span class="monospace" v-if="txReceipt.result">{{txReceipt.result}}</span>
+                    <span v-if="!txReceipt.result">(Empty result)</span>
+                  </div>
+                </Tab>
+                <Tab title="JSON" :route="{ query: query({receipt: 'json'}) }">
+                  <div class="aergo-tab-content monospace"><pre>{{receiptJson}}</pre></div>
+                </Tab>
+              </Tabs>
+
+              
+            </div>
+          </div>
         </div>
       </div>
 
@@ -77,6 +115,10 @@ import { mapState } from 'vuex'
 import AccountBox from '../components/AccountBox';
 import PayloadFormatter from '../components/PayloadFormatter';
 import cfg from '../../config';
+import { Tabs, Tab } from 'aergo-ui/src/components/tabs';
+
+const payloadTabs = ['formatted', 'json', 'hex'];
+const receiptTabs = ['formatted', 'json'];
 
 export default {
   data () {
@@ -85,6 +127,8 @@ export default {
       txReceipt: null,
       txMeta: {},
       error: null,
+      selectedPayloadTab: 0,
+      selectedReceiptTab: 0
     }
   },
   created () {
@@ -95,6 +139,12 @@ export default {
     }
   },
   mounted () {
+    if (this.$route.query.payload) {
+      this.selectedPayloadTab = payloadTabs.indexOf(this.$route.query.payload) || 0;
+    }
+    if (this.$route.query.receipt) {
+      this.selectedReceiptTab = receiptTabs.indexOf(this.$route.query.receipt) || 0;
+    }
     this.load();
   },
   beforeDestroy () {
@@ -102,11 +152,43 @@ export default {
   components: {
     AccountBox,
     PayloadFormatter,
+    Tabs, Tab
   },
   computed: {
-
+    formattedTitle() {
+      if (!this.txDetail.tx.to || !this.txDetail.tx.to.toString().length) return 'Contract Creation';
+      return 'Function Call';
+    },
+    statusFormatted() {
+      const status = this.txReceipt.status.toLowerCase();;
+      return status.charAt(0).toUpperCase() + status.slice(1);
+    },
+    payloadJson() {
+      if (!this.txDetail.tx.payload) return;
+      try {
+        let payloadBuffer = Buffer.from(this.txDetail.tx.payload);
+        let parsedData = JSON.parse(payloadBuffer.toString());
+        return JSON.stringify(parsedData, null, 2);
+      } catch(e) {
+        return 'Cannot parse payload as JSON';
+      }
+    },
+    payloadHex() {
+      if (!this.txDetail.tx.payload) return;
+      let payloadBuffer = Buffer.from(this.txDetail.tx.payload);
+      return payloadBuffer.toString('hex');
+    },
+    receiptJson() {
+      return JSON.stringify(this.txReceipt, null, 2);
+    }
   },
   methods: {
+    query(newQuery) {
+      return {
+        ...this.$route.query,
+        ...newQuery
+      }
+    },
     async load() {
       this.error = null;
       let hash = this.$route.params.hash;
@@ -148,5 +230,25 @@ export default {
     margin-top: 8px;
   }
 }
+
+.aergo-tab-content:last-of-type {
+  min-height: 125px;
+}
+
+.status-icon {
+  margin-right: 10px;
+}
+.tx-result {
+  
+  justify-content: center;
+  display: flex;
+}
+.empty-result {
+  color: rgba(255,255,255,0.3);
+  font-size: 1.2em;
+  align-items: center;
+}
+
+
 
 </style>

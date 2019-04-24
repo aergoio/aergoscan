@@ -185,16 +185,7 @@ export default {
 </script>
 
 <style lang="scss">
-.icon {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  background-repeat: no-repeat;
-  background-size: contain;
-}
-.icon-view {
-  background-image: url('~@assets/img/view.svg');
-}
+
 .animated-list-move {
   transition: transform .5s;
 }

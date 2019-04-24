@@ -1,14 +1,16 @@
  <template>
-  <span>
-    <span v-if="!payload.length" class="label">(empty)</span>
-
-    <span class="label label-action" v-if="action">{{action}}</span>
+  <span class="formatted-payload">
+    <span class="tx-action" v-if="action">{{action}}</span>
     <span class="monospace" v-if="name">{{name}}(</span>
     <span class="monospace" :class="{block: rest.length > 100}">{{rest}}</span>
-    <span class="monospace" v-if="name">)</span>
     <span v-if="address">
       <router-link :to="`/account/${address}/`">{{address}}</router-link>
     </span>
+    <span v-if="address && args.length">
+      ↓
+    </span>
+    <span class="args-payload" v-if="args.length"><pre><ArgFormatter v-for="arg of args" :key="arg" :arg="arg" class="monospace" /></pre></span>
+    <span class="monospace" v-if="name">)</span>
     <span class="list-payload" v-if="listPayload.length">
       <span v-for="item of listPayload" :key="item">
         {{item}}
@@ -27,7 +29,24 @@
 import Identicon from './Identicon';
 import bs58 from 'bs58';
 import { Address } from '@herajs/client';
+import Vue from 'vue';
 
+const ArgFormatter = {
+  props: ['arg'],
+  render(h) {
+    let content = [JSON.stringify(this.arg)];
+    try {
+      const addr = new Address(this.arg);
+      if (!addr.isName) { // names could be other values, too, so only format true addresses
+        content = [h('router-link', { props: { to: `/account/${encodeURIComponent(this.arg)}/` } }, [ this.arg ])];
+      }
+    } catch (e) {
+      console.log(e);
+      content = JSON.stringify(this.arg, null, 2);
+    }
+    return h('span', content);
+  }
+};
 
 export default {
   props: ['payload', 'txType', 'recipient'],
@@ -38,6 +57,7 @@ export default {
       listPayload: [],
       address: "",
       name: "",
+      args: [],
       bps: []
     }
   },
@@ -58,31 +78,34 @@ export default {
       let payload = payloadBuffer.toString();
       try {
         let parsedData = JSON.parse(payload);
+        let args = parsedData.Args || parsedData.args;
         if (this.txType == 1) {
           this.action = (parsedData.Name || parsedData.name).replace('v1', '');
+          if (this.action == 'createName' || this.action == 'updateName') {
+            this.address = args[0];
+            args = args.slice(1);
+            payload = "";
+          }
+          if (this.action === 'voteBP') {
+            this.bps = parsedData.Args || parsedData.args;
+            payload = "";
+          }
         } else {
-          this.action = "function call";
-          this.name = (parsedData.Name || parsedData.name);
-        }
-        
-        if (parsedData.Args || parsedData.args) {
-          const argsString = JSON.stringify(parsedData.Args || parsedData.args, undefined, 2);
-          console.log(argsString)
-          payload = argsString.substr(1, argsString.length-2);
-        } else {
-          payload = "";
+          this.action = (parsedData.Name || parsedData.name);
         }
 
-        if (this.action === 'voteBP') {
-          this.bps = parsedData.Args || parsedData.args;
+        if (parsedData.Args || parsedData.args) {
           payload = "";
+          this.args = args;
         }
       } catch(e) {
+        payload = payloadBuffer.toString();
       }
       this.rest = payload;
     },
   },
   components: {
+    ArgFormatter,
   }
 };
 </script>
@@ -97,8 +120,29 @@ export default {
     content: "· ";
   }
 }
+.args-payload {
+  span:after {
+    content: ", ";
+  }
+  span:last-child:after {
+    content: "";
+  }
+}
 .monospace.block {
   display: inline-block;
   margin-left: 1em;
+}
+.tx-action {
+  font-weight: bold;
+  margin-bottom: .5em;
+}
+.formatted-payload {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  line-height: 1.5;
+}
+.formatted-payload a {
+    border-color: #666;
 }
 </style>
