@@ -411,8 +411,8 @@ pre {
   background-size: contain;
 }
 .icon-medium {
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
 }
 .icon-view {
   background-image: url('~@assets/img/view.svg');
