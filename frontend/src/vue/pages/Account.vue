@@ -88,7 +88,7 @@
 
         <div class="island-title" v-if="this.accountDetail && this.accountDetail.codehash">Contract</div>
         <div class="island-content" v-if="this.accountDetail && this.accountDetail.codehash">
-          <ContractAbi :abi="contractAbi" :codehash="this.accountDetail.codehash" :address="realAddress" />
+          <ContractAbi :abi="contractAbi" :codehash="this.accountDetail.codehash" :address="realAddress" style="margin-bottom: 30px" />
         </div>
 
         <div class="island-title" v-if="transactions.length">

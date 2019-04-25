@@ -60,7 +60,7 @@
             <div>
               <h3>Payload</h3>
 
-              <Tabs theme="dark" :value="selectedPayloadTab">
+              <Tabs theme="dark" :value="selectedPayloadTab" :routeReplace="true" style="margin-bottom: 1em">
                 <Tab title="Formatted" :route="{ query: query({payload: 'formatted'}) }">
                   <div class="aergo-tab-content aergo-tab-content-bar" v-if="txDetail.tx.payload.length">{{formattedTitle}}</div>
                   <div class="aergo-tab-content" :class="{'empty-result': !txDetail.tx.payload.length}">
@@ -81,7 +81,7 @@
             <div>
               <h3>Result</h3>
 
-              <Tabs theme="dark" :value="selectedReceiptTab">
+              <Tabs theme="dark" :value="selectedReceiptTab" :routeReplace="true">
                 <Tab title="Formatted" :route="{ query: query({receipt: 'formatted'}) }">
                   <div class="aergo-tab-content aergo-tab-content-bar">
                     <span v-if="txReceipt.status=='SUCCESS' || txReceipt.status=='CREATED'" class="icon status-icon icon-medium icon-success"></span>
@@ -97,8 +97,6 @@
                   <div class="aergo-tab-content monospace"><pre>{{receiptJson}}</pre></div>
                 </Tab>
               </Tabs>
-
-              
             </div>
           </div>
         </div>

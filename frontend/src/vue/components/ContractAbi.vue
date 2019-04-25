@@ -1,30 +1,17 @@
 <template>
   <div>
-    <Tabs theme="dark" :value="selectedTab" @tab-change="tabChanged">
+    <Tabs theme="dark" :value="selectedTab" @tab-change="tabChanged" :routeReplace="true">
       <Tab title="ABI (JSON)" :route="{ query: query({tab: 'abi'}) }"><div class="aergo-tab-content">
         <div class="monospace code-highlight code-highlight-pre" v-html="formattedAbi"></div>
       </div></Tab>
       <Tab title="Interactive" :route="{ query: query({tab: 'interactive'}) }"><div class="aergo-tab-content">
         <div class="monospace interactive-contract code-highlight">
-          <div v-if="!abi || abi.functions.length == 0">Contract has no public functions.</div>
-          <div v-for="(func, idx) in functions" :key="func.name" class="function-block">
-            <span class="function">{{func.name}}</span>(<span v-if="func.arguments.length">{<br>
-              <span v-for="(arg, idx) in func.arguments" :key="arg.name">
-                &nbsp;&nbsp;<span class="key">{{arg.name}}</span>: <input type="text" v-model="interactiveArguments[func.name][arg.name]" class="arg-field"> <span v-if="idx!=func.arguments.length-1">, </span><br>
-              </span>
-            }</span>)
-            <span class="btn-call" v-if="!isLoading[idx]" v-on:click="queryContract(idx)">Query</span>
-            <span class="btn-call" v-if="isLoading[idx]">Loading...</span>
-            <div v-if="typeof interactiveResults[idx] !== 'undefined' && interactiveResults[idx] !== null" class="code-highlight-pre">-> <span v-html="syntaxHighlight(interactiveResults[idx])"></span></div>
-          </div>
 
-          <div v-for="(variable, idx) in stateVariables" :key="variable.name" class="function-block">
-            <span class="function">{{variable.name}}</span>
-            <span class="btn-call" v-if="!isLoading[idx + functions.length]" v-on:click="queryContractState(variable.name, variable.type, idx + functions.length)">Query</span>
-            <span class="btn-call" v-if="isLoading[idx + functions.length]">Loading...</span>
-            <div v-if="typeof interactiveResults[idx + functions.length] !== 'undefined' && interactiveResults[idx + functions.length] !== null" class="code-highlight-pre">-> <span v-html="syntaxHighlight(interactiveResults[idx + functions.length])"></span></div>
-          </div>
+          <div v-if="!abi">Loading...</div>
+          <div v-if="abi && abi.functions.length == 0">Contract has no public functions.</div>
 
+          <QueryFunction v-for="func in functions" :key="func.name" :abi="abi" :name="func.name" :address="address" />
+          <QueryStateVariable v-for="variable in stateVariables" :key="variable.name" :abi="abi" :name="variable.name" :address="address" />
         </div>
       </div></Tab>
       <Tab title="Events" :route="{ query: query({tab: 'events'}) }"><div class="aergo-tab-content">
@@ -57,8 +44,11 @@
 </template>
 
 <script>
+import { syntaxHighlight } from '../utils/syntax-highlight';
 import { loadAndWait } from '../utils/async';
 import ReloadButton from './ReloadButton';
+import QueryFunction from './QueryFunction';
+import QueryStateVariable from './QueryStateVariable';
 import { Tabs, Tab } from 'aergo-ui/src/components/tabs';
 
 const contractTabs = ['abi', 'interactive', 'events'];
@@ -68,28 +58,6 @@ const defaultdict = (def) => new Proxy({}, {
 });
 
 const eventPage = 10000;
-
-function syntaxHighlight(json) {
-    if (typeof json != 'string') {
-         json = JSON.stringify(json, undefined, 2);
-    }
-    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-        var cls = 'number';
-        if (/^"/.test(match)) {
-            if (/:$/.test(match)) {
-                cls = 'key';
-            } else {
-                cls = 'string';
-            }
-        } else if (/true|false/.test(match)) {
-            cls = 'boolean';
-        } else if (/null/.test(match)) {
-            cls = 'null';
-        }
-        return '<span class="' + cls + '">' + match + '</span>';
-    });
-}
 
 export default {
   props: ['abi', 'codehash', 'address'],
@@ -128,6 +96,8 @@ export default {
   },
   components: {
     ReloadButton,
+    QueryFunction,
+    QueryStateVariable,
     Tabs, Tab
   },
   computed: {
@@ -203,75 +173,6 @@ export default {
       }
       this.isLoadingMoreEvents = false;
     },
-    async queryContractState(stateName, type, idx, arrayLength=10) {
-      const wait = loadAndWait();
-
-      this.$set(this.isLoading, idx, true);
-      this.$set(this.interactiveResults, idx, null);
-
-      let stateNames = [];
-      if (type == 'array') {
-        stateNames = [...Array(arrayLength).keys()].map(idx => `_sv_${stateName}-${idx+1}`);
-      } else {
-        stateNames = [`_sv_${stateName}`];
-      }
-      let results;
-      try {
-        results = await this.$store.dispatch('blockchain/queryContractState', {
-          stateNames,
-          abi: this.abi,
-          address: this.address
-        });
-        console.log(results);
-        results = JSON.stringify(results, undefined, 2).replace(']', "  ... array may have more items ...\n]");
-        
-      } catch(e) {
-        console.log(e);
-        results = {error: ''+e};
-      }
-      await wait();
-      this.$set(this.interactiveResults, idx, results);
-      this.$set(this.isLoading, idx, false);
-
-    },
-    async queryContract(funcIdx) {
-      const wait = loadAndWait();
-
-      const name = this.functions[funcIdx].name;
-      const args = this.interactiveArguments[name];
-      const argValues = this.functions[funcIdx].arguments.map(arg => args[arg.name]);
-      if (argValues.some(item => typeof item === 'undefined')) {
-        this.$set(this.interactiveResults, funcIdx, {
-          error: 'You did not provide all arguments'
-        });
-        return;
-      }
-
-      this.$set(this.isLoading, funcIdx, true);
-      this.$set(this.interactiveResults, funcIdx, null);
-
-      let results;
-      try {
-        results = await this.$store.dispatch('blockchain/queryContract', {
-          name,
-          args: argValues,
-          abi: this.abi,
-          address: this.address
-        });
-      } catch(e) {
-        console.log(e);
-        let errorMsg;
-        try {
-          errorMsg = e.metadata.headersMap['grpc-message'];
-        } catch(_) {
-          errorMsg = e;
-        }
-        results = {error: errorMsg};
-      }
-      await wait();
-      this.$set(this.interactiveResults, funcIdx, results);
-      this.$set(this.isLoading, funcIdx, false);
-    },
     syntaxHighlight
   },
 };
@@ -312,7 +213,7 @@ export default {
   margin-bottom: 20px;
 }
 .code-highlight-pre {
-  white-space: pre;
+  white-space: pre-wrap;
 }
 .code-highlight {
   .string, .boolean, .number, .null, .function {
@@ -332,6 +233,9 @@ export default {
   }
   .number {
     color: #AECFA4;
+  }
+  .annotation {
+    color: #ccc;
   }
 }
 .interactive-contract {
