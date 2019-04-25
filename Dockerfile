@@ -1,6 +1,9 @@
 FROM node AS build
 WORKDIR /frontend
 COPY frontend/package* ./
+ARG GITHUB_TOKEN
+ENV GITHUB_TOKEN ${GITHUB_TOKEN}
+RUN git config --global url."https://${GITHUB_TOKEN}:@github.com/".insteadOf "https://github.com/"
 RUN npm install
 COPY frontend .
 ARG AERGO_NODE

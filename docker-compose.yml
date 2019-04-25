@@ -8,10 +8,11 @@ services:
         API_URL: ${API_URL}
         BACKEND_URL: ${BACKEND_URL}
         CONFIG_NAME: "${CONFIG_NAME:-local}"
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
     ports:
       - "8080:80"
     depends_on:
-      - backend      
+      - backend
   indexer:
     build: ./indexer
     depends_on:
