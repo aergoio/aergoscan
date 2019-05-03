@@ -19,14 +19,10 @@ export default {
   props: ['abi', 'name', 'address'],
   computed: {
     variable() {
-      const match = this.abi.state_variables.filter(variable => variable.name === this.name);
-      if (!match.length) return {};
-      return match[0];
+      return this.abi.state_variables.find(variable => variable.name === this.name) || {};
     },
     type() {
-      const variable = this.variable;
-      if (variable) return variable.type;
-      return '';
+      return this.variable ? this.variable.type : '';
     }
   },
   data () {

@@ -19,9 +19,7 @@ export default {
   props: ['abi', 'name', 'address'],
   computed: {
     func() {
-      const match = this.abi.functions.filter(func => func.name === this.name);
-      if (!match.length) return {};
-      return match[0];
+      return this.abi.functions.find(func => func.name === this.name) || {};
     }
   },
   data () {
