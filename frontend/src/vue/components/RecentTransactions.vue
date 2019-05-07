@@ -64,8 +64,6 @@ export default {
     async syncTxList() {
       const response = await this.$fetch.get(`${cfg.API_URL}/recentTransactions`);
       this.syncedTransactions = (await response.json()).map(tx => ({...tx, ...tx.meta}));
-      // 2019-03-28 Workaround for errorneous data after resync
-      if (this.syncedTransactions.length && this.syncedTransactions[0].blockno >= 1785804) this.syncedTransactions = [];
     },
     moment
   },
