@@ -21,10 +21,10 @@ GITHUB_TOKEN=INSERT_GITHUB_TOKEN_HERE
 git clone https://${GITHUB_TOKEN}:@github.com/aergoio/aergoscan && cd aergoscan
 
 # Build and run the containers, using the machine's IP.
-GITHUB_TOKEN=$GITHUB_TOKEN AERGO_NODE=192.168.1.136:7845 BACKEND_URL=127.0.0.1 docker-compose up --build
+GITHUB_TOKEN=$GITHUB_TOKEN AERGO_NODE=AERGO_NODE_IP:7845 BACKEND_URL=PUBLIC_IP_OR_HOSTNAME docker-compose up --build -d
 ```
 
-Example: `GITHUB_TOKEN=$GITHUB_TOKEN AERGO_NODE=104.25.164.35:7845 BACKEND_URL=https://sqltestnet.aergoscan.io docker-compose up --build -d`
+Example: `GITHUB_TOKEN=$GITHUB_TOKEN AERGO_NODE=192.168.1.136:7845 BACKEND_URL=127.0.0.1 docker-compose up --build -d`
 
 This creates the following containers:
 
