@@ -1,39 +1,36 @@
 
 # Quick deployment
 
-If you just quickly need a working Aergoscan on a server that already has a full Aergo node, you can use the docker-compose setup for deployment.
+If you quickly need a working Aergoscan on a server that already has a full Aergo node, you can use the docker-compose setup for deployment.
 The performance of this won't be great, so for actual user-facing deployments it is recommended to use a proper ES cluster, static file hosting, etc.
 
 ## Prerequisites
 
-1. Know your machine's IP address
+1. Know your machine's IP address and (optionally) a hostname
 2. Install Docker and docker-compose
 
 ## Setup
 
 ```console
-# most cloud machines don't have enough virtual memory for elastic search by default
+# most cloud machines don't have enough virtual memory for elasticsearch by default
 sudo sysctl -w vm.max_map_count=262144
 
-# clone this repo
-git clone https://github.com/aergoio/aergoscan && cd aergoscan
+GITHUB_TOKEN=INSERT_GITHUB_TOKEN_HERE
 
-# Edit docker-compose.yml port bindings to your liking
-# (e.g. put nginx at 80:80, and remove the public ports of the db)
-vim docker-compose.yml
+# get a copy of the source code
+git clone https://${GITHUB_TOKEN}:@github.com/aergoio/aergoscan && cd aergoscan
 
 # Build and run the containers, using the machine's IP.
-AERGO_NODE=MACHINE_IP:7845 CONFIG_NAME=prod BACKEND_URL=MACHINE_IP docker-compose up --build -d
+GITHUB_TOKEN=$GITHUB_TOKEN AERGO_NODE=192.168.1.136:7845 BACKEND_URL=127.0.0.1 docker-compose up --build
 ```
 
-You can now access Aergoscan at MACHINE_IP.
+Example: `GITHUB_TOKEN=$GITHUB_TOKEN AERGO_NODE=104.25.164.35:7845 BACKEND_URL=https://sqltestnet.aergoscan.io docker-compose up --build -d`
 
-## Hostname setup
+This creates the following containers:
 
-If you want a hostname, you have to edit the `nginx/localhost.conf` file before building the containers and then use the hostname instead of the MACHINE_IP in the above command's BACKEND_URL.
+- db: elasticsearch instance
+- esindexer: indexing service connecting to AERGO_NODE and elasticsearch db
+- backend: a simple node.js backend wrapping elasticsearch API
+- nginx: nginx server on port 80 serving static frontend code and proxying requests to backend and AERGO_NODE
 
-Example:
-
-```console
-AERGO_NODE=MACHINE_IP:7845 CONFIG_NAME=prod BACKEND_URL=https://hostname.tld docker-compose up --build -d
-```
+You can now access Aergoscan at PUBLIC_IP_OR_HOSTNAME.

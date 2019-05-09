@@ -1,0 +1,13 @@
+version: '3.1'
+services:
+  nginx:
+    build:
+      args:
+        CONFIG_NAME: "${CONFIG_NAME:-local}"
+        API_URL: "${API_URL:-}""
+    ports:
+      - "8080:80"
+  db:
+    ports:
+      - "9300:9300"
+      - "9200:9200"

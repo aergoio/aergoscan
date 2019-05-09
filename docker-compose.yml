@@ -5,12 +5,11 @@ services:
       context: ./
       args:
         AERGO_NODE: ${AERGO_NODE}
-        API_URL: ${API_URL}
         BACKEND_URL: ${BACKEND_URL}
-        CONFIG_NAME: "${CONFIG_NAME:-local}"
+        CONFIG_NAME: "${CONFIG_NAME:-prod}"
         GITHUB_TOKEN: ${GITHUB_TOKEN}
     ports:
-      - "8080:80"
+      - "80:80"
     depends_on:
       - backend
   indexer:
@@ -37,11 +36,6 @@ services:
       memlock:
         soft: -1
         hard: -1
-    ports:
-      - "9300:9300"
-      - "9200:9200"
-    expose:
-      - 9200
     volumes:
       - esdata:/usr/share/elasticsearch/data
     command: ["elasticsearch", "-Elogger.level=WARN"]
