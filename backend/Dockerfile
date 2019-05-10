@@ -1,4 +1,4 @@
-FROM node
+FROM node:10
 WORKDIR /backend
 COPY package* ./
 RUN npm install

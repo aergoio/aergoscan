@@ -1,4 +1,4 @@
-FROM node AS build
+FROM node:10 AS build
 WORKDIR /frontend
 COPY frontend/package* ./
 ARG GITHUB_TOKEN
