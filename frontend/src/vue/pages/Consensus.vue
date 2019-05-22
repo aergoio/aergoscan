@@ -1,55 +1,70 @@
 <template>
   <div class="wrap">
     <div class="page-content">
-      <div class="island">
-        <div class="island-title">
-          Chain Info
+      <Island>
+        <IslandHeader title="Chain Info" />
+        <div v-if="error" class="error">{{error}}</div>
+
+        <div v-if="!chainInfo || !chainInfo.chainid">Loading...</div>
+
+        <div class="multicol" v-if="chainInfo && chainInfo.chainid">
+          <dl class="table kvtable">
+            <dt>Chain ID</dt>
+            <dd>{{chainInfo.chainid.magic}}</dd>
+
+            <dt>Public</dt>
+            <dd>{{chainInfo.chainid.public}}</dd>
+
+            <dt>Mainnet</dt>
+            <dd>{{chainInfo.chainid.mainnet}}</dd>
+
+            <dt>Maximum block size</dt>
+            <dd>{{chainInfo.maxblocksize}}</dd>
+
+            <dt>Total token supply</dt>
+            <dd v-html="$options.filters.formatToken(chainInfo.maxtokens, 'aergo')"></dd>
+
+            <dt>Minimum staking amount</dt>
+            <dd v-html="$options.filters.formatToken(chainInfo.stakingminimum, 'aergo')"></dd>
+
+            <dt>Consensus</dt>
+            <dd>{{chainInfo.chainid.consensus}}</dd>
+
+            <dt>BP number</dt>
+            <dd>{{chainInfo.bpnumber}}</dd>
+          </dl>
         </div>
-        <div class="island-content">
-          <div v-if="error" class="error">{{error}}</div>
+      </Island>
 
-          <div v-if="!chainInfo || !chainInfo.chainid">Loading...</div>
+      <Island>
+        <IslandHeader title="BP List">
+          <div style="align-self: center;">
+            <ReloadButton :action="load"/>
+          </div>
+        </IslandHeader>
 
-          <table class="kv-table" v-if="chainInfo && chainInfo.chainid">
-            <tr><th>Chain ID</th><td>{{chainInfo.chainid.magic}}</td></tr>
-            <tr><th>Public</th><td>{{chainInfo.chainid.public}}</td></tr>
-            <tr><th>Mainnet</th><td>{{chainInfo.chainid.mainnet}}</td></tr>
-            <tr><th>Maximum block size</th><td>{{chainInfo.maxblocksize}}</td></tr>
-            <tr><th>Total token supply</th><td v-html="$options.filters.formatToken(chainInfo.maxtokens, 'aergo')"></td></tr>
-            <tr><th>Minimum staking amount</th><td v-html="$options.filters.formatToken(chainInfo.stakingminimum, 'aergo')"></td></tr>
-            <tr><th>Consensus</th><td>{{chainInfo.chainid.consensus}}</td></tr>
-            <tr><th>BP number</th><td>{{chainInfo.bpnumber}}</td></tr>
-          </table>
-        </div>
-        <div class="island-title">
-          BP List
-          <ReloadButton :action="load" style="float: right" />
-        </div>
-        <div class="island-content">
+        <div v-if="!votesList || !votesList.length">Loading...</div>
 
-          <div v-if="!votesList || !votesList.length">Loading...</div>
-
-          <table class="data-table" v-if="votesList && votesList.length">
-            <thead>
-              <tr>
-                <th>Pos.</th>
-                <th>Peer ID</th>
-                <th style="text-align: right">Votes</th>
-              </tr>
-            </thead>
-            <tr v-for="(item, index) in votesList" :key="item.candidate" :class="{highlight: $route.query.highlight === item.candidate, lastSelected: bpNumber && bpNumber === (index+1)}">
-              <td>{{index+1}}</td>
-              <td class="monospace">
-                <Identicon :text="item.candidate" size="16" class="mini-identicon" />
-                {{item.candidate}}
-              </td>
-              <td style="text-align: right">
-                {{item.amount.toUnit('aergo').toString()}}
-              </td>
+        <table class="data-table" v-if="votesList && votesList.length">
+          <thead>
+            <tr>
+              <th>Pos.</th>
+              <th>Peer ID</th>
+              <th style="text-align: right">Votes</th>
             </tr>
-          </table>
-        </div>
-      </div>
+          </thead>
+          <tr v-for="(item, index) in votesList" :key="item.candidate" :class="{highlight: $route.query.highlight === item.candidate, lastSelected: bpNumber && bpNumber === (index+1)}">
+            <td>{{index+1}}</td>
+            <td class="monospace">
+              <Identicon :text="item.candidate" size="16" class="mini-identicon" />
+              {{item.candidate}}
+            </td>
+            <td style="text-align: right">
+              {{item.amount.toUnit('aergo').toString()}}
+            </td>
+          </tr>
+        </table>
+      </Island>
     </div>
   </div>
 </template>

@@ -1,107 +1,101 @@
 <template>
   <div class="wrap">
     <div class="page-content">
-      <div class="island">
-        <div class="island-title">
-          Transaction Details
-          <div v-if="!txDetail && !error">Loading...</div>
-          <div v-if="txDetail" class="subtitle monospace">{{txDetail.tx.hash}}</div>
-        </div>
-        <div class="island-content">
-
-          <p v-if="error">{{error}}</p>
+      <Island>
+        <IslandHeader title="Transaction Details" :annotation="txDetail ? txDetail.tx.hash : ''" />
           
-          <div v-if="txDetail">
-            <div class="transaction-flow-diagram">
-              <AccountBox :address="txDetail.tx.from" />
-              <span class="flow-arrow"></span>
-              <AccountBox v-if="txDetail.tx.to && txDetail.tx.to.toString().length" :address="txDetail.tx.to" />
-              <div class="account-box null-address" v-if="!txDetail.tx.to || !txDetail.tx.to.toString().length">Contract Creation</div>
-            </div>
-            
-            <table class="detail-table">
-              <tr><td>Amount:</td><td v-html="$options.filters.formatToken(txDetail.tx.amount, 'aergo')"></td></tr>
-              <tr v-if="txReceipt"><td>Fee:</td><td v-html="$options.filters.formatToken(this.txReceipt.fee, 'aergo')"></td></tr>
-              <tr><td>Nonce:</td><td>{{txDetail.tx.nonce}}</td></tr>
-              <tr v-if="txDetail.tx.payload">
-                <td>Payload:</td>
-                <td>{{txDetail.tx.payload.length}} bytes</td>
-              </tr>
-              <tr v-if="!txDetail.block">
-                <td>Status:</td>
-                <td>Pending</td>
-              </tr>
-              <tr v-if="txDetail.block">
-                <td>Status:</td>
-                <td>Confirmed</td>
-              </tr>
-              <tr v-if="txDetail.block">
-                <td nowrap>Included in block:</td>
-                <td class="monospace"><router-link :to="`/block/${txDetail.block.hash}/`">{{txDetail.block.hash}}</router-link></td>
-              </tr>
-              <tr v-if="txMeta.ts">
-                <td>Time stamp:</td>
-                <td>{{moment(txMeta.ts).format('dddd, MMMM Do YYYY, HH:mm:ss')}} ({{moment(txMeta.ts).fromNow()}})</td>
-              </tr>
-            </table>
-            
+        <div v-if="!txDetail && !error">Loading...</div>
+
+        <p v-if="error">{{error}}</p>
+        
+        <div v-if="txDetail">
+          <div class="transaction-flow-diagram">
+            <AccountBox :address="txDetail.tx.from" />
+            <span class="flow-arrow"></span>
+            <AccountBox v-if="txDetail.tx.to && txDetail.tx.to.toString().length" :address="txDetail.tx.to" />
+            <div class="account-box null-address" v-if="!txDetail.tx.to || !txDetail.tx.to.toString().length">Contract Creation</div>
           </div>
+          
+          <table class="detail-table">
+            <tr><td>Amount:</td><td v-html="$options.filters.formatToken(txDetail.tx.amount, 'aergo')"></td></tr>
+            <tr v-if="txReceipt"><td>Fee:</td><td v-html="$options.filters.formatToken(this.txReceipt.fee, 'aergo')"></td></tr>
+            <tr><td>Nonce:</td><td>{{txDetail.tx.nonce}}</td></tr>
+            <tr v-if="txDetail.tx.payload">
+              <td>Payload:</td>
+              <td>{{txDetail.tx.payload.length}} bytes</td>
+            </tr>
+            <tr v-if="!txDetail.block">
+              <td>Status:</td>
+              <td>Pending</td>
+            </tr>
+            <tr v-if="txDetail.block">
+              <td>Status:</td>
+              <td>Confirmed</td>
+            </tr>
+            <tr v-if="txDetail.block">
+              <td nowrap>Included in block:</td>
+              <td class="monospace"><router-link :to="`/block/${txDetail.block.hash}/`">{{txDetail.block.hash}}</router-link></td>
+            </tr>
+            <tr v-if="txMeta.ts">
+              <td>Time stamp:</td>
+              <td>{{moment(txMeta.ts).format('dddd, MMMM Do YYYY, HH:mm:ss')}} ({{moment(txMeta.ts).fromNow()}})</td>
+            </tr>
+          </table>
+          
         </div>
+      </Island>
 
-        <div class="island-title" v-if="txReceipt">Execution Details</div>
-        <div class="island-content" v-if="txReceipt">
-
-          <h3>Contract</h3>
-          <div style="display: flex; margin-bottom: 1em">
+      <Island v-if="txReceipt">
+        <IslandHeader title="Execution Details" />
+        <h3>Contract</h3>
+        <div style="display: flex; margin-bottom: 1em">
           <AccountBox v-if="txReceipt.contractaddress" :address="txReceipt.contractaddress" />
+        </div>
+
+        <div class="side-by-side">
+          <div>
+            <h3>Payload</h3>
+
+            <Tabs theme="dark" :value="selectedPayloadTab" :routeReplace="true" style="margin-bottom: 1em">
+              <Tab title="Formatted" :route="{ query: query({payload: 'formatted'}) }">
+                <div class="aergo-tab-content aergo-tab-content-bar" v-if="txDetail.tx.payload.length">{{formattedTitle}}</div>
+                <div class="aergo-tab-content" :class="{'empty-result': !txDetail.tx.payload.length}">
+                  <PayloadFormatter :payload="txDetail.tx.payload" :txType="txDetail.tx.type" :recipient="txDetail.tx.to" v-if="txDetail.tx.payload" />
+                  <span v-if="!txDetail.tx.payload.length">(No payload)</span>
+                </div>
+              </Tab>
+              <Tab title="JSON" :route="{ query: query({payload: 'json'}) }">
+                <div class="aergo-tab-content monospace"><pre>{{payloadJson}}</pre></div>
+              </Tab>
+              <Tab title="Hex" :route="{ query: query({payload: 'hex'}) }">
+                <div class="aergo-tab-content monospace">{{payloadHex}}</div>
+              </Tab>
+            </Tabs>
+
           </div>
 
-          <div class="side-by-side">
-            <div>
-              <h3>Payload</h3>
+          <div>
+            <h3>Result</h3>
 
-              <Tabs theme="dark" :value="selectedPayloadTab" :routeReplace="true" style="margin-bottom: 1em">
-                <Tab title="Formatted" :route="{ query: query({payload: 'formatted'}) }">
-                  <div class="aergo-tab-content aergo-tab-content-bar" v-if="txDetail.tx.payload.length">{{formattedTitle}}</div>
-                  <div class="aergo-tab-content" :class="{'empty-result': !txDetail.tx.payload.length}">
-                    <PayloadFormatter :payload="txDetail.tx.payload" :txType="txDetail.tx.type" :recipient="txDetail.tx.to" v-if="txDetail.tx.payload" />
-                    <span v-if="!txDetail.tx.payload.length">(No payload)</span>
-                  </div>
-                </Tab>
-                <Tab title="JSON" :route="{ query: query({payload: 'json'}) }">
-                  <div class="aergo-tab-content monospace"><pre>{{payloadJson}}</pre></div>
-                </Tab>
-                <Tab title="Hex" :route="{ query: query({payload: 'hex'}) }">
-                  <div class="aergo-tab-content monospace">{{payloadHex}}</div>
-                </Tab>
-              </Tabs>
-
-            </div>
-
-            <div>
-              <h3>Result</h3>
-
-              <Tabs theme="dark" :value="selectedReceiptTab" :routeReplace="true">
-                <Tab title="Formatted" :route="{ query: query({receipt: 'formatted'}) }">
-                  <div class="aergo-tab-content aergo-tab-content-bar">
-                    <span v-if="txReceipt.status=='SUCCESS' || txReceipt.status=='CREATED'" class="icon status-icon icon-medium icon-success"></span>
-                    <span v-if="txReceipt.status=='ERROR'" class="icon status-icon icon-medium icon-fail"></span>
-                    {{statusFormatted}}
-                  </div>
-                  <div class="aergo-tab-content tx-result" :class="{'empty-result': !txReceipt.result}">
-                    <span class="monospace" v-if="txReceipt.result">{{txReceipt.result}}</span>
-                    <span v-if="!txReceipt.result">(Empty result)</span>
-                  </div>
-                </Tab>
-                <Tab title="JSON" :route="{ query: query({receipt: 'json'}) }">
-                  <div class="aergo-tab-content monospace"><pre>{{receiptJson}}</pre></div>
-                </Tab>
-              </Tabs>
-            </div>
+            <Tabs theme="dark" :value="selectedReceiptTab" :routeReplace="true">
+              <Tab title="Formatted" :route="{ query: query({receipt: 'formatted'}) }">
+                <div class="aergo-tab-content aergo-tab-content-bar">
+                  <span v-if="txReceipt.status=='SUCCESS' || txReceipt.status=='CREATED'" class="icon status-icon icon-medium icon-success"></span>
+                  <span v-if="txReceipt.status=='ERROR'" class="icon status-icon icon-medium icon-fail"></span>
+                  {{statusFormatted}}
+                </div>
+                <div class="aergo-tab-content tx-result" :class="{'empty-result': !txReceipt.result}">
+                  <span class="monospace" v-if="txReceipt.result">{{txReceipt.result}}</span>
+                  <span v-if="!txReceipt.result">(Empty result)</span>
+                </div>
+              </Tab>
+              <Tab title="JSON" :route="{ query: query({receipt: 'json'}) }">
+                <div class="aergo-tab-content monospace"><pre>{{receiptJson}}</pre></div>
+              </Tab>
+            </Tabs>
           </div>
         </div>
-      </div>
-
+      </Island>
     </div>
   </div>
 </template>
@@ -155,7 +149,13 @@ export default {
   computed: {
     formattedTitle() {
       if (!this.txDetail.tx.to || !this.txDetail.tx.to.toString().length) return 'Contract Creation';
-      return 'Function Call';
+      try {
+        let payloadBuffer = Buffer.from(this.txDetail.tx.payload);
+        let parsedData = JSON.parse(payloadBuffer.toString());
+        return 'Function Call';
+      } catch(e) {
+        return 'Text';
+      }
     },
     statusFormatted() {
       const status = this.txReceipt.status.toLowerCase();;

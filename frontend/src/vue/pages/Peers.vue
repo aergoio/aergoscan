@@ -1,62 +1,58 @@
 <template>
   <div class="wrap">
     <div class="page-content">
-      <div class="island">
-        <div class="island-title">
-          Peers
-          <ReloadButton :action="load" style="float: right" />
-        </div>
-        <div class="island-content">
-          <div v-if="error" class="error">{{error}}</div>
+      <Island>
+        <IslandHeader title="Peers">
+          <div style="align-self: center;">
+            <ReloadButton :action="load" />
+          </div>
+        </IslandHeader>
+        <div v-if="error" class="error">{{error}}</div>
 
-          <table class="data-table peer-table">
-            <thead>
-              <tr>
-                <th v-on:click="sortBy('address.peerid')" class="sortable" :class="{sorted: sorting === 'address.peerid', sortingAsc}">Peer ID</th>
-                <th v-on:click="sortBy('bestblock.blockno')" class="sortable" :class="{sorted: sorting === 'bestblock.blockno', sortingAsc}">Height</th>
-                <th>Block hash</th>
-                <th>Block time</th>
-              </tr>
-            </thead>
-            <tr v-for="peer in peersSorted" :key="peer.address.peerid">
-              <td class="monospace">
-                <span v-if="peerVotes.indexOf(peer.address.peerid) === -1">{{peer.address.peerid}}</span>
-                <router-link :to="`/votes/?highlight=${peer.address.peerid}`" v-if="peerVotes.indexOf(peer.address.peerid) !== -1">{{peer.address.peerid}}</router-link>
-                <span v-if="peerVotes.indexOf(peer.address.peerid) !== -1" class="label">BP</span>
-                <span v-if="peer.address.peerid === selfPeerId" class="label">self</span>
-              </td>
-              <td>
-                {{peer.bestblock.blockno}}
-              </td>
-              <td class="monospace">
-                <router-link :to="`/block/${peer.bestblock.blockhash}/`">{{peer.bestblock.blockhash}}</router-link>
-              </td>
-              <td>
-                <span v-if="peer.bestblock.time">
-                {{moment(peer.bestblock.time/1000000).format('MMM Do YYYY, HH:mm:ss')}}
-                </span>
-                <span v-if="!peer.bestblock.time">
-                  not synced
-                </span>
-              </td>
+        <table class="data-table peer-table">
+          <thead>
+            <tr>
+              <th v-on:click="sortBy('address.peerid')" class="sortable" :class="{sorted: sorting === 'address.peerid', sortingAsc}">Peer ID</th>
+              <th v-on:click="sortBy('bestblock.blockno')" class="sortable" :class="{sorted: sorting === 'bestblock.blockno', sortingAsc}">Height</th>
+              <th>Block hash</th>
+              <th>Block time</th>
             </tr>
-          </table>
-          <p class="note" v-if="loadTime">Data retrieved from {{selfPeerId}} at {{loadTime.format('HH:mm:ss')}}.</p>
-        </div>
-      </div>
-      <div class="island" v-if="serverInfoItems">
-        <div class="island-title">
-          Server Info
-        </div>
-        <div class="island-content">
-          <table class="kv-table">
-            <tr v-for="[key, value] in serverInfoItems" :key="key">
-              <th>{{key}}</th>
-              <td>{{value}}</td>
-            </tr>
-          </table>
-        </div>
-      </div>
+          </thead>
+          <tr v-for="peer in peersSorted" :key="peer.address.peerid">
+            <td class="monospace">
+              <span v-if="peerVotes.indexOf(peer.address.peerid) === -1">{{peer.address.peerid}}</span>
+              <router-link :to="`/votes/?highlight=${peer.address.peerid}`" v-if="peerVotes.indexOf(peer.address.peerid) !== -1">{{peer.address.peerid}}</router-link>
+              <span v-if="peerVotes.indexOf(peer.address.peerid) !== -1" class="label">BP</span>
+              <span v-if="peer.address.peerid === selfPeerId" class="label">self</span>
+            </td>
+            <td>
+              {{peer.bestblock.blockno}}
+            </td>
+            <td class="monospace">
+              <router-link :to="`/block/${peer.bestblock.blockhash}/`">{{peer.bestblock.blockhash}}</router-link>
+            </td>
+            <td>
+              <span v-if="peer.bestblock.time">
+              {{moment(peer.bestblock.time/1000000).format('MMM Do YYYY, HH:mm:ss')}}
+              </span>
+              <span v-if="!peer.bestblock.time">
+                not synced
+              </span>
+            </td>
+          </tr>
+        </table>
+        <p class="note" v-if="loadTime">Data retrieved from {{selfPeerId}} at {{loadTime.format('HH:mm:ss')}}.</p>
+      </Island>
+
+      <Island v-if="serverInfoItems">
+        <IslandHeader title="Server Info" />
+        <table class="kv-table">
+          <tr v-for="[key, value] in serverInfoItems" :key="key">
+            <th>{{key}}</th>
+            <td>{{value}}</td>
+          </tr>
+        </table>
+      </Island>
     </div>
   </div>
 </template>

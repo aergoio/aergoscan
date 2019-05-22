@@ -7,6 +7,7 @@ import VueRouter from 'vue-router';
 import VueFetch from 'vue-fetch';
 import routes from './config/routes';
 import Button from './components/Button';
+import { Island, IslandHeader } from "aergo-ui/src/components/layout";
 import store from './store/index';
 import { shortAddress } from './filters/address';
 import { formatToken } from './filters/format-token';
@@ -20,6 +21,8 @@ export default async function setup(opts) {
     Vue.directive('tooltip', tooltip);
 
     Vue.component('Button', Button);
+    Vue.component('Island', Island);
+    Vue.component('IslandHeader', IslandHeader);
     Vue.filter('shortAddress', shortAddress);
     Vue.filter('formatToken', formatToken);
     Vue.filter('formatNumber', formatNumber);

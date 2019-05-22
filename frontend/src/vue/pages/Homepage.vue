@@ -46,15 +46,15 @@
       </div>
 
       <div class="side-by-side">
-        <div class="island" style="flex: 1">
-          <div class="island-title">Blocks</div>
-          <RecentBlocks class="island-content" />
-        </div>
+        <Island style="flex: 1">
+          <IslandHeader title="Blocks" />
+          <RecentBlocks />
+        </Island>
 
-        <div class="island" style="flex: 2">
-          <div class="island-title">Transactions</div>
-          <RecentTransactions class="island-content" />
-        </div>
+        <Island style="flex: 2">
+          <IslandHeader title="Transactions" />
+          <RecentTransactions />
+        </Island>
       </div>
 
     </div>
@@ -68,6 +68,7 @@ import RecentBlocks from '../components/RecentBlocks';
 import RecentTransactions from '../components/RecentTransactions';
 import TxChart from '../components/TxChart';
 import cfg from '../../config.js';
+import { Island, IslandHeader } from "aergo-ui/src/components/layout";
 
 export default {
   data () {
@@ -179,7 +180,8 @@ export default {
   components: {
     RecentBlocks,
     RecentTransactions,
-    TxChart
+    TxChart,
+    Island, IslandHeader
   }
 };
 </script>

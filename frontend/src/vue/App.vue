@@ -67,7 +67,7 @@ body {
 
 .wrap {
   margin: 0 auto;
-  max-width: 1000px;
+  max-width: 1200px;
   padding: 0 15px;
 }
 
@@ -141,6 +141,7 @@ a {
   }
 }
 
+/*
 
 .island {
   background-color: #fff;
@@ -160,6 +161,7 @@ a {
     margin-top: -32px;
   }
 }
+*/
 
 .island-content {
   padding: 20px;
