@@ -2,11 +2,16 @@
   <div class="wrap">
     <div class="page-content">
       <Island>
-        <IslandHeader title="Transactions" :annotation="`${totalItems}`" />
+        <IslandHeader title="Transactions" :annotation="`${totalItems}`">
+          <div style="align-self: center; margin-left: auto;">
+            <ReloadButton :action="reload"/>
+          </div>
+        </IslandHeader>
 
         <p v-if="error" class="error">{{error}}</p>
         
         <DataTable
+          ref="table"
           class="transactions-table"
           :data="data || []"
           :load="loadTableData"
@@ -26,7 +31,7 @@
             <AccountLink :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" />
           </div>
           <div slot="to" slot-scope="{ rowData }">
-            <AccountLink :address="rowData.to" />
+            <AccountLink :address="rowData.to" @click="$router.push(`/account/${rowData.from}/`)" />
           </div>
         </DataTable>
       </Island>
@@ -35,6 +40,7 @@
 </template>
 
 <script>
+import ReloadButton from '../components/ReloadButton';
 import { Amount } from '@herajs/client';
 import aergo from '../../controller';
 import moment from 'moment';
@@ -100,10 +106,14 @@ export default {
         this.totalItems = response.total;
       }
     },
+    reload: async function() {
+      this.$refs.table._load();
+    }
   },
   components: {
     DataTable,
     AccountLink,
+    ReloadButton,
   }
 };
 </script>
@@ -120,6 +130,7 @@ export default {
     }
     td:nth-child(5) {
       white-space: nowrap;
+      text-align: right;
     }
   }
 }

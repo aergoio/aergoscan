@@ -88,6 +88,7 @@
         <IslandHeader title="Transactions" :annotation="`${totalItems}`" />
 
         <DataTable
+          ref="table"
           class="account-transactions-table"
           :data="data || []"
           :load="loadTableData"
@@ -174,7 +175,11 @@ export default {
   },
   watch: {
     '$route' (to, from) {
-      if (to.path !== from.path) this.load();
+      if (to.path !== from.path) {
+        this.load();
+        this.data = [];
+        this.$refs.table._load();
+      }
     }
   },
   mounted () {
@@ -247,8 +252,6 @@ export default {
         console.error(e);
         return;
       }
-
-      
 
       // State and staking
       try {
@@ -324,6 +327,10 @@ export default {
     td:nth-child(3) {
       width: 50%;
       max-width: 0;
+    }
+    td:nth-child(4) {
+      white-space: nowrap;
+      text-align: right;
     }
   }
 }
