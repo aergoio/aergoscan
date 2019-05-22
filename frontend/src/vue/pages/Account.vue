@@ -90,7 +90,7 @@
         <DataTable
           ref="table"
           class="account-transactions-table"
-          :data="data || []"
+          :data="transactions || []"
           :load="loadTableData"
           :headerFields="headerFields"
           :totalItems="totalItems"
@@ -165,10 +165,9 @@ export default {
           format: (amount) => new Amount(amount, 'aer').toUnit('aergo').toString()
         }
       ],
-      data: [],
       sort: "desc",
       sortField: "ts",
-      totalItems: 0
+      totalItems: 0,
     }
   },
   created () {
@@ -230,7 +229,6 @@ export default {
       this.staking = null;
       this.accountDetail = null;
       this.contractAbi = null;
-      this.transactions = [];
       this.names = [];
 
       // Check address
@@ -296,8 +294,6 @@ export default {
         if (this.accountDetail.codehash) {
           this.contractAbi = await this.$store.dispatch('blockchain/getABI', { address });
         }
-        const response = await this.$fetch.get(`${cfg.API_URL}/accountTransactions`, { address });
-        this.transactions = (await response.json()).map(tx => Object.freeze(({...tx, ...tx.meta})));
       } catch (e) {
         console.error(e);
       }
@@ -314,7 +310,7 @@ export default {
       if (response.error) {
         this.error = response.error.msg;
       } else if (response.hits.length) {
-        this.data = response.hits.map(item => ({ ...item.meta, hash: item.hash }));
+        this.transactions = response.hits.map(item => ({ ...item.meta, hash: item.hash }));
         this.totalItems = response.total;
       }
     },
