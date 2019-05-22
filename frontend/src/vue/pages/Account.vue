@@ -103,10 +103,10 @@
           </div>
           <div slot="from" slot-scope="{ rowData }">
             <template v-if="rowData.from !== rowData.to">
-              <span v-if="realAddress == rowData.from" class="label-account-wrap"><span class="label label-positive">to</span>&nbsp;<AccountLink :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" /></span>
-              <span v-if="realAddress == rowData.to" class="label-account-wrap"><span class="label label-negative">from</span>&nbsp;<AccountLink :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" /></span>
+              <span v-if="addressMatches(rowData.to)" class="label-account-wrap"><span class="label label-negative">from</span>&nbsp;<AccountLink :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" /></span>
+              <span v-else class="label-account-wrap"><span class="label label-positive">to</span>&nbsp;<AccountLink :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" /></span>
             </template>
-            <template v-if="rowData.from === rowData.to"><span class="label label-neutral">self transfer</span></template>
+            <template v-else><span class="label label-neutral">self transfer</span></template>
           </div>
         </DataTable>
       </Island>
@@ -219,6 +219,9 @@ export default {
     }
   },
   methods: {
+    addressMatches(addr) {
+      return addr === this.$route.address || addr === this.realAddress;
+    },
     async load() {
       let address;
       this.error = null;
