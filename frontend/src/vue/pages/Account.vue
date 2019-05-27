@@ -254,40 +254,43 @@ export default {
         return;
       }
 
-      // State and staking
+      // State
       try {
-        if (!address.isName || address.isName && this.ownerAddress) {
-          let [accountDetail, staking] = await Promise.all([
-            await this.$store.dispatch('blockchain/getAccount', { address }),
-            await this.$store.dispatch('blockchain/getStaking', { address })
-          ]);
-          this.accountDetail = Object.freeze(accountDetail);
-          this.staking = Object.freeze(staking);
-        } else {
-          this.accountDetail = Object.freeze(await this.$store.dispatch('blockchain/getAccount', { address }));
-        }
+        this.accountDetail = Object.freeze(await this.$store.dispatch('blockchain/getAccount', { address }));
       } catch (e) {
         this.error = 'Account not found';
         console.error(e);
         return;
       }
 
-      // Assigned names
-      try {
-        if (!address.isName) {
-          const response = await this.$fetch.get(`${cfg.API_URL}/names`, { q: `address:${address}`, size: 10 });
-          const data = (await response.json());
-          const names = data.hits;
-          for (let name of names) {
-            const response = await this.$fetch.get(`${cfg.API_URL}/names`, { q: `name:${name.name}`, size: 1 });
-            const data = (await response.json());
-            name.currentAddress = data.hits[0].address;
-          }
-          this.names = names;
+      // Staking
+      (async () => {
+        try {
+          let staking = await this.$store.dispatch('blockchain/getStaking', { address });
+          this.staking = Object.freeze(staking);
+        } catch (e) {
+          console.error(e);
         }
-      } catch (e) {
-        console.error(e);
-      }
+      })();
+
+      // Assigned names
+      (async () => {
+        try {
+          if (!address.isName) {
+            const response = await this.$fetch.get(`${cfg.API_URL}/names`, { q: `address:${address}`, size: 10 });
+            const data = (await response.json());
+            const names = data.hits;
+            for (let name of names) {
+              const response = await this.$fetch.get(`${cfg.API_URL}/names`, { q: `name:${name.name}`, size: 1 });
+              const data = (await response.json());
+              name.currentAddress = data.hits[0].address;
+            }
+            this.names = names;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      })();
 
       // Contract and transactions
       try {
