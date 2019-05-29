@@ -31,15 +31,15 @@
             <dd>{{chainInfo.chainid.consensus}}</dd>
 
             <dt>BP number</dt>
-            <dd>{{chainInfo.bpnumber}}</dd>
+            <dd>{{bpNumber}}</dd>
           </dl>
         </div>
       </Island>
 
-      <Island>
+      <Island v-if="chainInfo.chainid && chainInfo.chainid.consensus == 'dpos'">
         <IslandHeader title="BP List">
           <div style="align-self: center;">
-            <ReloadButton :action="load"/>
+            <ReloadButton :action="loadVotes"/>
           </div>
         </IslandHeader>
 
@@ -65,6 +65,40 @@
           </tr>
         </table>
       </Island>
+
+      <Island v-if="chainInfo.chainid && chainInfo.chainid.consensus == 'raft'">
+        <IslandHeader title="BP List">
+          <div style="align-self: center;">
+            <ReloadButton :action="loadConsensus"/>
+          </div>
+        </IslandHeader>
+
+        <div v-if="!consensusInfo">Loading...</div>
+
+        <table class="data-table" v-if="consensusInfo && consensusInfo.bpsList.length">
+          <thead>
+            <tr>
+              <th>Pos.</th>
+              <th>Name</th>
+              <th>Raft ID</th>
+              <th>Peer ID</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tr v-for="(item, index) in consensusInfo.bpsList" :key="item.PeerID" :class="{highlight: $route.query.highlight === item.PeerID, lastSelected: bpNumber && bpNumber === (index+1)}">
+            <td>{{index+1}}</td>
+            <td>{{item.Name}}</td>
+            <td>{{item.RaftID}}</td>
+            <td class="monospace">
+              <Identicon :text="item.PeerID" size="16" class="mini-identicon" />
+              {{item.PeerID}}
+            </td>
+            <td>
+              <span v-if="item.Name == consensusInfo.info.Leader" class="label">Leader</span>
+            </td>
+          </tr>
+        </table>
+      </Island>
     </div>
   </div>
 </template>
@@ -78,7 +112,8 @@ import { mapState } from 'vuex'
 export default {
   data () {
     return {
-      votesList: null,
+      votesList: [],
+      consensusInfo: null,
       error: null,
     }
   },
@@ -99,6 +134,9 @@ export default {
       chainInfo: state => state.blockchain.chainInfo
     }),
     bpNumber() {
+      if (this.consensusInfo && this.consensusInfo.info && this.consensusInfo.info.Total) {
+        return Number(this.consensusInfo.info.Total);
+      }
       if (this.chainInfo && this.chainInfo.bpnumber) {
         return this.chainInfo.bpnumber;
       }
@@ -106,24 +144,24 @@ export default {
     }
   },
   methods: {
-    async load() {
-      (async () => {
-        try {
+    async loadConsensus() {
+      this.consensusInfo = Object.freeze(await this.$store.dispatch('blockchain/getConsensusInfo'));
+      console.log(this.consensusInfo);
+    },
+    async loadVotes() {
+      try {
           const votesList = await this.$store.dispatch('blockchain/getTopVotes', { count: 50 });
           for (let vote of votesList) {
             vote.amount = Object.freeze(vote.amount); // prevent Vue from adding observer to Amount
           }
           this.votesList = votesList;
         } catch (e) {
-          this.error = '' + e;
           console.error(e);
         }
-      })();
-
-      (async () => {
-        this.consensusInfo = Object.freeze(await this.$store.dispatch('blockchain/getConsensusInfo'));
-        console.log(this.consensusInfo);
-      })();
+    },
+    async load() {
+      this.loadVotes();
+      this.loadConsensus();
     },
     moment,
   },

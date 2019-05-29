@@ -24,7 +24,7 @@
           <div class="stat-label">tpm<br>(now)</div>
         </div>
         <div class="stat tooltipped-s" v-tooltip="'Number of block producers. Click to go to list'">
-          <router-link class="stat-value" :to="`/votes/`" v-if="chainInfo">{{chainInfo.bpnumber}}</router-link>
+          <router-link class="stat-value" :to="`/consensus/`" v-if="chainInfo">{{chainInfo.bpnumber}}</router-link>
           <div class="stat-value loading" v-if="!chainInfo"></div>
           <div class="stat-label">BP<br>number</div>
         </div>
