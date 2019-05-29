@@ -20,9 +20,10 @@
           </thead>
           <tr v-for="peer in peersSorted" :key="peer.address.peerid">
             <td class="monospace">
-              <span v-if="peerVotes.indexOf(peer.address.peerid) === -1">{{peer.address.peerid}}</span>
-              <router-link :to="`/votes/?highlight=${peer.address.peerid}`" v-if="peerVotes.indexOf(peer.address.peerid) !== -1">{{peer.address.peerid}}</router-link>
-              <span v-if="peerVotes.indexOf(peer.address.peerid) !== -1" class="label">BP</span>
+              <span v-if="bpsList.indexOf(peer.address.peerid) === -1">{{peer.address.peerid}}</span>
+              <router-link :to="`/consensus/?highlight=${peer.address.peerid}`" v-if="bpsList.indexOf(peer.address.peerid) !== -1">{{peer.address.peerid}}</router-link>
+              <span v-if="bpsList.indexOf(peer.address.peerid) !== -1" class="label">BP</span>
+              <span v-if="raftLeaderID === peer.address.peerid" class="label">Leader</span>
               <span v-if="peer.address.peerid === selfPeerId" class="label">self</span>
             </td>
             <td>
@@ -84,7 +85,7 @@ export default {
   data () {
     return {
       peers: null,
-      peerVotes: [],
+      consensusInfo: null,
       error: null,
       sorting: 'address.peerid',
       sortingAsc: false,
@@ -131,35 +132,43 @@ export default {
       }
       return peers;
     },
+    bpsList() {
+      return this.consensusInfo && this.consensusInfo.bpsList ? this.consensusInfo.bpsList.map(item => item.PeerID) : [];
+    },
+    raftLeaderID() {
+      try {
+        const peer = this.consensusInfo.bpsList.find(item => item.Name === this.consensusInfo.info.Leader);
+        return peer.PeerID;
+      } catch(e) {
+        console.log(e);
+        return '';
+      }
+    }
   },
   beforeDestroy () {
   },
   methods: {
+    async loadConsensusInfo() {
+      this.consensusInfo = Object.freeze(await this.$store.dispatch('blockchain/getConsensusInfo'));
+      console.log(this.consensusInfo);
+    },
+    async loadServerInfo() {
+      try {
+        const result = await this.$store.dispatch('blockchain/getServerInfo');
+        console.log(result);
+        this.serverInfo = result;
+      } catch (e) {
+        console.error(e);
+      }
+    },
     async load() {
       try {
-        (async () => {
-          try {
-            const votesList = await this.$store.dispatch('blockchain/getTopVotes', { count: 50 });
-            this.peerVotes = votesList.map(vote => vote.candidate);
-          } catch (e) {
-            console.error(e);
-          }
-        })();
-
-        (async () => {
-          try {
-            const result = await this.$store.dispatch('blockchain/getServerInfo');
-            console.log(result);
-            this.serverInfo = result;
-          } catch (e) {
-            console.error(e);
-          }
-        })();
+        this.loadServerInfo();
+        
+        await this.loadConsensusInfo();
 
         const peers = await this.$store.dispatch('blockchain/fetchPeers');
-
         for (let peer of peers) {
-          this.peerVotes[peer.address.peerid] = {};
           if (!peer.bestblock) continue;
           peer.bestblock.time = 0;
           try {
