@@ -35,6 +35,10 @@
             <td v-if="blockDetail.header.coinbaseaccount.toString()"><Identicon :text="blockDetail.header.coinbaseaccount" size="18" class="mini-identicon" /> <router-link :to="`/account/${blockDetail.header.coinbaseaccount}/`">{{blockDetail.header.coinbaseaccount.toString()}}</router-link></td>
             <td v-if="!blockDetail.header.coinbaseaccount.toString()">None</td>
           </tr>
+          <tr v-if="blockDetail.size">
+            <td>Size:</td>
+            <td>{{blockDetail.size}} bytes</td>
+          </tr>
         </table>
       </Island>
       
