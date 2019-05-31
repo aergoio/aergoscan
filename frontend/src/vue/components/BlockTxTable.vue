@@ -6,7 +6,7 @@
     
     <DataTable
       ref="table"
-      class="transactions-table"
+      class="block-transactions-table"
       :data="data || []"
       :load="loadTableData"
       :headerFields="headerFields"
@@ -91,7 +91,7 @@ export default {
 </script>
 
 <style lang="scss">
-.transactions-table {
+.block-transactions-table {
   font-size: .95em;
 
   tbody {
