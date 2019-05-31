@@ -79,12 +79,12 @@
         </div>
       </Island>
 
-      <Island v-if="this.accountDetail && this.accountDetail.codehash">
+      <Island v-if="accountDetail && accountDetail.codehash">
         <IslandHeader title="Contract" />
-        <ContractAbi :abi="contractAbi" :codehash="this.accountDetail.codehash" :address="realAddress" style="margin-bottom: 30px" />
+        <ContractAbi :abi="contractAbi" :codehash="accountDetail.codehash" :address="realAddress" style="margin-bottom: 30px" />
       </Island>
 
-      <Island>
+      <Island v-if="accountDetail">
         <IslandHeader title="Transactions" :annotation="`${totalItems}`" />
 
         <DataTable
@@ -177,9 +177,16 @@ export default {
       if (to.path !== from.path) {
         this.load();
         this.data = [];
-        this.$refs.table._load();
+        if (this.$refs.table) {
+          this.$refs.table._load();
+        }
       }
-    }
+    },
+    'realAddress' (to, from) {
+      if (this.$refs.table) {
+          this.$refs.table._load();
+        }
+    },
   },
   mounted () {
     this.load();
@@ -219,7 +226,7 @@ export default {
   },
   methods: {
     addressMatches(addr) {
-      return addr === this.$route.address || addr === this.realAddress;
+      return addr === this.$route.params.address || addr === this.realAddress;
     },
     async load() {
       let address;
