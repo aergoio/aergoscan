@@ -85,6 +85,12 @@ const actions = {
         commit('setBlockDetail', { block });
         return block;
     },
+    async fetchBlockMetadata ({ }, { blockNoOrHash }) {
+        return Object.freeze(await aergo.getBlockMetadata(blockNoOrHash));;
+    },
+    async fetchBlockTransactions({ }, { hash, offset, size }) {
+        return await aergo.getBlockBody(hash, offset, size);
+    },
     getTransaction ({ dispatch, state }, { hash }) {
         if (state.txByHash[hash]) {
             return new Promise((resolve) => {

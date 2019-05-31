@@ -37,10 +37,8 @@
           </tr>
         </table>
       </Island>
-      <Island>
-        <IslandHeader title="Transactions" :annotation="`${blockDetail ? blockDetail.body.txsList.length : ''}`" />
-        <TransactionList :items="blockDetail.body.txsList" class="island-content" v-if="blockDetail && blockDetail.body.txsList.length" />
-      </Island>
+      
+      <BlockTxTable :hash="blockDetail.hash" v-if="blockDetail" />
     </div>
   </div>
 </template>
@@ -55,6 +53,7 @@ import Identicon from '../components/Identicon';
 import { sha256 } from 'hash.js';
 import bs58 from 'bs58';
 import { Island, IslandHeader } from "aergo-ui/src/components/layout";
+import BlockTxTable from '../components/BlockTxTable';
 
 export default {
   data () {
@@ -89,11 +88,7 @@ export default {
       this.blockDetail = null;
       this.error = '';
       try {
-        const blockDetail = await timedAsync(async () => await this.$store.dispatch('blockchain/getBlock', { blockNoOrHash: blockNoOrHash }));
-        for (let tx of blockDetail.body.txsList) {
-          tx.amount = Object.freeze(tx.amount);
-        }
-        this.blockDetail = blockDetail;
+        this.blockDetail = await timedAsync(async () => await this.$store.dispatch('blockchain/fetchBlockMetadata', { blockNoOrHash: blockNoOrHash }));;
 
         // Try to calculate peer id from pubkey
         const pubkey = bs58.decode(this.blockDetail.header.pubkey);
@@ -129,7 +124,8 @@ export default {
   components: {
     TransactionList,
     Identicon,
-    Island, IslandHeader
+    Island, IslandHeader,
+    BlockTxTable,
   }
 };
 </script>
