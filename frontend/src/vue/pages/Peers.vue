@@ -136,6 +136,7 @@ export default {
       return this.consensusInfo && this.consensusInfo.bpsList ? this.consensusInfo.bpsList.map(item => item.PeerID) : [];
     },
     raftLeaderID() {
+      if (!this.consensusInfo.info || !this.consensusInfo.info.Leader) return '';
       try {
         const peer = this.consensusInfo.bpsList.find(item => item.Name === this.consensusInfo.info.Leader);
         return peer.PeerID;
