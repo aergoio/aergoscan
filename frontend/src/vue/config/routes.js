@@ -6,6 +6,7 @@ import Developers from '../pages/Developers.vue';
 import Peers from '../pages/Peers.vue';
 import Consensus from '../pages/Consensus.vue';
 import Transactions from '../pages/Transactions.vue';
+import Blocks from '../pages/Blocks.vue';
 
 export default [
     { path: '/', component: Homepage },
@@ -17,4 +18,5 @@ export default [
     { path: '/consensus/', component: Consensus, name: 'consensus' },
     { path: '/developers', component: Developers, name: 'developers' },
     { path: '/transactions/', component: Transactions, name: 'transactions' },
+    { path: '/blocks/', component: Blocks, name: 'blocks' },
 ];
