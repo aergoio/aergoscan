@@ -49,12 +49,12 @@
         <IslandHeader title="Registered names" :annotation="`${realAddress}`" />
         <div class="table-like">
           <div class="row header">
-            <div class="cell" style="flex: 6">Name</div>
-            <div class="cell" style="flex: 2">Block</div>
+            <div class="cell" style="flex: 5">Name</div>
+            <div class="cell" style="flex: 2">Since Block</div>
             <div class="cell" style="flex: 5">Transaction</div>
           </div>
           <div class="row linearize" v-for="name in namesCurrent" :key="name.tx">
-            <div class="cell" style="flex: 6"><router-link :to="`/account/${name.name}/`">{{name.name}}</router-link></div>
+            <div class="cell" style="flex: 5"><router-link :to="`/account/${name.name}/`">{{name.name}}</router-link></div>
             <div class="cell" style="flex: 2"><router-link :to="`/block/${name.blockno}/`">{{name.blockno}}</router-link></div>
             <div class="cell hash" style="flex: 5"><router-link :to="`/transaction/${name.tx}/`">{{name.tx}}</router-link></div>
           </div>
@@ -65,14 +65,14 @@
         <IslandHeader title="Previously registered names" :annotation="`${realAddress}`" />
         <div class="table-like" v-if="namesPrevious.length">
           <div class="row header">
-            <div class="cell" style="flex: 2">Name</div>
-            <div class="cell" style="flex: 1"></div>
-            <div class="cell" style="flex: 6">Current destination</div>
+            <div class="cell" style="flex: 5">Name</div>
+            <div class="cell" style="flex: 2"></div>
+            <div class="cell" style="flex: 5">Current destination</div>
           </div>
           <div class="row linearize" v-for="name in namesPrevious" :key="name.tx">
-            <div class="cell" style="flex: 2"><router-link :to="`/account/${name.name}/`">{{name.name}}</router-link></div>
-            <div class="cell" style="flex: 1"></div>
-            <div class="cell" style="flex: 6">
+            <div class="cell" style="flex: 5"><router-link :to="`/account/${name.name}/`">{{name.name}}</router-link></div>
+            <div class="cell" style="flex: 2"></div>
+            <div class="cell" style="flex: 5">
               <router-link :to="`/account/${name.currentAddress}/`">{{name.currentAddress}}</router-link>
             </div>
           </div>
@@ -83,15 +83,18 @@
         <IslandHeader title="Name History" :annotation="`${$route.params.address}`" />
         <div class="table-like" v-if="nameHistory.length">
           <div class="row header">
+            <div class="cell" style="flex: 2">Since Block</div>
             <div class="cell" style="flex: 6">Destination</div>
-            <div class="cell" style="flex: 2">Block</div>
+            <div class="cell" style="flex: 1"></div>
             <div class="cell" style="flex: 5">Transaction</div>
           </div>
           <div class="row linearize" v-for="name in nameHistory" :key="name.tx">
+            <div class="cell" style="flex: 2"><router-link :to="`/block/${name.blockno}/`">{{name.blockno}}</router-link></div>
             <div class="cell" style="flex: 6">
               <router-link :to="`/account/${name.address}/`">{{name.address}}</router-link>
+              <span v-if="name.address == realAddress" class="label">current</span>
             </div>
-            <div class="cell" style="flex: 2"><router-link :to="`/block/${name.blockno}/`">{{name.blockno}}</router-link></div>
+            <div class="cell" style="flex: 1"></div>
             <div class="cell" style="flex: 5"><router-link :to="`/transaction/${name.tx}/`">{{name.tx}}</router-link></div>
           </div>
         </div>
@@ -325,7 +328,7 @@ export default {
       if (isName) {
         (async () => {
           try {
-            const response = await this.$fetch.get(`${cfg.API_URL}/names`, { q: `name:${this.$route.params.address}`, size: 10 });
+            const response = await this.$fetch.get(`${cfg.API_URL}/names`, { q: `name:${this.$route.params.address}`, size: 10, sort: 'blockno:asc' });
             const data = (await response.json());
             this.nameHistory = data.hits;
             console.log(this.nameHistory);
