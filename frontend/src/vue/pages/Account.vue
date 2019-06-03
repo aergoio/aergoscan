@@ -46,12 +46,12 @@
       </Island>
 
       <Island v-if="namesCurrent.length">
-        <IslandHeader title="Registered names" />
+        <IslandHeader title="Registered names" :annotation="`${realAddress}`" />
         <div class="table-like">
           <div class="row header">
             <div class="cell" style="flex: 6">Name</div>
-            <div class="cell" style="flex: 2">Registered in block</div>
-            <div class="cell" style="flex: 5">Registered in transaction</div>
+            <div class="cell" style="flex: 2">Block</div>
+            <div class="cell" style="flex: 5">Transaction</div>
           </div>
           <div class="row linearize" v-for="name in namesCurrent" :key="name.tx">
             <div class="cell" style="flex: 6"><router-link :to="`/account/${name.name}/`">{{name.name}}</router-link></div>
@@ -62,12 +62,12 @@
       </Island>
 
       <Island v-if="namesPrevious.length">
-        <IslandHeader title="Previously registered names" />
+        <IslandHeader title="Previously registered names" :annotation="`${realAddress}`" />
         <div class="table-like" v-if="namesPrevious.length">
           <div class="row header">
             <div class="cell" style="flex: 2">Name</div>
             <div class="cell" style="flex: 1"></div>
-            <div class="cell" style="flex: 6">Current address</div>
+            <div class="cell" style="flex: 6">Current destination</div>
           </div>
           <div class="row linearize" v-for="name in namesPrevious" :key="name.tx">
             <div class="cell" style="flex: 2"><router-link :to="`/account/${name.name}/`">{{name.name}}</router-link></div>
@@ -75,6 +75,24 @@
             <div class="cell" style="flex: 6">
               <router-link :to="`/account/${name.currentAddress}/`">{{name.currentAddress}}</router-link>
             </div>
+          </div>
+        </div>
+      </Island>
+
+      <Island v-if="nameHistory.length">
+        <IslandHeader title="Name History" :annotation="`${$route.params.address}`" />
+        <div class="table-like" v-if="nameHistory.length">
+          <div class="row header">
+            <div class="cell" style="flex: 6">Destination</div>
+            <div class="cell" style="flex: 2">Block</div>
+            <div class="cell" style="flex: 5">Transaction</div>
+          </div>
+          <div class="row linearize" v-for="name in nameHistory" :key="name.tx">
+            <div class="cell" style="flex: 6">
+              <router-link :to="`/account/${name.address}/`">{{name.address}}</router-link>
+            </div>
+            <div class="cell" style="flex: 2"><router-link :to="`/block/${name.blockno}/`">{{name.blockno}}</router-link></div>
+            <div class="cell" style="flex: 5"><router-link :to="`/transaction/${name.tx}/`">{{name.tx}}</router-link></div>
           </div>
         </div>
       </Island>
@@ -138,6 +156,7 @@ export default {
       ownerAddress: null,
       destinationAddress: null,
       names: [],
+      nameHistory: [],
 
       headerFields: [
         {
@@ -237,10 +256,13 @@ export default {
       this.accountDetail = null;
       this.contractAbi = null;
       this.names = [];
+      this.nameHistory = [];
+      let isName = false;
 
       // Check address
       try {
         address = new Address(this.$route.params.address);
+        isName = address.isName;
       } catch (e) {
         this.error = 'Invalid address';
         console.error(e);
@@ -298,6 +320,21 @@ export default {
           console.error(e);
         }
       })();
+      
+      // Name history
+      if (isName) {
+        (async () => {
+          try {
+            const response = await this.$fetch.get(`${cfg.API_URL}/names`, { q: `name:${this.$route.params.address}`, size: 10 });
+            const data = (await response.json());
+            this.nameHistory = data.hits;
+            console.log(this.nameHistory);
+          } catch (e) {
+            console.error(e);
+          }
+        })();
+      }
+      
 
       // Contract and transactions
       try {
