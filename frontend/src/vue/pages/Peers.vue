@@ -13,6 +13,7 @@
           <thead>
             <tr>
               <th v-on:click="sortBy('address.peerid')" class="sortable" :class="{sorted: sorting === 'address.peerid', sortingAsc}">Peer ID</th>
+              <th v-on:click="sortBy('version')" class="sortable" :class="{sorted: sorting === 'version', sortingAsc}">Version</th>
               <th v-on:click="sortBy('bestblock.blockno')" class="sortable" :class="{sorted: sorting === 'bestblock.blockno', sortingAsc}">Height</th>
               <th>Block hash</th>
               <th>Block time</th>
@@ -26,9 +27,8 @@
               <span v-if="raftLeaderID === peer.address.peerid" class="label">Leader</span>
               <span v-if="peer.address.peerid === selfPeerId" class="label">self</span>
             </td>
-            <td>
-              {{peer.bestblock.blockno}}
-            </td>
+            <td>{{peer.version}}</td>
+            <td>{{peer.bestblock.blockno}}</td>
             <td class="monospace">
               <router-link :to="`/block/${peer.bestblock.blockhash}/`">{{peer.bestblock.blockhash}}</router-link>
             </td>
