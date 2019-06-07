@@ -161,7 +161,7 @@ apiRouter.route('/accounts').get(async (req, res) => {
                     address_unique: {
                         terms: {
                             field,
-                            size: 50,
+                            size: 25,
                             order: { max_blockno: 'desc' }
                         },
                         aggs: {

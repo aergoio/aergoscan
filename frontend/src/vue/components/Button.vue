@@ -16,10 +16,6 @@ export default {
 </script>
 
 <style lang="scss">
-</style>
-
-
-<style lang="scss">
 .btn {
   display: inline-block;
   border: 1px solid #aaa;
