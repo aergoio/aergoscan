@@ -146,6 +146,87 @@ apiRouter.route('/accountTransactions').get(async (req, res) => {
     }
 });
 
+/**
+ * Query distinct accounts with most recent transaction
+ */
+apiRouter.route('/accounts').get(async (req, res) => {
+    try {
+        async function makeQuery(field) {
+            const result = await req.apiClient.searchTransactionsRaw({
+                "match_all": {}
+            }, {
+                size: 0,
+                aggs: {
+                    // DISTINCT(field = [from, to])
+                    address_unique: {
+                        terms: {
+                            field,
+                            size: 50,
+                            order: { max_blockno: 'desc' }
+                        },
+                        aggs: {
+                            tx: { top_hits: {
+                                size: 1,
+                                sort: { blockno: 'desc' },
+                                _source: { include: ['ts'] }
+                            }},
+                            max_blockno: {
+                                max: {
+                                    field: "blockno"
+                                }
+                            }
+                        }
+                    }
+                }
+            }, {
+                filterPath: [
+                    'aggregations.address_unique.buckets.key',
+                    'aggregations.address_unique.buckets.max_blockno',
+                    'aggregations.address_unique.buckets.doc_count',
+                    'aggregations.address_unique.buckets.tx.hits.hits._id',
+                    'aggregations.address_unique.buckets.tx.hits.hits._source.ts',
+                ],
+            })
+            return result.aggregations.address_unique.buckets;
+        }
+        function convBucket(bucket) {
+            return {
+                ...bucket,
+                max_blockno: bucket.max_blockno.value,
+                tx: {
+                    hash: bucket.tx.hits.hits[0]._id,
+                    ts: bucket.tx.hits.hits[0]._source.ts,
+                }
+            }
+        }
+        const sort = 'max_blockno';
+        const queryFrom = makeQuery('from', sort);
+        const queryTo = makeQuery('to', sort);
+        const [resultsFrom, resultsTo] = await Promise.all([queryFrom, queryTo]);
+        const merged = new Map();
+        for (let obj of resultsFrom) {
+            merged.set(obj.key, convBucket(obj));
+        };
+        for (let obj of resultsTo) {
+            const hasAddress = merged.has(obj.key);
+            // Add to merged list if missing or newer
+            if (!hasAddress) {
+                merged.set(obj.key, convBucket(obj));
+            } else {
+                const otherObj = merged.get(obj.key);
+                const convObj = convBucket(obj);
+                merged.set(obj.key, {
+                    ... ( otherObj.max_blockno < obj.max_blockno ? convObj : otherObj),
+                    doc_count: convObj.doc_count + otherObj.doc_count
+                });
+            }
+        }
+        return res.json({ objects: Array.from(merged.values()).sort((a, b) => b[sort] - a[sort]) });
+    } catch(e) {
+        console.log(e);
+        return res.json({error: ''+e});
+    }
+});
 
 
 /**

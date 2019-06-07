@@ -71,6 +71,11 @@ export class ApiClient {
     }
 
     async searchTransactions (query, extraBody) {
+        const response = await this.searchTransactionsRaw(query, extraBody);
+        return response.hits.hits.map(item => ({hash: item._id, meta: item._source}));
+    }
+
+    async searchTransactionsRaw (query, extraBody, extraParams) {
         const q = {
             requestTimeout: 5000,
             index: this.TX_INDEX,
@@ -85,8 +90,11 @@ export class ApiClient {
         if (extraBody) {
             Object.assign(q.body, extraBody);
         }
+        if (extraParams) {
+            Object.assign(q, extraParams);
+        }
         const response = await db.search(q);
-        return response.hits.hits.map(item => ({hash: item._id, meta: item._source}));
+        return response;
     }
 
     async quickSearchTransactions (q, sort="blockno", from=0, size=10) {
