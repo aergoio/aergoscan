@@ -146,7 +146,6 @@ export default {
   methods: {
     async loadConsensus() {
       this.consensusInfo = Object.freeze(await this.$store.dispatch('blockchain/getConsensusInfo'));
-      console.log(this.consensusInfo);
     },
     async loadVotes() {
       try {

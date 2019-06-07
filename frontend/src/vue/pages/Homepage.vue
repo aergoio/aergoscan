@@ -24,8 +24,8 @@
           <div class="stat-label">tpm<br>(now)</div>
         </div>
         <div class="stat tooltipped-s" v-tooltip="'Number of block producers. Click to go to list'">
-          <router-link class="stat-value" :to="`/consensus/`" v-if="chainInfo">{{chainInfo.bpnumber}}</router-link>
-          <div class="stat-value loading" v-if="!chainInfo"></div>
+          <router-link class="stat-value" :to="`/consensus/`" v-if="consensusInfo">{{bpNumber}}</router-link>
+          <div class="stat-value loading" v-if="!consensusInfo"></div>
           <div class="stat-label">BP<br>number</div>
         </div>
       </div>
@@ -79,6 +79,7 @@ export default {
       initialStatsLoaded: false,
       realTimeStats: [],
       statsTimeout: null,
+      consensusInfo: null,
     }
   },
   created () {
@@ -109,6 +110,15 @@ export default {
     },
     txPerMinute() {
       return typeof this.txStats.txPerMinute !== 'undefined' ? this.txStats.txPerMinute[this.txStats.txPerMinute.length-1].sum_txs.value : false;
+    },
+    bpNumber() {
+      if (this.consensusInfo && this.consensusInfo.info && this.consensusInfo.info.Total) {
+        return Number(this.consensusInfo.info.Total);
+      }
+      if (this.chainInfo && this.chainInfo.bpnumber) {
+        return this.chainInfo.bpnumber;
+      }
+      return 0;
     },
     txData() {
       let source;
@@ -160,7 +170,13 @@ export default {
     selectMode (mode) {
       this.txChartUnit = mode;
     },
+    async loadConsensus() {
+      this.consensusInfo = Object.freeze(await this.$store.dispatch('blockchain/getConsensusInfo'));
+    },
     async updateStats () {
+      if (!this.consensusInfo) {
+        this.loadConsensus();
+      }
       try {
         const response = await this.$fetch.get(`${cfg.API_URL}/tx`);
         this.txStats = await response.json();
@@ -198,14 +214,12 @@ export default {
   opacity: 0;
 }
 
-
 .chart-wrap {
   margin-bottom: 25px;
   .chart {
     margin: 15px 0;
   }
 }
-
 .chart-header {
   display: flex;
   align-items: baseline;
