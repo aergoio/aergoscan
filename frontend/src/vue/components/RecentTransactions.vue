@@ -45,7 +45,7 @@ export default {
   async mounted () {
     this.$store.dispatch('blockchain/streamBlocks');
     this.syncTxList();
-    this.syncInterval = setInterval(() => { this.syncTxList(); }, 5000);
+    this.syncInterval = setInterval(() => { this.syncTxList(); }, 10000);
   },
   beforeDestroy () {
     clearInterval(this.syncInterval);
@@ -63,7 +63,12 @@ export default {
     },
     async syncTxList() {
       const response = await this.$fetch.get(`${cfg.API_URL}/recentTransactions`);
-      this.syncedTransactions = (await response.json()).map(tx => ({...tx, ...tx.meta}));
+      const result = await response.json();
+      if (result.error) {
+        console.error(result.error);
+      } else {
+        this.syncedTransactions = result.map(tx => ({...tx, ...tx.meta}));
+      }
     },
     moment
   },
