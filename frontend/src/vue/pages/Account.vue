@@ -274,7 +274,7 @@ export default {
       
       // Owner
       try {
-        if (address.isName && ['aergo.name', 'aergo.system'].indexOf(address.toString()) === -1) {
+        if (address.isName && !address.isSystemAddress()) {
           const nameInfo = await this.$store.dispatch('blockchain/getNameInfo', { name: address.encoded });
           this.ownerAddress = nameInfo.owner.toString();
           this.destinationAddress = nameInfo.destination.toString();
@@ -351,12 +351,19 @@ export default {
     loadTableData: async function({ sortField, sort, currentPage, itemsPerPage }) {
       this.error = "";
       const start = (currentPage - 1) * itemsPerPage;
-      const response = await (await this.$fetch.get(`${cfg.API_URL}/transactions`, {
-        q: `from:${this.realAddress} OR to:${this.realAddress}`,
-        size: itemsPerPage,
-        from: start,
-        sort: `${sortField}:${sort}`,
-      })).json();
+      let fetch;
+      try {
+        fetch = await this.$fetch.get(`${cfg.API_URL}/transactions`, {
+          q: `from:${this.realAddress} OR to:${this.realAddress}`,
+          size: itemsPerPage,
+          from: start,
+          sort: `${sortField}:${sort}`,
+        });
+      } catch(e) {
+        console.error(e);
+        return;
+      }
+      const response = await fetch.json();
       if (response.error) {
         this.error = response.error.msg;
       } else if (response.hits.length) {
