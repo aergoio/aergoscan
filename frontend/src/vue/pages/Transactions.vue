@@ -33,6 +33,9 @@
           <div slot="to" slot-scope="{ rowData }">
             <AccountLink :address="rowData.to" @click="$router.push(`/account/${rowData.from}/`)" />
           </div>
+          <div slot="category" slot-scope="{ rowData }">
+            <span class="label">{{rowData.category}}</span>
+          </div>
         </DataTable>
       </Island>
     </div>
@@ -76,6 +79,12 @@ export default {
           label: "Recipient",
           sortable: false,
           customElement: 'to',
+        },
+        {
+          name: "category",
+          label: "Category",
+          sortable: false,
+          customElement: 'category',
         },
         {
           name: "amount",
