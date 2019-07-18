@@ -56,7 +56,6 @@
           <RecentTransactions />
         </Island>
       </div>
-
     </div>
   </div>
 </template>

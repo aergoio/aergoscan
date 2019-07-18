@@ -31,7 +31,7 @@
             <AccountLink :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" />
           </div>
           <div slot="to" slot-scope="{ rowData }">
-            <AccountLink :address="rowData.to" @click="$router.push(`/account/${rowData.from}/`)" />
+            <AccountLink :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" />
           </div>
           <div slot="category" slot-scope="{ rowData }">
             <span class="label">{{rowData.category}}</span>
