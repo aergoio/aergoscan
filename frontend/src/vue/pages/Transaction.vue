@@ -30,7 +30,7 @@
             </tr>
             <tr v-if="txDetail.block">
               <td>Status:</td>
-              <td>Confirmed</td>
+              <td>Confirmed</td>  
             </tr>
             <tr v-if="txDetail.block">
               <td nowrap>Included in block:</td>
@@ -101,9 +101,7 @@
 </template>
 
 <script>
-import aergo from '../../controller';
 import moment from 'moment';
-import { mapState } from 'vuex'
 import AccountBox from '../components/AccountBox';
 import PayloadFormatter from '../components/PayloadFormatter';
 import cfg from '../../config';
@@ -234,7 +232,6 @@ export default {
   margin-right: 10px;
 }
 .tx-result {
-  
   justify-content: center;
   display: flex;
 }
@@ -243,7 +240,5 @@ export default {
   font-size: 1.2em;
   align-items: center;
 }
-
-
 
 </style>
