@@ -129,6 +129,9 @@
             </template>
             <template v-else><span class="label label-neutral">self transfer</span></template>
           </div>
+          <div slot="category" slot-scope="{ rowData }">
+            <span class="label">{{rowData.category}}</span>
+          </div>
         </DataTable>
       </Island>
     </div>
@@ -179,6 +182,12 @@ export default {
           label: "From -> To",
           sortable: false,
           customElement: 'from',
+        },
+        {
+          name: "category",
+          label: "Category",
+          sortable: false,
+          customElement: 'category',
         },
         {
           name: "amount",
