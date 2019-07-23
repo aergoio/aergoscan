@@ -26,6 +26,9 @@
       </div>
       <div slot="amount" slot-scope="{ rowData }" v-html="$options.filters.formatToken(rowData.amount)">
       </div>
+      <div slot="category" slot-scope="{ rowData }">
+        <span class="label">{{rowData.category}}</span>
+      </div>
     </DataTable>
   </Island>
 </template>
@@ -61,6 +64,12 @@ export default {
           label: "Recipient",
           sortable: false,
           customElement: 'to',
+        },
+        {
+          name: "category",
+          label: "Category",
+          sortable: false,
+          customElement: 'category',
         },
         {
           name: "amount",
