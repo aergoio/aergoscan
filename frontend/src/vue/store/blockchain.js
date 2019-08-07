@@ -3,7 +3,6 @@ import { Contract } from '@herajs/client';
 import { waitOrLoad } from 'timed-async';
 
 const HISTORY_MAX_BLOCKS = 60;
-const HISTORY_MAX_TRANSACTIONS = 100;
 
 const state = {
     streamState: 'initial',
@@ -18,7 +17,6 @@ const state = {
 }
 
 const getters = {
-
 }
 
 let blockHeaderStream = null;
@@ -33,10 +31,9 @@ const actions = {
         if (state.streamState !== 'starting-slow') {
             commit('setStreamState', 'starting');
         }
-        
         const loadingFinished = waitOrLoad(() => {
             commit('setStreamState', 'starting-slow');
-        });
+        }, 2500);
         blockHeaderStream = aergo.getBlockMetadataStream();
         blockHeaderStream.on('data', (blockHeader) => {
             commit('addBlock', blockHeader);
