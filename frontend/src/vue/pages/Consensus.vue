@@ -27,6 +27,9 @@
             <dt>Minimum staking amount</dt>
             <dd v-html="$options.filters.formatToken(chainInfo.stakingminimum, 'aergo')"></dd>
 
+            <dt>Total staked amount</dt>
+            <dd v-html="$options.filters.formatToken(chainInfo.stakingtotal, 'aergo')"></dd>
+
             <dt>Consensus</dt>
             <dd>{{chainInfo.chainid.consensus}}</dd>
 
