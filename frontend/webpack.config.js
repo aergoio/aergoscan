@@ -1,10 +1,26 @@
 const path = require("path");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const AppManifestWebpackPlugin = require('app-manifest-webpack-plugin');
 
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 //const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
+function appManifestPlugin(publicPath) {
+  return new AppManifestWebpackPlugin({
+    logo: path.resolve(__dirname, './src/assets/img/favicon.svg'),
+    prefix: publicPath + (process.env.NODE_ENV === 'production' ? '/' : '/icons'),
+    output: process.env.NODE_ENV === 'production' ? '/icons-[hash:8]/' : './icons/',
+    config: {
+      appName: 'Aergoscan',
+      icons: {
+        yandex: false,
+        coast: false
+      }
+    }
+  });
+}
 
 module.exports = (env, argv) => {
   const devMode = argv.mode !== 'production';
@@ -34,6 +50,7 @@ module.exports = (env, argv) => {
     //new BundleAnalyzerPlugin(),
     // create HTML files
     new HtmlWebpackPlugin({ template: 'src/assets/html/index.html' }), // , chunks: ['popup', 'vendor'
+    appManifestPlugin(''),
   ];
 
   return {
