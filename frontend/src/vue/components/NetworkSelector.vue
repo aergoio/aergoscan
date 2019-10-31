@@ -26,9 +26,9 @@ const NETWORKS = {
     url: 'https://testnet.aergoscan.io',
     label: 'Testnet'
   },
-  'sqltestnet.aergo.io': {
-    url: 'https://sqltestnet.aergoscan.io',
-    label: 'SQL Testnet'
+  'alpha.aergo.io': {
+    url: 'https://alpha.aergoscan.io',
+    label: 'Alpha'
   }
 }
 
@@ -39,11 +39,6 @@ export default {
       network: '',
       expanded: false,
     }
-  },
-  created () {
-
-  },
-  beforeDestroy () {
   },
   computed: {
     ...mapState({
