@@ -195,7 +195,7 @@ export default {
         }
       })();
       (async () => {
-        this.txReceipt = Object.freeze(await this.$store.dispatch('blockchain/getTransactionReceipt', { hash }));
+        this.txReceipt = await this.$store.dispatch('blockchain/getTransactionReceipt', { hash });
       })();
       (async () => {
         const response = await (await this.$fetch.get(`${cfg.API_URL}/transactions`, { q: `_id:${hash}` })).json();

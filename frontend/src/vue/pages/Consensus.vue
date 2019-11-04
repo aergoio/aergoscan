@@ -148,13 +148,13 @@ export default {
   },
   methods: {
     async loadConsensus() {
-      this.consensusInfo = Object.freeze(await this.$store.dispatch('blockchain/getConsensusInfo'));
+      this.consensusInfo = await this.$store.dispatch('blockchain/getConsensusInfo');
     },
     async loadVotes() {
       try {
           const votesList = await this.$store.dispatch('blockchain/getTopVotes', { count: 50 });
           for (let vote of votesList) {
-            vote.amount = Object.freeze(vote.amount); // prevent Vue from adding observer to Amount
+            vote.amount = vote.amount;
           }
           this.votesList = votesList;
         } catch (e) {
