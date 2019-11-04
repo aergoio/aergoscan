@@ -36,6 +36,9 @@
           <div slot="category" slot-scope="{ rowData }">
             <span class="label">{{rowData.category}}</span>
           </div>
+          <div slot="amount" slot-scope="{ rowData }">
+            <span v-html="$options.filters.formatToken(rowData.amount, 'aergo')"></span>
+          </div>
         </DataTable>
       </Island>
     </div>
@@ -87,10 +90,10 @@ export default {
           customElement: 'category',
         },
         {
-          name: "amount",
+          name: "amount_float",
           label: "Amount",
           sortable: true,
-          format: (amount) => new Amount(amount, 'aer').toUnit('aergo').toString()
+          customElement: 'amount',
         }
       ],
       data: [],
