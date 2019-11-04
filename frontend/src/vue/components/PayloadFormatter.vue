@@ -34,15 +34,14 @@ import Vue from 'vue';
 const ArgFormatter = {
   props: ['arg'],
   render(h) {
-    let content = [JSON.stringify(this.arg)];
+    let content = [JSON.stringify(this.arg, null, 2)];
     try {
       const addr = new Address(this.arg);
       if (!addr.isName) { // names could be other values, too, so only format true addresses
         content = [h('router-link', { props: { to: `/account/${encodeURIComponent(this.arg)}/` } }, [ this.arg ])];
       }
     } catch (e) {
-      console.log(e);
-      content = JSON.stringify(this.arg, null, 2);
+      // Keep basic JSON formatting
     }
     return h('span', content);
   }
