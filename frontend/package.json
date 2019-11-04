@@ -9,7 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@herajs/client": "0.11.1",
+    "@herajs/client": "0.14.0",
     "aergo-ui": "git+https://github.com/aergoio/aergo-ui.git#75209d5",
     "bs58check": "^2.1.2",
     "chart.js": "^2.7.2",
