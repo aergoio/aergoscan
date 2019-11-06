@@ -18,7 +18,13 @@
           
           <table class="detail-table">
             <tr><td>Amount:</td><td v-html="$options.filters.formatToken(txDetail.tx.amount, 'aergo')"></td></tr>
-            <tr v-if="txReceipt"><td>Fee:</td><td v-html="$options.filters.formatToken(this.txReceipt.fee, 'aergo')"></td></tr>
+            <tr v-if="txReceipt">
+              <td>Fee:</td>
+              <td>
+                <span v-html="$options.filters.formatToken(this.txReceipt.fee, 'aergo')" />
+                <span v-if="txReceipt.feeDelegation">(delegated)</span>
+              </td>
+            </tr>
             <tr><td>Nonce:</td><td>{{txDetail.tx.nonce}}</td></tr>
             <tr v-if="txDetail.tx.payload">
               <td>Payload:</td>
