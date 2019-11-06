@@ -21,8 +21,10 @@
             <tr v-if="txReceipt">
               <td>Fee:</td>
               <td>
-                <span v-html="$options.filters.formatToken(this.txReceipt.fee, 'aergo')" />
-                <span v-if="txReceipt.feeDelegation">(delegated)</span>
+                <span v-html="$options.filters.formatToken(this.txReceipt.fee)" />
+                <span v-if="txReceipt.feeDelegation" class="has-tooltip tooltipped-s" v-tooltip="'Fee was paid by contract'">
+                  (delegated)
+                </span>
               </td>
             </tr>
             <tr><td>Nonce:</td><td>{{txDetail.tx.nonce}}</td></tr>

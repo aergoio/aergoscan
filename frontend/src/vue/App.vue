@@ -425,4 +425,9 @@ pre {
 .icon-fail {
   background-image: url('~@assets/img/icon-fail.svg');
 }
+
+.has-tooltip {
+  border-bottom: 1px dashed #aaa;
+  cursor: help;
+}
 </style>
