@@ -307,7 +307,7 @@ export default {
       // Staking
       (async () => {
         try {
-          let staking = await this.$store.dispatch('blockchain/getStaking', { address });
+          const staking = await this.$store.dispatch('blockchain/getStaking', { address });
           this.staking = Object.freeze(staking);
         } catch (e) {
           console.error(e);
@@ -360,18 +360,12 @@ export default {
     loadTableData: async function({ sortField, sort, currentPage, itemsPerPage }) {
       this.error = "";
       const start = (currentPage - 1) * itemsPerPage;
-      let fetch;
-      try {
-        fetch = await this.$fetch.get(`${cfg.API_URL}/transactions`, {
-          q: `from:${this.realAddress} OR to:${this.realAddress}`,
-          size: itemsPerPage,
-          from: start,
-          sort: `${sortField}:${sort}`,
-        });
-      } catch(e) {
-        console.error(e);
-        return;
-      }
+      const fetch = await this.$fetch.get(`${cfg.API_URL}/transactions`, {
+        q: `from:${this.realAddress} OR to:${this.realAddress}`,
+        size: itemsPerPage,
+        from: start,
+        sort: `${sortField}:${sort}`,
+      });
       const response = await fetch.json();
       if (response.error) {
         this.error = response.error.msg;

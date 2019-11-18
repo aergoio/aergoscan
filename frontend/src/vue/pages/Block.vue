@@ -33,11 +33,23 @@
           <tr v-if="blockDetail.header.blockno">
             <td>Coinbase account:</td>
             <td v-if="blockDetail.header.coinbaseaccount.toString()"><Identicon :text="blockDetail.header.coinbaseaccount" size="18" class="mini-identicon" /> <router-link :to="`/account/${blockDetail.header.coinbaseaccount}/`">{{blockDetail.header.coinbaseaccount.toString()}}</router-link></td>
-            <td v-if="!blockDetail.header.coinbaseaccount.toString()">None</td>
+            <td v-else>None</td>
           </tr>
           <tr v-if="blockDetail.size">
             <td>Size:</td>
             <td>{{blockDetail.size}} bytes</td>
+          </tr>
+          <tr>
+            <td>Reward:</td>
+            <td>
+              <span v-if="!blockDetail.header.rewardaccount.isEmpty()">
+                <Identicon :text="blockDetail.header.rewardaccount" size="18" class="mini-identicon" /> <router-link :to="`/account/${blockDetail.header.rewardaccount}/`">{{blockDetail.header.rewardaccount.toString()}}</router-link>
+                ({{blockDetail.voteReward.toString()}})
+              </span>
+              <span v-else>
+                None
+              </span>
+            </td>
           </tr>
         </table>
       </Island>
@@ -58,6 +70,32 @@ import { sha256 } from 'hash.js';
 import bs58 from 'bs58';
 import { Island, IslandHeader } from "aergo-ui/src/components/layout";
 import BlockTxTable from '../components/BlockTxTable';
+
+function pubkeyToPeerid(pubkey) {
+  const decoded = bs58.decode(pubkey);
+  if (decoded.length == 0) {
+    return "";
+  } else if (decoded.length <= 42) {
+    return bs58.encode(
+      Buffer.concat(
+        [
+          Buffer.from([0, decoded.length]),
+          decoded
+        ]
+      )
+    );
+  } else {
+    const hash = Buffer.from(sha256().update(decoded).digest());
+    return bs58.encode(
+      Buffer.concat(
+        [
+          Buffer.from([0, 27, 8, 2, 0x12, hash.length]),
+          hash
+        ]
+      )
+    );
+  }
+}
 
 export default {
   data () {
@@ -92,32 +130,8 @@ export default {
       this.blockDetail = null;
       this.error = '';
       try {
-        this.blockDetail = await timedAsync(async () => await this.$store.dispatch('blockchain/fetchBlockMetadata', { blockNoOrHash: blockNoOrHash }));;
-
-        // Try to calculate peer id from pubkey
-        const pubkey = bs58.decode(this.blockDetail.header.pubkey);
-        if (pubkey.length == 0) {
-          this.bpId = "";
-        } else if (pubkey.length <= 42) {
-          this.bpId = bs58.encode(
-            Buffer.concat(
-              [
-                Buffer.from([0, pubkey.length]),
-                pubkey
-              ]
-            )
-          );
-        } else {
-          const hash  = Buffer.from(sha256().update(pubkey).digest());
-          this.bpId = bs58.encode(
-            Buffer.concat(
-              [
-                Buffer.from([0, 27, 8, 2, 0x12, hash.length]),
-                hash
-              ]
-            )
-          );
-        }
+        this.blockDetail = await timedAsync(this.$store.dispatch('blockchain/fetchBlockMetadata', { blockNoOrHash: blockNoOrHash }));
+        this.bpId = pubkeyToPeerid(this.blockDetail.header.pubkey);
       } catch (error) {
         this.error = ''+error;
         console.error(error);
