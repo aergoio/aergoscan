@@ -10,13 +10,7 @@
         <div class="multicol" v-if="chainInfo && chainInfo.chainid">
           <dl class="table kvtable">
             <dt>Chain ID</dt>
-            <dd>{{chainInfo.chainid.magic}}</dd>
-
-            <dt>Public</dt>
-            <dd>{{chainInfo.chainid.public}}</dd>
-
-            <dt>Mainnet</dt>
-            <dd>{{chainInfo.chainid.mainnet}}</dd>
+            <dd>{{chainInfo.chainid.magic}} ({{chainInfo.chainid.public ? 'public' : 'private'}}, {{chainInfo.chainid.mainnet ? 'main' : 'non-main'}})</dd>
 
             <dt>Maximum block size</dt>
             <dd>{{chainInfo.maxblocksize}}</dd>
@@ -24,17 +18,23 @@
             <dt>Total token supply</dt>
             <dd v-html="$options.filters.formatToken(chainInfo.maxtokens, 'aergo')"></dd>
 
-            <dt>Minimum staking amount</dt>
-            <dd v-html="$options.filters.formatToken(chainInfo.stakingminimum, 'aergo')"></dd>
-
-            <dt>Total staked amount</dt>
-            <dd v-html="$options.filters.formatToken(chainInfo.stakingtotal, 'aergo')"></dd>
-
             <dt>Consensus</dt>
             <dd>{{chainInfo.chainid.consensus}}</dd>
 
             <dt>BP number</dt>
             <dd>{{bpNumber}}</dd>
+
+            <dt>Min. staking amount</dt>
+            <dd v-html="$options.filters.formatToken(chainInfo.stakingminimum, 'aergo')"></dd>
+
+            <dt>Total staked amount</dt>
+            <dd v-html="$options.filters.formatToken(chainInfo.stakingtotal, 'aergo')"></dd>
+
+            <dt>Nameprice</dt>
+            <dd v-html="$options.filters.formatToken(chainInfo.nameprice, 'aergo')"></dd>
+
+            <dt>Gasprice</dt>
+            <dd v-html="$options.filters.formatToken(chainInfo.gasprice, 'aer')"></dd>
           </dl>
         </div>
       </Island>
