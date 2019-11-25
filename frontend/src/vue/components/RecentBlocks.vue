@@ -4,6 +4,7 @@
       <div class="cell">Number</div>
       <div class="cell" style="width: 80px">Time</div>
       <div class="cell"><span class="tooltipped-n" v-tooltip="'Block producer pubkey'">BP</span></div>
+      <div class="cell"><span class="tooltipped-n" v-tooltip="'Vote reward receiver'">Reward</span></div>
       <div class="cell"><span class="tooltipped-n" v-tooltip="'Number of transactions'">TXs</span></div>
       <div class="cell"><span class="icon icon-view" style="visibility: hidden; margin-right: 16px;"></span></div>
     </div>
@@ -18,7 +19,8 @@
         </div>
         <div class="cell" style="width: 80px">{{moment(block.header.timestamp/1000000).format('HH:mm:ss')}}</div>
         <div class="cell"><Identicon :text="block.header.pubkey" size="16" class="tiny-identicon tooltipped-s" v-tooltip="block.header.pubkey" /></div>
-        <div class="cell">{{block.txcount}} tx</div>
+        <div class="cell" style="white-space: nowrap">{{block.voteReward.formatNumber()}} <Identicon v-if="!block.header.rewardaccount.isEmpty()" :text="block.header.rewardaccount.toString()" size="16" class="tiny-identicon tooltipped-s" v-tooltip="`${block.header.rewardaccount.toString().substr(0, 16)}...`" /></div>
+        <div class="cell">{{block.txcount}}&nbsp;tx</div>
         <div class="cell"><span class="icon icon-view"></span></div>
       </div>
     </transition-group>
