@@ -258,7 +258,6 @@ apiRouter.route('/search').get(async (req, res) => {
             // Get matching addresses
             req.apiClient.searchAddress(query)
         ]);
-
         return res.json({
             blocks,
             transactions,
@@ -313,6 +312,31 @@ apiRouter.route('/tx').get(async (req, res) => {
             txPerHour,
             txPerDay,
             txPerMonth
+        })
+    } catch(e) {
+        return res.json({error: e});
+    }
+});
+
+/**
+ * Reward stats
+ */
+apiRouter.route('/rewards').get(async (req, res) => {
+    const address = req.query.address;
+    try {
+        const [
+            blockPerDay,
+            //blockPerMonth,
+            blockCount
+        ] = await Promise.all([
+            req.apiClient.aggregateBlocks({ gte: "now-30d/d", lt: "now" }, "1d", {}, [{ term: { reward_account: address }}]),
+            //req.apiClient.aggregateBlocks({ gte: "now-10y/y", lt: "now" }, "1M", {}, [{ term: { reward_account: address }}]),
+            req.apiClient.getBlockCount(`reward_account:${address}`)
+        ]);
+        return res.json({
+            blockCount,
+            blockPerDay,
+            //blockPerMonth,
         })
     } catch(e) {
         return res.json({error: e});

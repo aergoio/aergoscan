@@ -169,33 +169,42 @@ export class ApiClient {
         }, true);
     }
 
-    async getBlockCount () {
-        const { count } = await db.count({
+    async getBlockCount (q) {
+        const args = {
             index: this.BLOCK_INDEX
-        });
+        };
+        if (q) {
+            args.q = q;
+        }
+        const { count } = await db.count(args);
         return count;
     }
 
-    aggregateBlocks (query, interval) {
+    aggregateBlocks (tsQuery, interval, aggs={sum_txs: { sum: { field: "txs" }},max_txs: { max: { field: "txs" }}}, extraQuery=[]) {
+        const query = {
+            "bool": {
+                "must": [
+                    {
+                        "range": {
+                            ts: tsQuery,
+                        }
+                    },
+                    ...extraQuery,
+                ]
+            }
+        }
         return new Promise(async (resolve) => {
             const response = await db.search({
                 index: this.BLOCK_INDEX,
                 body: {
-                    query: {
-                        range: {
-                            ts: query
-                        }
-                    },
+                    query,
                     aggs: {
                         grouped_blocks: {
                             "date_histogram" : {
                                 "field" : "ts",
                                 "interval" : interval
                             },
-                            aggs: {
-                                sum_txs: { sum: { field: "txs" }},
-                                max_txs: { max: { field: "txs" }}
-                            }
+                            aggs
                         }
                     },
                 }
