@@ -34,10 +34,11 @@ chainRouter.param('chainId', function(req, res, next, chainId) {
 });
 
 apiRouter.route('/').get((req, res) => {
+    const publicEndpoints = ['chaininfo', 'bestBlock', 'blocks', 'transactions', 'names', 'rewards'];
     return res.json({
         id: req.params.chainId,
         msg: `Aergoscan API for chain ${req.params.chainId}.`,
-        resources: ['bestBlock', 'blocks', 'transactions'].map(resource => `${cfg.HOST}/${req.params.chainId}/${resource}/`)
+        resources: publicEndpoints.map(resource => `${cfg.HOST}/${req.params.chainId}/${resource}/`)
     });
 });
 
@@ -323,6 +324,9 @@ apiRouter.route('/tx').get(async (req, res) => {
  */
 apiRouter.route('/rewards').get(async (req, res) => {
     const address = req.query.address;
+    if (!address) {
+        return res.json({error: 'no address given'});
+    }
     try {
         const [
             blockPerDay,
