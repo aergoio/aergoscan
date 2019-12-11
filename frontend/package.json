@@ -1,6 +1,6 @@
 {
   "name": "aergoscan",
-  "version": "1.0.0",
+  "version": "0.4.0",
   "description": "Aergoscan frontend",
   "scripts": {
     "build": "webpack -p --config webpack.config.js",
