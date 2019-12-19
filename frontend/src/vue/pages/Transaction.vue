@@ -27,6 +27,11 @@
                 </span>
               </td>
             </tr>
+            <tr><td>Gas used:</td><td>
+              {{txReceipt ? txReceipt.gasused : '...'}} of
+              <span v-if="txDetail.tx.limit">{{txDetail.tx.limit}}</span>
+              <span v-if="!txDetail.tx.limit" class="has-tooltip tooltipped-s" v-tooltip="'Limit was set to 0, allowing unlimited gas use'">∞</span>
+            </td></tr>
             <tr><td>Nonce:</td><td>{{txDetail.tx.nonce}}</td></tr>
             <tr v-if="txDetail.tx.payload">
               <td>Payload:</td>
