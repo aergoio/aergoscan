@@ -15,6 +15,10 @@ git clone https://${GITHUB_TOKEN}:@github.com/aergoio/aergoscan && cd aergoscan
 
 GITHUB_TOKEN=$GITHUB_TOKEN AERGO_NODE=$AERGO_NODE BACKEND_URL=$BACKEND_URL docker-compose build
 
+# Download ES image
+
+docker pull docker.elastic.co/elasticsearch/elasticsearch:6.4.2
+
 # Save images into tar.gz
 
 docker save aergoscan_backend aergoscan_nginx aergoscan_indexer docker.elastic.co/elasticsearch/elasticsearch:6.4.2 | gzip > aergoscan-images.tar.gz
