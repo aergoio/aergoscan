@@ -82,14 +82,16 @@ function requestBlock($store, hash) {
   return requests[hash];
 }
 
+const PeerRoleSort = [0,2,3,1];
+
 export default {
   data () {
     return {
       peers: null,
       consensusInfo: null,
       error: null,
-      sorting: 'bestblock.blockno',
-      sortingAsc: false,
+      sorting: 'acceptedrole',
+      sortingAsc: true,
       serverInfo: null,
       loadTime: null
     }
@@ -121,16 +123,18 @@ export default {
       if (this.peers === null) return [];
       let peers = [...this.peers];
       // secondary sort by role
-      peers.sort((a, b) => - (a.acceptedrole - b.acceptedrole));
-      // primary sort by selected field
-      peers.sort((a, b) => {
-        const A = getKey(a, this.sorting);
-        const B = getKey(b, this.sorting);
-        if (typeof A === 'string')
-          return A.localeCompare(B);
-        else
-          return A - B;
-      });
+      peers.sort((a, b) => - (PeerRoleSort.indexOf(a.acceptedrole) - PeerRoleSort.indexOf(b.acceptedrole)));
+      if (this.sorting !== 'acceptedrole') {
+        // primary sort by selected field
+        peers.sort((a, b) => {
+          const A = getKey(a, this.sorting);
+          const B = getKey(b, this.sorting);
+          if (typeof A === 'string')
+            return A.localeCompare(B);
+          else
+            return A - B;
+        });
+      }
       
       if (!this.sortingAsc) {
         peers.reverse();
