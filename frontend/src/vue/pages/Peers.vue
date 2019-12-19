@@ -23,9 +23,10 @@
             <td class="monospace">
               <span v-if="bpsList.indexOf(peer.address.peerid) === -1">{{peer.address.peerid}}</span>
               <router-link :to="`/consensus/?highlight=${peer.address.peerid}`" v-if="bpsList.indexOf(peer.address.peerid) !== -1">{{peer.address.peerid}}</router-link>
-              <span v-if="bpsList.indexOf(peer.address.peerid) !== -1" class="label">BP</span>
+              <span v-if="bpsList.indexOf(peer.address.peerid) !== -1 && peer.acceptedroleLabel !== 'PRODUCER'" class="label">Producer</span>
               <span v-if="raftLeaderID === peer.address.peerid" class="label">Leader</span>
-              <span v-if="peer.address.peerid === selfPeerId" class="label">self</span>
+              <span class="label">{{peer.acceptedroleLabel}}</span>
+              <span v-if="peer.selfpeer" class="label">self</span>
             </td>
             <td>{{peer.version}}</td>
             <td>{{peer.bestblock.blockno}}</td>
@@ -42,7 +43,7 @@
             </td>
           </tr>
         </table>
-        <p class="note" v-if="loadTime">Data retrieved from {{selfPeerId}} at {{loadTime.format('HH:mm:ss')}}.</p>
+        <p class="note" v-if="loadTime">Data retrieved from {{selfPeerId}} at {{loadTime.format('HH:mm:ss')}}. Note that due to load balancing, a different peer may respond when reloading.</p>
       </Island>
 
       <Island v-if="serverInfoItems">
@@ -87,7 +88,7 @@ export default {
       peers: null,
       consensusInfo: null,
       error: null,
-      sorting: 'address.peerid',
+      sorting: 'bestblock.blockno',
       sortingAsc: false,
       serverInfo: null,
       loadTime: null
@@ -119,6 +120,9 @@ export default {
     peersSorted() {
       if (this.peers === null) return [];
       let peers = [...this.peers];
+      // secondary sort by role
+      peers.sort((a, b) => - (a.acceptedrole - b.acceptedrole));
+      // primary sort by selected field
       peers.sort((a, b) => {
         const A = getKey(a, this.sorting);
         const B = getKey(b, this.sorting);
@@ -127,6 +131,7 @@ export default {
         else
           return A - B;
       });
+      
       if (!this.sortingAsc) {
         peers.reverse();
       }
