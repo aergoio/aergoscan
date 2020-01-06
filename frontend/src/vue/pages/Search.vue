@@ -2,8 +2,8 @@
   <div class="wrap">
     <div class="page-content">
       <Island>
-        <IslandHeader title="Search Results" /> 
-        <div v-if="loading">Loading...</div>
+        <IslandHeader :title="isGo && (results.length === 1 || loading) ? 'Redirecting' : 'Search Results'" /> 
+        <div v-if="loading">Please wait...</div>
         <ul class="search-results" v-if="!loading && results.length">
           <li v-for="result of results" :key="result[0] + result[1]">
             <router-link :to="urlFor(result)">
@@ -12,7 +12,7 @@
             </router-link>
           </li>
         </ul>
-        <div v-if="!loading && !results.length">No results.</div>
+        <div v-if="!loading && !results.length">No results for "{{lastQuery}}"</div>
       </Island>
     </div>
   </div>
@@ -53,6 +53,11 @@ export default {
       this.loadResults();
     }
   },
+  computed: {
+    isGo() {
+      return this.$route.name === 'go';
+    },
+  },
   methods: {
     labelFor(result) {
       return {
@@ -83,6 +88,10 @@ export default {
       const results = await Promise.all([this.getResultsStatic(this.lastQuery), this.getResultsApi(this.lastQuery)]);
       this.results = removeDuplicateResults([...results[0], ...results[1]]);
       this.loading = false;
+
+      if (this.isGo && this.results.length === 1) {
+        this.$router.push(this.urlFor(this.results[0]));
+      }
     },
 
     async getResultsApi(query) {
@@ -111,7 +120,9 @@ export default {
       }
       try {
         const addr = new Address(query);
-        results.push(['address', addr.toString()]);
+        if (!addr.isName || addr.isSystemAddress() || addr.isName && query.length === 12) {
+          results.push(['address', addr.toString()]);
+        }
       } catch (e) {
       }
       return results;

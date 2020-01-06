@@ -23,4 +23,5 @@ export default [
     { path: '/blocks/', component: Blocks, name: 'blocks' },
     { path: '/accounts/', component: Accounts, name: 'accounts' },
     { path: '/search/', component: Search, name: 'search' },
+    { path: '/go/', component: Search, name: 'go' },
 ];
