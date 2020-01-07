@@ -3,11 +3,17 @@ import { Amount } from '@herajs/client';
 import { ApiClient } from './db';
 import cfg from './config';
 import chaininfos from '../chaininfo';
+import fetch from 'node-fetch';
 const app = express();
 
 // Nested router for chainId
 const chainRouter = express.Router();
 const apiRouter = express.Router({mergeParams: true});
+
+const cache = {
+    swapData: null,
+    swapDataUpdated: null,
+};
 
 app.use('/', chainRouter);
 app.use((err, req, res, next) => {
@@ -17,12 +23,27 @@ app.use((err, req, res, next) => {
     next();
 });
 
-chainRouter.use('/:chainId', apiRouter);
 chainRouter.route('/').get((req, res) => {
     return res.json({
         msg: 'Welcome to the Aergoscan API. Please select a chain id.',
         chains: cfg.AVAILABLE_NETWORKS.map(chainId => `${cfg.HOST}/${chainId}/`)
     });
+});
+
+chainRouter.route('/swapStat').get(async (req, res) => {
+    const swapStatCacheDuration = 60 * 60 * 24 * 1000;
+    const isStale = cache.swapDataUpdated && (new Date() - cache.swapDataUpdated) > swapStatCacheDuration;
+    if (!cache.swapData || isStale) {
+        const url = 'https://vb42nx03yf.execute-api.us-east-1.amazonaws.com/prod';
+        try {
+            const response = await fetch(url);
+            cache.swapData = await response.json();
+            cache.swapDataUpdated = new Date();
+        } catch(e) {
+            return res.json({error: 'Could not fetch data'});
+        }
+    }
+    return res.json({ updated: cache.swapDataUpdated, result: cache.swapData });
 });
 
 chainRouter.param('chainId', function(req, res, next, chainId) {
@@ -32,6 +53,8 @@ chainRouter.param('chainId', function(req, res, next, chainId) {
     req.apiClient = new ApiClient(req.params.chainId);
     next();
 });
+
+chainRouter.use('/:chainId', apiRouter);
 
 apiRouter.route('/').get((req, res) => {
     const publicEndpoints = ['chaininfo', 'bestBlock', 'blocks', 'transactions', 'names', 'rewards'];

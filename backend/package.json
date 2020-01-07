@@ -15,6 +15,7 @@
     "express": "^4.16.3",
     "google-protobuf": "^3.6.1",
     "grpc": "^1.15.1",
+    "node-fetch": "^2.6.0",
     "tiny-async-pool": "^1.0.1"
   },
   "devDependencies": {
