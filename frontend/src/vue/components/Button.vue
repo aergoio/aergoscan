@@ -16,7 +16,7 @@ export default {
 </script>
 
 <style lang="scss">
-.btn {
+.btn, a.btn {
   display: inline-block;
   border: 1px solid #aaa;
   line-height: 22px;
