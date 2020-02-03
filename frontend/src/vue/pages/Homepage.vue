@@ -49,7 +49,7 @@
         <Island style="flex: 1">
           <IslandHeader title="Blocks" />
           <RecentBlocks />
-          <div style="text-align: center">
+          <div style="text-align: center; padding-top: 10px;">
             <router-link :to="{name: 'blocks'}" class="btn">View all</router-link>
           </div>
         </Island>
@@ -57,7 +57,7 @@
         <Island style="flex: 2">
           <IslandHeader title="Transactions" />
           <RecentTransactions />
-          <div style="text-align: center">
+          <div style="text-align: center; padding-top: 10px;">
             <router-link :to="{name: 'transactions'}" class="btn">View all</router-link>
           </div>
         </Island>
