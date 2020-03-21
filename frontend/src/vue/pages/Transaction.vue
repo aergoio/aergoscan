@@ -33,6 +33,7 @@
               <span v-if="!txDetail.tx.limit" class="has-tooltip tooltipped-s" v-tooltip="'Limit was set to 0, allowing unlimited gas use'">∞</span>
             </td></tr>
             <tr><td>Nonce:</td><td>{{txDetail.tx.nonce}}</td></tr>
+            <tr><td>Type:</td><td>{{typeLabel}}</td></tr>
             <tr v-if="txDetail.tx.payload">
               <td>Payload:</td>
               <td>{{txDetail.tx.payload.length}} bytes</td>
@@ -119,6 +120,7 @@ import AccountBox from '../components/AccountBox';
 import PayloadFormatter from '../components/PayloadFormatter';
 import cfg from '../../config';
 import { Tabs, Tab } from 'aergo-ui/src/components/tabs';
+import { TxTypes } from '@herajs/common';
 
 const payloadTabs = ['formatted', 'json', 'hex'];
 const receiptTabs = ['formatted', 'json'];
@@ -189,6 +191,9 @@ export default {
     },
     receiptJson() {
       return JSON.stringify(this.txReceipt, null, 2);
+    },
+    typeLabel() {
+      return this.txDetail && TxTypes[this.txDetail.tx.type];
     }
   },
   methods: {

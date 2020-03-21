@@ -9,16 +9,16 @@
     <span v-if="address && args.length">
       ↓
     </span>
-    <span class="args-payload" v-if="args.length"><pre><ArgFormatter v-for="arg of args" :key="arg" :arg="arg" class="monospace" /></pre></span>
+    <span class="args-payload" v-if="args.length"><pre><ArgFormatter v-for="arg of args" :key="`${arg}`" :arg="arg" class="monospace" /></pre></span>
     <span class="monospace" v-if="name">)</span>
     <span class="list-payload" v-if="listPayload.length">
-      <span v-for="item of listPayload" :key="item">
+      <span v-for="item of listPayload" :key="`${item}`">
         {{item}}
       </span>
     </span>
 
     <span class="list-payload" v-if="bps.length">
-      <span v-for="item of bps" :key="item">
+      <span v-for="item of bps" :key="`${item}`">
         <router-link :to="`/votes/?highlight=${item}`">{{item}}</router-link>
       </span>
     </span>
