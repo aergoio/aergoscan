@@ -1,4 +1,4 @@
-FROM aergo/esindexer
+FROM aergo/indexer
 ADD entry.sh /entry.sh
 RUN chmod +x /entry.sh
 ENV ES_URL ${ES_URL:-http://db:9200}
