@@ -13,7 +13,16 @@ npm run dev
 ### Build for production
 
 ```shell
+# localhost
+CONFIG_NAME=local npm run build
+
+# mainnet
+CONFIG_NAME=main npm run build
+
+# testnet
 CONFIG_NAME=prod npm run build
+
+
 ```
 
 Development build with different AERGO node:
