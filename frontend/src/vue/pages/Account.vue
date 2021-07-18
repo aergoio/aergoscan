@@ -46,7 +46,8 @@
             </tr>
             <template v-if="accountTokens && showTokenBalances">
               <tr v-for="accountToken in accountTokens" :key="accountToken.key" class="token-balance">
-                <td><router-link :to="`/account/${accountToken.key}/`">{{accountToken.token.meta.name}}</router-link></td>
+                <td>
+                  <AccountLink :address="accountToken.key" :name="accountToken.token.meta.name" @click="$router.push(`/account/${accountToken.key}/`)" />
                 <td>
                   <span v-if="accountToken.balance" v-html="$options.filters.formatGenericToken(formatTokenAmount(accountToken.balance, '', accountToken.token.meta.decimals), accountToken.token.meta.symbol)"></span>
                   <span v-else>...</span>
@@ -166,6 +167,7 @@
           </div>
           <div slot="amount" slot-scope="{ rowData }">
             {{formatTokenAmount(rowData.amount, token.meta.symbol, token.meta.decimals)}}
+            <span v-if="rowData.token_id">({{rowData.token_id}})</span>
           </div>
         </DataTable>
       </Island>

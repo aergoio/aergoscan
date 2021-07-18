@@ -324,6 +324,7 @@ apiRouter.route('/accounts').get(async (req, res) => {
                     'aggregations.address_unique.buckets.transfer.hits.hits._source.blockno',
                 ],
             })
+            if (!result.aggregations) return [];
             return result.aggregations.address_unique.buckets;
         }
         async function convBucket(bucket) {
@@ -333,6 +334,7 @@ apiRouter.route('/accounts').get(async (req, res) => {
                 token = tokenQuery.hits[0];
                 TokenCache.set(bucket.key, token);
             }
+            if (!token) return [];
             return {
                 ...bucket,
                 token,
@@ -342,7 +344,7 @@ apiRouter.route('/accounts').get(async (req, res) => {
         const sort = 'max_blockno';
         const results = await makeQuery(req.query.address);
         const mapped = await Promise.all(results.map(convBucket));
-        return res.json({ objects: mapped.sort((a, b) => b[sort] - a[sort]) });
+        return res.json({ objects: mapped.flat().sort((a, b) => b[sort] - a[sort]) });
     } catch(e) {
         console.log(e);
         return res.json({error: ''+e});
