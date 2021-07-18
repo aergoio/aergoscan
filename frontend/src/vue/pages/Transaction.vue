@@ -106,6 +106,9 @@
               <Tab title="JSON" :route="{ query: query({receipt: 'json'}) }">
                 <div class="aergo-tab-content monospace"><pre>{{receiptJson}}</pre></div>
               </Tab>
+              <Tab title="Events" :route="{ query: query({receipt: 'events'}) }">
+                <EventsList :address="txReceipt.contractaddress" :blockno="txReceipt.blockno" />
+              </Tab>
             </Tabs>
           </div>
         </div>
@@ -118,12 +121,13 @@
 import moment from 'moment';
 import AccountBox from '../components/AccountBox';
 import PayloadFormatter from '../components/PayloadFormatter';
+import EventsList from '../components/EventsList';
 import cfg from '../../config';
 import { Tabs, Tab } from 'aergo-ui/src/components/tabs';
 import { TxTypes } from '@herajs/common';
 
 const payloadTabs = ['formatted', 'json', 'hex'];
-const receiptTabs = ['formatted', 'json'];
+const receiptTabs = ['formatted', 'json', 'events'];
 
 export default {
   data () {
@@ -131,6 +135,7 @@ export default {
       txDetail: null,
       txReceipt: null,
       txMeta: {},
+      eventsJson: null,
       error: null,
       selectedPayloadTab: 0,
       selectedReceiptTab: 0
@@ -141,7 +146,7 @@ export default {
   watch: {
     '$route' (to, from) {
       this.load();
-    }
+    },
   },
   mounted () {
     if (this.$route.query.payload) {
@@ -157,7 +162,8 @@ export default {
   components: {
     AccountBox,
     PayloadFormatter,
-    Tabs, Tab
+    Tabs, Tab,
+    EventsList,
   },
   computed: {
     formattedTitle() {

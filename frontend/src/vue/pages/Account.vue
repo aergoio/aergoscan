@@ -40,6 +40,19 @@
                 <span v-html="$options.filters.formatToken(unstakedBalance, 'aergo')"></span>
               </td>
             </tr>
+            <tr v-if="accountTokens && accountTokens.length">
+              <td>{{accountTokens.length}} Tokens:</td>
+              <td><span class="btn-toggle" :class="{open: showTokenBalances}" @click="showTokenBalances = !showTokenBalances">View balances</span></td>
+            </tr>
+            <template v-if="accountTokens && showTokenBalances">
+              <tr v-for="accountToken in accountTokens" :key="accountToken.key" class="token-balance">
+                <td><router-link :to="`/account/${accountToken.key}/`">{{accountToken.token.meta.name}}</router-link></td>
+                <td>
+                  <span v-if="accountToken.balance" v-html="$options.filters.formatGenericToken(formatTokenAmount(accountToken.balance, '', accountToken.token.meta.decimals), accountToken.token.meta.symbol)"></span>
+                  <span v-else>...</span>
+                </td>
+              </tr>
+            </template>
             <tr><td>Nonce:</td><td>{{accountDetail.nonce}}</td></tr>
           </table>
         </div>
@@ -100,6 +113,63 @@
         </div>
       </Island>
 
+      <Island v-if="token">
+        <IslandHeader :title="`${token.meta.type} Token`" />
+        <table class="detail-table">
+          <tr>
+            <td>Name:</td>
+            <td>{{token.meta.name}}</td>
+          </tr>
+          <tr>
+            <td>Symbol:</td>
+            <td>{{token.meta.symbol}}</td>
+          </tr>
+          <tr v-if="token.meta.supply">
+            <td>Supply:</td>
+            <td>{{token.meta.supply}}</td>
+          </tr>
+          <tr v-if="token.meta.decimals">
+            <td>Decimals:</td>
+            <td>{{token.meta.decimals}}</td>
+          </tr>
+          <tr>
+            <td>Created in transaction:</td>
+            <td><router-link :to="`/transaction/${token.meta.tx_id}/`">{{token.meta.tx_id}}</router-link></td>
+          </tr>
+        </table>
+      </Island>
+
+      <Island v-if="token">
+        <IslandHeader title="Token Transfers" :annotation="`${totalTokenTransfers}`" />
+
+        <DataTable
+          ref="table"
+          class="token-transfer-table"
+          :data="tokenTransfers || []"
+          :load="loadTokenTableData"
+          :headerFields="tokenHeaderFields"
+          :totalItems="totalTokenTransfers"
+          trackBy="hash"
+          :defaultSort="sortField"
+          :defaultSortDirection="sort"
+        >
+          <div slot="hash" slot-scope="{ rowData }">
+            <span style="white-space: nowrap">
+            <router-link :to="`/transaction/${rowData.tx_id}/`">{{rowData.tx_id}}</router-link>
+            </span>
+          </div>
+          <div slot="from" slot-scope="{ rowData }">
+            <AccountLink :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" />
+          </div>
+          <div slot="to" slot-scope="{ rowData }">
+            <AccountLink :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" />
+          </div>
+          <div slot="amount" slot-scope="{ rowData }">
+            {{formatTokenAmount(rowData.amount, token.meta.symbol, token.meta.decimals)}}
+          </div>
+        </DataTable>
+      </Island>
+
       <Island v-if="accountDetail && accountDetail.codehash">
         <IslandHeader title="Contract" />
         <ContractAbi :abi="contractAbi" :codehash="accountDetail.codehash" :address="realAddress" style="margin-bottom: 30px" />
@@ -139,7 +209,6 @@
 </template>
 
 <script>
-import aergo from '../../controller';
 import moment from 'moment';
 import AccountBox from '../components/AccountBox';
 import ContractAbi from '../components/ContractAbi';
@@ -151,9 +220,14 @@ import { Amount } from '@herajs/client';
 import { DataTable } from 'aergo-ui/src/components/tables';
 import AccountLink from "aergo-ui/src/components/AccountLink";
 
+function formatTokenAmount(amount, unit, decimals) {
+  return `${Amount.moveDecimalPoint(amount, -decimals)}${unit? ` ${unit}` : ''}`;
+}
+
 export default {
   data () {
     return {
+      address: '',
       contractAbi: null,
       transactions: [],
       error: null,
@@ -161,8 +235,13 @@ export default {
       staking: null,
       ownerAddress: null,
       destinationAddress: null,
+      token: null,
+      totalTokenTransfers: 0,
+      tokenTransfers: [],
+      accountTokens: [],
       names: [],
       nameHistory: [],
+      showTokenBalances: false,
 
       headerFields: [
         {
@@ -196,6 +275,38 @@ export default {
           format: (amount) => new Amount(amount, 'aer').toUnit('aergo').toString()
         }
       ],
+      tokenHeaderFields: [
+        {
+          name: "ts",
+          label: "Timestamp",
+          sortable: true,
+          format: (value) => moment(value).fromNow()
+        },
+        {
+          name: "hash",
+          label: "Hash",
+          sortable: false,
+          customElement: 'hash',
+        },
+        {
+          name: "from",
+          label: "From",
+          sortable: true,
+          customElement: 'from',
+        },
+        {
+          name: "to",
+          label: "To",
+          sortable: true,
+          customElement: 'to',
+        },
+        {
+          name: "amount_float",
+          label: "Amount",
+          sortable: true,
+          customElement: 'amount',
+        }
+      ],
       sort: "desc",
       sortField: "ts",
       totalItems: 0,
@@ -218,6 +329,14 @@ export default {
           this.$refs.table._load();
         }
     },
+    'showTokenBalances'() {
+      if (this.showTokenBalances) {
+        this.accountTokens.map(async (token) => {
+          const balance = await this.$store.dispatch('blockchain/getTokenBalance', { token: token.key, address: this.address });
+          token.balance = balance;
+        });
+      }
+    }
   },
   mounted () {
     this.load();
@@ -269,7 +388,10 @@ export default {
       this.contractAbi = null;
       this.names = [];
       this.nameHistory = [];
+      this.token = null;
+      this.accountTokens = [];
       let isName = false;
+      this.showTokenBalances = false;
 
       // Check address
       try {
@@ -294,6 +416,8 @@ export default {
         console.error(e);
         return;
       }
+
+      this.address = address;
 
       // State
       try {
@@ -346,12 +470,42 @@ export default {
           }
         })();
       }
-      
+
+      // Token balances
+      (async() => {
+        const fetch = await this.$fetch.get(`${cfg.API_URL}/accountTokens`, {
+          address
+        });
+        const response = await fetch.json();
+        this.accountTokens = response.objects.map(v => ({...v, balance: null}));
+      })();
 
       // Contract and transactions
       try {
         if (this.accountDetail.codehash) {
-          this.contractAbi = await this.$store.dispatch('blockchain/getABI', { address });
+          this.$store.dispatch('blockchain/getABI', { address }).then(abi => this.contractAbi = abi);
+
+          (async () => {
+            try {
+              const response = await this.$fetch.get(`${cfg.API_URL}/token`, { q: `_id:${this.$route.params.address}`, size: 1 });
+              const data = (await response.json());
+              this.token = data.hits[0];
+              console.log(this.token);
+            } catch (e) {
+              console.error(e);
+            }
+          })();
+
+          (async () => {
+            try {
+              const response = await this.$fetch.get(`${cfg.API_URL}/tokenTransfer`, { q: `to:${this.$route.params.address}`, size: 10 });
+              const data = (await response.json());
+              this.token = data.hits[0];
+              console.log(this.token);
+            } catch (e) {
+              console.error(e);
+            }
+          })();
         }
       } catch (e) {
         console.error(e);
@@ -374,7 +528,25 @@ export default {
         this.totalItems = response.total;
       }
     },
-    moment
+    loadTokenTableData: async function({ sortField, sort, currentPage, itemsPerPage }) {
+      this.error = "";
+      const start = (currentPage - 1) * itemsPerPage;
+      const fetch = await this.$fetch.get(`${cfg.API_URL}/tokenTransfers`, {
+        q: `address:${this.realAddress}`,
+        size: itemsPerPage,
+        from: start,
+        sort: `${sortField}:${sort}`,
+      });
+      const response = await fetch.json();
+      if (response.error) {
+        this.error = response.error.msg;
+      } else if (response.hits.length) {
+        this.tokenTransfers = response.hits.map(item => ({ ...item.meta, hash: item.hash }));
+        this.totalTokenTransfers = response.total;
+      }
+    },
+    moment,
+    formatTokenAmount,
   },
 };
 </script>
@@ -387,7 +559,16 @@ export default {
       width: 50%;
       max-width: 0;
     }
-    td:nth-child(4) {
+    td:nth-child(5) {
+      white-space: nowrap;
+      text-align: right;
+    }
+  }
+}
+.token-transfer-table {
+  font-size: .95em;
+  tbody {
+    td:nth-child(5) {
       white-space: nowrap;
       text-align: right;
     }
@@ -398,5 +579,25 @@ export default {
   .label {
     margin-right: 5px;
   }
+}
+.token-transfer-table .account-link {
+  max-width: 200px;
+}
+
+.btn-toggle {
+  color: #FF0097;
+  cursor: pointer;
+  &:after {
+    content: "▼";
+    font-size: .8em;
+    margin-left: .2em;
+  }
+  &.open:after {
+    content: "▲";
+  }
+}
+
+.token-balance td {
+  padding: 5px 5px 7px;
 }
 </style>
