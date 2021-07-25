@@ -107,7 +107,7 @@
                 <div class="aergo-tab-content monospace"><pre>{{receiptJson}}</pre></div>
               </Tab>
               <Tab title="Events" :route="{ query: query({receipt: 'events'}) }">
-                <EventsList :address="txReceipt.contractaddress" :blockno="txReceipt.blockno" />
+                <EventsList :events="events" :columns="[]" />
               </Tab>
             </Tabs>
           </div>
@@ -135,7 +135,7 @@ export default {
       txDetail: null,
       txReceipt: null,
       txMeta: {},
-      eventsJson: null,
+      events: [],
       error: null,
       selectedPayloadTab: 0,
       selectedReceiptTab: 0
@@ -220,6 +220,13 @@ export default {
       })();
       (async () => {
         this.txReceipt = await this.$store.dispatch('blockchain/getTransactionReceipt', { hash });
+        if (this.$route.query.receipt === 'events' && this.txReceipt) {
+          this.events = await this.$store.dispatch('blockchain/getEvents', {
+            address: this.txReceipt.contractaddress,
+            blockfrom: this.txReceipt.blockno,
+            blockto: this.txReceipt.blockno,
+          });
+        }
       })();
       (async () => {
         const response = await (await this.$fetch.get(`${cfg.API_URL}/transactions`, { q: `_id:${hash}` })).json();
@@ -227,6 +234,7 @@ export default {
           this.txMeta = response.hits[0].meta;
         }
       })();
+
       
     },
     moment

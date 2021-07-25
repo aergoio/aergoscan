@@ -2,19 +2,20 @@
   <div class="wrap">
     <div class="page-content">
       <Island>
-        <IslandHeader title="Accounts" :annotation="`${totalItems}`">
+        <IslandHeader title="Tokens" :annotation="`${totalItems}`">
           <div style="align-self: center; margin-left: auto;">
             <ReloadButton :action="reload"/>
           </div>
         </IslandHeader>
 
-        <p>This page shows the last 50 recently active accounts only (based on transaction data).</p>
+        <p>This page shows tokens that were indexed by Aergoscan.
+          If you deployed an ARC1 or ARC2 compliant contract and it doesn't show up here, please contact us.</p>
 
         <p v-if="error" class="error">{{error}}</p>
         
         <DataTable
           ref="table"
-          class="accounts-table"
+          class="tokens-table"
           :data="data || []"
           :load="loadTableData"
           :headerFields="headerFields"
@@ -22,16 +23,13 @@
           trackBy="hash"
           :defaultSort="sortField"
           :defaultSortDirection="sort"
-          :itemsPerPage="totalItems"
+          :itemsPerPage="20"
         >
-          <div slot="key" slot-scope="{ rowData }">
-            <AccountLink :address="rowData.key" @click="$router.push(`/account/${rowData.key}/`)" />
-          </div>
-          <div slot="max_blockno" slot-scope="{ rowData }">
-            <router-link :to="`/block/${rowData.max_blockno}/`">{{rowData.max_blockno}}</router-link>
-          </div>
           <div slot="hash" slot-scope="{ rowData }">
-            <router-link :to="`/transaction/${rowData.hash}/`">{{rowData.hash}}</router-link>
+            <AccountLink :address="rowData.hash" @click="$router.push(`/account/${rowData.hash}/`)" />
+          </div>
+          <div slot="blockno" slot-scope="{ rowData }">
+            <router-link :to="`/block/${rowData.blockno}/`">{{rowData.blockno}}</router-link>
           </div>
         </DataTable>
       </Island>
@@ -41,9 +39,6 @@
 
 <script>
 import ReloadButton from '../components/ReloadButton';
-import { Amount } from '@herajs/client';
-import aergo from '../../controller';
-import moment from 'moment';
 import cfg from '../../config';
 import { DataTable } from 'aergo-ui/src/components/tables';
 import AccountLink from "aergo-ui/src/components/AccountLink";
@@ -52,33 +47,37 @@ export default {
   data: function() {
     return {
       error: '',
+      itemsPerPage: 20,
       headerFields: [
         {
-          name: "key",
-          label: "Address",
-          customElement: 'key',
-        },
-        {
-          name: "ts",
-          label: "Last Tx",
-          format: (ts) => moment(ts).fromNow()
+          name: "blockno",
+          label: "Block No",
+          sortable: true,
+          customElement: 'blockno'
         },
         {
           name: "hash",
-          label: "Tx Hash",
-          customElement: 'hash'
+          label: "Address",
+          customElement: 'hash',
         },
         {
-          name: "max_blockno",
-          label: "Block No",
+          name: "name",
+          label: "Name",
           sortable: true,
-          customElement: 'max_blockno'
-        }
-        
+        },
+        {
+          name: "symbol",
+          label: "symbol",
+          sortable: true,
+        },
+        {
+          name: "type",
+          label: "Type",
+        },
       ],
       data: [],
       sort: "desc",
-      sortField: "max_blockno",
+      sortField: "blockno",
       totalItems: 0
     };
   },
@@ -86,16 +85,16 @@ export default {
     loadTableData: async function({ sortField, sort, currentPage, itemsPerPage }) {
       this.error = "";
       const start = (currentPage - 1) * itemsPerPage;
-      const response = await (await this.$fetch.get(`${cfg.API_URL}/accounts`, {
+      const response = await (await this.$fetch.get(`${cfg.API_URL}/token`, {
         size: itemsPerPage,
         from: start,
         sort: `${sortField}:${sort}`,
       })).json();
       if (response.error) {
         this.error = response.error.msg;
-      } else if (response.objects.length) {
-        this.data = response.objects.map(item => ({ ...item, hash: item.tx.hash, ts: item.tx.ts }))
-        this.totalItems = response.objects.length;
+      } else if (response.hits.length) {
+        this.data = response.hits.map(item => ({ ...item.meta, hash: item.hash }));
+        this.totalItems = response.total;
       }
     },
     reload: async function() {
@@ -111,21 +110,17 @@ export default {
 </script>
 
 <style lang="scss">
-.accounts-table {
+.tokens-table {
   font-size: .95em;
 
   tbody {
-    td:nth-child(1),
-    td:nth-child(3) {
-      width: 50%;
+    td:nth-child(1) {
+      width: 10%;
       max-width: 0;
     }
     td:nth-child(2) {
-      white-space: nowrap;
-    }
-    td:nth-child(4) {
-      white-space: nowrap;
-      text-align: right;
+      width: 50%;
+      max-width: 0;
     }
   }
 }

@@ -23,21 +23,8 @@
         <span v-if="isLoadingMoreEvents" class="btn-call">Loading...</span>
         <span v-if="!canLoadMoreEvents && !isLoadingMoreEvents">Loaded all events</span>
 
-        <table class="event-table">
-          <tr>
-            <th>Event name</th>
-            <th>Arguments</th>
-            <th>Block</th>
-            <th>Transaction</th>
-          </tr>
-          <tr v-for="event in events" :key="event.txhash + event.eventidx">
-            <td class="monospace">{{event.eventName}}</td>
-            <td class="monospace">{{event.args}}</td>
-            <td><router-link :to="`/block/${event.blockhash}/`">{{event.blockno}}</router-link></td>
-            <td><router-link :to="`/transaction/${event.txhash}/`">{{event.txhash}}</router-link></td>
-          </tr>
-        </table>
-        
+        <EventsList :events="events" :columns="['blockno', 'tx']" />
+  
       </div></Tab>
     </Tabs>
   </div>
@@ -50,6 +37,7 @@ import ReloadButton from './ReloadButton';
 import QueryFunction from './QueryFunction';
 import QueryStateVariable from './QueryStateVariable';
 import { Tabs, Tab } from 'aergo-ui/src/components/tabs';
+import EventsList from './EventsList.vue';
 
 const contractTabs = ['abi', 'interactive', 'events'];
 
@@ -98,7 +86,8 @@ export default {
     ReloadButton,
     QueryFunction,
     QueryStateVariable,
-    Tabs, Tab
+    Tabs, Tab,
+    EventsList,
   },
   computed: {
     functions() {
@@ -144,6 +133,7 @@ export default {
       if (loadNew || !this.bestBlock) {
         this.bestBlock = await this.$store.dispatch('blockchain/getBestBlock');
       }
+      
       if (loadNew) {
         this.eventsTo = this.bestBlock.bestHeight;
         this.eventsFrom = this.eventsToMax + 1;
@@ -157,7 +147,6 @@ export default {
         this.eventsFromMin = this.eventsFrom;
       }
       if (!append) this.events = [];
-      console.log('loading events', this.eventsFrom, this.eventsTo);
       try {
         const events = await this.$store.dispatch('blockchain/getEvents', {
           eventName: null,

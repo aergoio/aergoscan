@@ -140,7 +140,7 @@
         </table>
       </Island>
 
-      <Island v-if="token">
+      <Island v-if="token || (accountDetail && !accountDetail.codehash)">
         <IslandHeader title="Token Transfers" :annotation="`${totalTokenTransfers}`" />
 
         <DataTable
@@ -155,9 +155,12 @@
           :defaultSortDirection="sort"
         >
           <div slot="hash" slot-scope="{ rowData }">
-            <span style="white-space: nowrap">
-            <router-link :to="`/transaction/${rowData.tx_id}/`">{{rowData.tx_id}}</router-link>
+            <span style="max-width: 160px; overflow: hidden; display: inline-flex">
+              <router-link :to="`/transaction/${rowData.tx_id}/`">{{rowData.tx_id}}</router-link>
             </span>
+          </div>
+          <div slot="address" slot-scope="{ rowData }">
+            <AccountLink :address="rowData.address" @click="$router.push(`/account/${rowData.address}/`)" />
           </div>
           <div slot="from" slot-scope="{ rowData }">
             <AccountLink :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" />
@@ -166,8 +169,11 @@
             <AccountLink :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" />
           </div>
           <div slot="amount" slot-scope="{ rowData }">
-            {{formatTokenAmount(rowData.amount, token.meta.symbol, token.meta.decimals)}}
-            <span v-if="rowData.token_id">({{rowData.token_id}})</span>
+            <span v-if="rowData.token_id" class="token-id">{{rowData.token_id}}</span>
+            <span v-else>{{
+              token
+              ? formatTokenAmount(rowData.amount, token.meta.symbol, token.meta.decimals)
+              : rowData.amount}}</span>
           </div>
         </DataTable>
       </Island>
@@ -277,38 +283,7 @@ export default {
           format: (amount) => new Amount(amount, 'aer').toUnit('aergo').toString()
         }
       ],
-      tokenHeaderFields: [
-        {
-          name: "ts",
-          label: "Timestamp",
-          sortable: true,
-          format: (value) => moment(value).fromNow()
-        },
-        {
-          name: "hash",
-          label: "Hash",
-          sortable: false,
-          customElement: 'hash',
-        },
-        {
-          name: "from",
-          label: "From",
-          sortable: true,
-          customElement: 'from',
-        },
-        {
-          name: "to",
-          label: "To",
-          sortable: true,
-          customElement: 'to',
-        },
-        {
-          name: "amount_float",
-          label: "Amount",
-          sortable: true,
-          customElement: 'amount',
-        }
-      ],
+  
       sort: "desc",
       sortField: "ts",
       totalItems: 0,
@@ -353,6 +328,45 @@ export default {
     AccountLink,
   },
   computed: {
+    tokenHeaderFields() {
+      return [
+        {
+          name: "ts",
+          label: "Timestamp",
+          sortable: true,
+          format: (value) => moment(value).fromNow()
+        },
+        {
+          name: "hash",
+          label: "TX Hash",
+          sortable: false,
+          customElement: 'hash',
+        },
+        !this.token && {
+          name: "address",
+          label: "Token",
+          customElement: "address",
+        },
+        {
+          name: "from",
+          label: "From",
+          sortable: true,
+          customElement: 'from',
+        },
+        {
+          name: "to",
+          label: "To",
+          sortable: true,
+          customElement: 'to',
+        },
+        {
+          name: "amount_float",
+          label: "Amount or ID",
+          sortable: true,
+          customElement: 'amount',
+        },
+      ].filter(a => a);
+    },
     realAddress() {
       return this.destinationAddress || this.$route.params.address;
     },
@@ -492,18 +506,6 @@ export default {
               const response = await this.$fetch.get(`${cfg.API_URL}/token`, { q: `_id:${this.$route.params.address}`, size: 1 });
               const data = (await response.json());
               this.token = data.hits[0];
-              console.log(this.token);
-            } catch (e) {
-              console.error(e);
-            }
-          })();
-
-          (async () => {
-            try {
-              const response = await this.$fetch.get(`${cfg.API_URL}/tokenTransfer`, { q: `to:${this.$route.params.address}`, size: 10 });
-              const data = (await response.json());
-              this.token = data.hits[0];
-              console.log(this.token);
             } catch (e) {
               console.error(e);
             }
@@ -534,7 +536,7 @@ export default {
       this.error = "";
       const start = (currentPage - 1) * itemsPerPage;
       const fetch = await this.$fetch.get(`${cfg.API_URL}/tokenTransfers`, {
-        q: `address:${this.realAddress}`,
+        q: this.token ? `address:${this.realAddress}` : `to:${this.realAddress} OR from:${this.realAddress}`,
         size: itemsPerPage,
         from: start,
         sort: `${sortField}:${sort}`,
@@ -570,7 +572,7 @@ export default {
 .token-transfer-table {
   font-size: .95em;
   tbody {
-    td:nth-child(5) {
+    td:last-child {
       white-space: nowrap;
       text-align: right;
     }
@@ -583,7 +585,15 @@ export default {
   }
 }
 .token-transfer-table .account-link {
-  max-width: 200px;
+  max-width: 160px;
+}
+.token-id {
+  display: inline-block;
+  font-family: monospace;
+  background-color: #f0f0f0;
+  border-radius: 3px;
+  padding: 0 3px;
+  line-height: 2;
 }
 
 .btn-toggle {

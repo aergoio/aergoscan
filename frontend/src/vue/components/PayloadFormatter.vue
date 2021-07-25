@@ -26,14 +26,14 @@
 </template>
 
 <script>
-import Identicon from './Identicon';
-import bs58 from 'bs58';
 import { Address } from '@herajs/client';
-import Vue from 'vue';
-
 const ArgFormatter = {
+  name: 'ArgFormatter',
   props: ['arg'],
   render(h) {
+    if (this.arg._bignum) {
+      return h('span', this.arg._bignum);
+    }
     let content = [JSON.stringify(this.arg, null, 2)];
     try {
       const addr = new Address(this.arg);
@@ -78,8 +78,9 @@ export default {
       try {
         let parsedData = JSON.parse(payload);
         let args = parsedData.Args || parsedData.args;
+        let name = parsedData.Name || parsedData.name;
         if (this.txType == 1) {
-          this.action = (parsedData.Name || parsedData.name).replace('v1', '');
+          this.action = name.replace('v1', '');
           if (this.action == 'createName' || this.action == 'updateName') {
             this.address = args[0];
             args = args.slice(1);
@@ -93,7 +94,13 @@ export default {
           this.action = (parsedData.Name || parsedData.name);
         }
 
-        if (parsedData.Args || parsedData.args) {
+        if (name === 'transferFrom') {
+          this.action = name;
+          this.address = args[0];
+          args = args.slice(1);
+        }
+
+        if (args) {
           payload = "";
           this.args = args;
         }

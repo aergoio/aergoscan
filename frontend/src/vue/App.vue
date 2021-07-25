@@ -263,6 +263,8 @@ pre {
 
   > * {
     flex: 1;
+    min-width: 0;
+    overflow: hidden;
 
     @media (min-width: 50em) {
       margin-right: 30px;
