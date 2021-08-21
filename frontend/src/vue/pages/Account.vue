@@ -144,7 +144,7 @@
         <IslandHeader title="Token Transfers" :annotation="`${totalTokenTransfers}`" />
 
         <DataTable
-          ref="table"
+          ref="tokenTxTable"
           class="token-transfer-table"
           :data="tokenTransfers || []"
           :load="loadTokenTableData"
@@ -163,17 +163,21 @@
             <AccountLink :address="rowData.address" @click="$router.push(`/account/${rowData.address}/`)" />
           </div>
           <div slot="from" slot-scope="{ rowData }">
-            <AccountLink :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" />
+            <AccountLink v-if="rowData.from !== '1111111111111111111111111111111111111111111111111111'" :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" />
+            <AccountLink v-else address="" :name="rowData.from" />
           </div>
           <div slot="to" slot-scope="{ rowData }">
-            <AccountLink :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" />
+            <AccountLink v-if="rowData.to !== '1111111111111111111111111111111111111111111111111111'" :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" />
+            <AccountLink v-else address="" :name="rowData.to" />
           </div>
           <div slot="amount" slot-scope="{ rowData }">
-            <span v-if="rowData.token_id" class="token-id">{{rowData.token_id}}</span>
+            <span v-if="rowData.token_id">{{rowData.token ? rowData.token.meta.symbol : ''}} <span class="token-id">{{rowData.token_id}}</span></span>
             <span v-else>{{
               token
               ? formatTokenAmount(rowData.amount, token.meta.symbol, token.meta.decimals)
-              : rowData.amount}}</span>
+              : rowData.token
+                ? formatTokenAmount(rowData.amount, rowData.token.meta.symbol, rowData.token.meta.decimals)
+                : rowData.amount}}</span>
           </div>
         </DataTable>
       </Island>
@@ -187,7 +191,7 @@
         <IslandHeader title="Transactions" :annotation="`${totalItems}`" />
 
         <DataTable
-          ref="table"
+          ref="txTable"
           class="account-transactions-table"
           :data="transactions || []"
           :load="loadTableData"
@@ -289,22 +293,19 @@ export default {
       totalItems: 0,
     }
   },
-  created () {
-  },
   watch: {
     '$route' (to, from) {
       if (to.path !== from.path) {
         this.load();
-        this.data = [];
-        if (this.$refs.table) {
-          this.$refs.table._load();
-        }
       }
     },
-    'realAddress' (to, from) {
-      if (this.$refs.table) {
-          this.$refs.table._load();
-        }
+    'realAddress' () {
+      if (this.$refs.txTable) {
+        this.$refs.txTable._load();
+      }
+      if (this.$refs.tokenTxTable) {
+        this.$refs.tokenTxTable._load();
+      }
     },
     'showTokenBalances'() {
       if (this.showTokenBalances) {
@@ -317,8 +318,6 @@ export default {
   },
   mounted () {
     this.load();
-  },
-  beforeDestroy () {
   },
   components: {
     AccountBox,
@@ -361,7 +360,7 @@ export default {
         },
         {
           name: "amount_float",
-          label: "Amount or ID",
+          label: this.token ? this.token.meta.type === 'ARC2' ? "ID" : "Amount" : "Amount or ID",
           sortable: true,
           customElement: 'amount',
         },
@@ -492,8 +491,17 @@ export default {
         const fetch = await this.$fetch.get(`${cfg.API_URL}/accountTokens`, {
           address
         });
-        const response = await fetch.json();
-        this.accountTokens = response.objects.map(v => ({...v, balance: null}));
+        try {
+          const response = await fetch.json();
+          if (response.error) {
+            console.error(response.error);
+          }
+          if (response.objects) {
+            this.accountTokens = response.objects.map(v => ({...v, balance: null}));
+          }
+        } catch (e) {
+          console.error(e);
+        }
       })();
 
       // Contract and transactions
@@ -545,7 +553,7 @@ export default {
       if (response.error) {
         this.error = response.error.msg;
       } else if (response.hits.length) {
-        this.tokenTransfers = response.hits.map(item => ({ ...item.meta, hash: item.hash }));
+        this.tokenTransfers = response.hits.map(item => ({ ...item.meta, token: item.token, hash: item.hash }));
         this.totalTokenTransfers = response.total;
       }
     },
@@ -574,7 +582,6 @@ export default {
   tbody {
     td:last-child {
       white-space: nowrap;
-      text-align: right;
     }
   }
 }

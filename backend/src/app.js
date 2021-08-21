@@ -133,13 +133,37 @@ apiRouter.route('/transactions').get(async (req, res) => {
     }
 });
 
+async function fetchToken(apiClient, address) {
+    const result = await apiClient.quickSearchToken(`_id:${address}`);
+    if (result.hits && result.hits.length) {
+        return result.hits[0];
+    }
+    return null;
+}
+
+async function getCachedToken(apiClient, address) {
+    if (!TokenCache.get(address)) {
+        TokenCache.set(address, fetchToken(apiClient, address));
+    }
+    return TokenCache.get(address);
+}
+
+async function addCachedTokenData(apiClient, hit) {
+    hit.token = await getCachedToken(apiClient, hit.meta.address);
+    return hit;
+}
+
 /**
  * Query token transfers, allow search query (q, sort, size, from)
  * For q, see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
  */
  apiRouter.route('/tokenTransfers').get(async (req, res) => {
     try {
-        return res.json(await req.apiClient.quickSearchTokenTransfers(req.query.q, req.query.sort, parseInt(req.query.from || 0), Math.min(1000, parseInt(req.query.size || 10))));
+        const result = await req.apiClient.quickSearchTokenTransfers(req.query.q, req.query.sort, parseInt(req.query.from || 0), Math.min(1000, parseInt(req.query.size || 10)));
+        if (result.hits && result.hits.length) {
+            result.hits = await Promise.all(result.hits.map(hit => addCachedTokenData(req.apiClient, hit)))
+        }
+        return res.json(result);
     } catch(e) {
         return res.json({error: e});
     }
@@ -328,12 +352,7 @@ apiRouter.route('/accounts').get(async (req, res) => {
             return result.aggregations.address_unique.buckets;
         }
         async function convBucket(bucket) {
-            let token = TokenCache.get(bucket.key);
-            if (!token) {
-                const tokenQuery = await req.apiClient.quickSearchToken(`_id:${bucket.key}`);
-                token = tokenQuery.hits[0];
-                TokenCache.set(bucket.key, token);
-            }
+            const token = await getCachedToken(req.apiClient, bucket.key);
             if (!token) return [];
             return {
                 ...bucket,
