@@ -141,11 +141,14 @@ async function fetchToken(apiClient, address) {
     return null;
 }
 
-async function getCachedToken(apiClient, address) {
-    if (!TokenCache.get(address)) {
-        TokenCache.set(address, fetchToken(apiClient, address));
+function getCachedToken(apiClient, address) {
+    const token = TokenCache.get(address);
+    if (token) {
+        return token;
     }
-    return TokenCache.get(address);
+    const fetch = fetchToken(apiClient, address);
+    TokenCache.set(address, fetch);
+    return fetch;
 }
 
 async function addCachedTokenData(apiClient, hit) {
