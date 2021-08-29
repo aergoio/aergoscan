@@ -1,6 +1,33 @@
 <template>
   <div class="wrap">
     <div class="page-content">
+      <div class="side-by-side">
+      <Island v-if="token">
+        <IslandHeader :title="`${token.meta.type} Token`" />
+        <table class="detail-table">
+          <tr>
+            <td>Name:</td>
+            <td>{{token.meta.name}}</td>
+          </tr>
+          <tr>
+            <td>Symbol:</td>
+            <td>{{token.meta.symbol}}</td>
+          </tr>
+          <tr v-if="token.meta.supply">
+            <td>Supply:</td>
+            <td>{{token.meta.supply}}</td>
+          </tr>
+          <tr v-if="token.meta.decimals">
+            <td>Decimals:</td>
+            <td>{{token.meta.decimals}}</td>
+          </tr>
+          <tr>
+            <td>Created in transaction:</td>
+            <td><router-link :to="`/transaction/${token.meta.tx_id}/`">{{token.meta.tx_id}}</router-link></td>
+          </tr>
+        </table>
+      </Island>
+      
       <Island>
         <IslandHeader title="Account Details" />
   
@@ -59,6 +86,8 @@
         </div>
       </Island>
 
+      </div>
+
       <Island v-if="namesCurrent.length">
         <IslandHeader title="Registered names" :annotation="`${realAddress}`" />
         <div class="table-like">
@@ -114,107 +143,131 @@
         </div>
       </Island>
 
-      <Island v-if="token">
-        <IslandHeader :title="`${token.meta.type} Token`" />
-        <table class="detail-table">
-          <tr>
-            <td>Name:</td>
-            <td>{{token.meta.name}}</td>
-          </tr>
-          <tr>
-            <td>Symbol:</td>
-            <td>{{token.meta.symbol}}</td>
-          </tr>
-          <tr v-if="token.meta.supply">
-            <td>Supply:</td>
-            <td>{{token.meta.supply}}</td>
-          </tr>
-          <tr v-if="token.meta.decimals">
-            <td>Decimals:</td>
-            <td>{{token.meta.decimals}}</td>
-          </tr>
-          <tr>
-            <td>Created in transaction:</td>
-            <td><router-link :to="`/transaction/${token.meta.tx_id}/`">{{token.meta.tx_id}}</router-link></td>
-          </tr>
-        </table>
-      </Island>
+      <Island v-if="accountDetail">
+        <div class="island-tabs">
+          <router-link :to="{ query: queryWithoutTx }" replace>
+            <IslandHeader title="Transactions" :annotation="`${totalItems}`" />
+          </router-link>
+          <router-link :to="{ query: { ...$route.query, tx: 'tokenSelf' } }" replace v-if="token">
+            <IslandHeader title="Token Transfers" :annotation="`${totalTokenTransfers}`" />
+          </router-link>
+          <router-link :to="{ query: { ...$route.query, tx: 'tokenAll' } }" replace>
+            <IslandHeader :title="`${token ? 'Other ' : ''}Token Transfers`" :annotation="`${totalOtherTokenTransfers}`" />
+          </router-link>
+        </div>
 
-      <Island v-if="token || (accountDetail && !accountDetail.codehash)">
-        <IslandHeader title="Token Transfers" :annotation="`${totalTokenTransfers}`" />
+        <div v-show="!$route.query.tx">
+          <DataTable
+            ref="txTable"
+            class="account-transactions-table"
+            :data="transactions || []"
+            :load="loadTableData"
+            :headerFields="headerFields"
+            :totalItems="totalItems"
+            trackBy="hash"
+            :defaultSort="sortField"
+            :defaultSortDirection="sort"
+          >
+            <div slot="hash" slot-scope="{ rowData }">
+              <router-link :to="`/transaction/${rowData.hash}/`">{{rowData.hash}}</router-link>
+            </div>
+            <div slot="from" slot-scope="{ rowData }">
+              <template v-if="rowData.from !== rowData.to">
+                <span v-if="addressMatches(rowData.to)" class="label-account-wrap"><span class="label label-negative">from</span>&nbsp;<AccountLink :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" /></span>
+                <span v-else class="label-account-wrap"><span class="label label-positive">to</span>&nbsp;<AccountLink :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" /></span>
+              </template>
+              <template v-else><span class="label label-neutral">self transfer</span></template>
+            </div>
+            <div slot="category" slot-scope="{ rowData }">
+              <span class="label">{{rowData.category}}</span>
+            </div>
+          </DataTable>
+        </div>
 
-        <DataTable
-          ref="tokenTxTable"
-          class="token-transfer-table"
-          :data="tokenTransfers || []"
-          :load="loadTokenTableData"
-          :headerFields="tokenHeaderFields"
-          :totalItems="totalTokenTransfers"
-          trackBy="hash"
-          :defaultSort="sortField"
-          :defaultSortDirection="sort"
-        >
-          <div slot="hash" slot-scope="{ rowData }">
-            <span style="max-width: 160px; overflow: hidden; display: inline-flex">
-              <router-link :to="`/transaction/${rowData.tx_id}/`">{{rowData.tx_id}}</router-link>
-            </span>
-          </div>
-          <div slot="address" slot-scope="{ rowData }">
-            <AccountLink :address="rowData.address" @click="$router.push(`/account/${rowData.address}/`)" />
-          </div>
-          <div slot="from" slot-scope="{ rowData }">
-            <AccountLink v-if="rowData.from !== '1111111111111111111111111111111111111111111111111111'" :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" />
-            <AccountLink v-else address="" :name="rowData.from" />
-          </div>
-          <div slot="to" slot-scope="{ rowData }">
-            <AccountLink v-if="rowData.to !== '1111111111111111111111111111111111111111111111111111'" :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" />
-            <AccountLink v-else address="" :name="rowData.to" />
-          </div>
-          <div slot="amount" slot-scope="{ rowData }">
-            <span v-if="rowData.token_id">{{rowData.token ? rowData.token.meta.symbol : ''}} <span class="token-id">{{rowData.token_id}}</span></span>
-            <span v-else>{{
-              token
-              ? formatTokenAmount(rowData.amount, token.meta.symbol, token.meta.decimals)
-              : rowData.token
-                ? formatTokenAmount(rowData.amount, rowData.token.meta.symbol, rowData.token.meta.decimals)
-                : rowData.amount}}</span>
-          </div>
-        </DataTable>
+        <div v-show="$route.query.tx === 'tokenSelf'">
+          <DataTable
+            ref="tokenTxTable"
+            class="token-transfer-table"
+            :data="tokenTransfers || []"
+            :load="loadTokenTableData('token')"
+            :headerFields="tokenHeaderFields"
+            :totalItems="totalTokenTransfers"
+            trackBy="hash"
+            :defaultSort="sortField"
+            :defaultSortDirection="sort"
+          >
+            <div slot="hash" slot-scope="{ rowData }">
+              <span style="max-width: 160px; overflow: hidden; display: inline-flex">
+                <router-link :to="`/transaction/${rowData.tx_id}/`">{{rowData.tx_id}}</router-link>
+              </span>
+            </div>
+            <div slot="address" slot-scope="{ rowData }">
+              <AccountLink :address="rowData.address" @click="$router.push(`/account/${rowData.address}/`)" />
+            </div>
+            <div slot="from" slot-scope="{ rowData }">
+              <AccountLink v-if="rowData.from !== '1111111111111111111111111111111111111111111111111111'" :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" />
+              <AccountLink v-else address="" :name="rowData.from" />
+            </div>
+            <div slot="to" slot-scope="{ rowData }">
+              <AccountLink v-if="rowData.to !== '1111111111111111111111111111111111111111111111111111'" :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" />
+              <AccountLink v-else address="" :name="rowData.to" />
+            </div>
+            <div slot="amount" slot-scope="{ rowData }">
+              <span v-if="rowData.token_id">{{rowData.token ? rowData.token.meta.symbol : ''}} <span class="token-id">{{rowData.token_id}}</span></span>
+              <span v-else>{{
+                token
+                ? formatTokenAmount(rowData.amount, token.meta.symbol, token.meta.decimals)
+                : rowData.token
+                  ? formatTokenAmount(rowData.amount, rowData.token.meta.symbol, rowData.token.meta.decimals)
+                  : rowData.amount}}</span>
+            </div>
+          </DataTable>
+        </div>
+        
+        <div v-show="$route.query.tx === 'tokenAll'">
+          <DataTable
+            ref="otherTokenTxTable"
+            class="token-transfer-table"
+            :data="otherTokenTransfers || []"
+            :load="loadTokenTableData('other')"
+            :headerFields="otherTokenTxHeaderFields"
+            :totalItems="totalOtherTokenTransfers"
+            trackBy="hash"
+            :defaultSort="sortField"
+            :defaultSortDirection="sort"
+          >
+            <div slot="hash" slot-scope="{ rowData }">
+              <span style="max-width: 160px; overflow: hidden; display: inline-flex">
+                <router-link :to="`/transaction/${rowData.tx_id}/`">{{rowData.tx_id}}</router-link>
+              </span>
+            </div>
+            <div slot="address" slot-scope="{ rowData }">
+              <AccountLink :address="rowData.address" @click="$router.push(`/account/${rowData.address}/`)" />
+            </div>
+            <div slot="from" slot-scope="{ rowData }">
+              <AccountLink v-if="rowData.from !== '1111111111111111111111111111111111111111111111111111'" :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" />
+              <AccountLink v-else address="" :name="rowData.from" />
+            </div>
+            <div slot="to" slot-scope="{ rowData }">
+              <AccountLink v-if="rowData.to !== '1111111111111111111111111111111111111111111111111111'" :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" />
+              <AccountLink v-else address="" :name="rowData.to" />
+            </div>
+            <div slot="amount" slot-scope="{ rowData }">
+              <span v-if="rowData.token_id">{{rowData.token ? rowData.token.meta.symbol : ''}} <span class="token-id">{{rowData.token_id}}</span></span>
+              <span v-else>{{
+                token
+                ? formatTokenAmount(rowData.amount, token.meta.symbol, token.meta.decimals)
+                : rowData.token
+                  ? formatTokenAmount(rowData.amount, rowData.token.meta.symbol, rowData.token.meta.decimals)
+                  : rowData.amount}}</span>
+            </div>
+          </DataTable>
+        </div>
       </Island>
 
       <Island v-if="accountDetail && accountDetail.codehash">
         <IslandHeader title="Contract" />
         <ContractAbi :abi="contractAbi" :codehash="accountDetail.codehash" :address="realAddress" style="margin-bottom: 30px" />
-      </Island>
-
-      <Island v-if="accountDetail">
-        <IslandHeader title="Transactions" :annotation="`${totalItems}`" />
-
-        <DataTable
-          ref="txTable"
-          class="account-transactions-table"
-          :data="transactions || []"
-          :load="loadTableData"
-          :headerFields="headerFields"
-          :totalItems="totalItems"
-          trackBy="hash"
-          :defaultSort="sortField"
-          :defaultSortDirection="sort"
-        >
-          <div slot="hash" slot-scope="{ rowData }">
-            <router-link :to="`/transaction/${rowData.hash}/`">{{rowData.hash}}</router-link>
-          </div>
-          <div slot="from" slot-scope="{ rowData }">
-            <template v-if="rowData.from !== rowData.to">
-              <span v-if="addressMatches(rowData.to)" class="label-account-wrap"><span class="label label-negative">from</span>&nbsp;<AccountLink :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" /></span>
-              <span v-else class="label-account-wrap"><span class="label label-positive">to</span>&nbsp;<AccountLink :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" /></span>
-            </template>
-            <template v-else><span class="label label-neutral">self transfer</span></template>
-          </div>
-          <div slot="category" slot-scope="{ rowData }">
-            <span class="label">{{rowData.category}}</span>
-          </div>
-        </DataTable>
       </Island>
     </div>
   </div>
@@ -231,6 +284,7 @@ import JSBI from 'jsbi';
 import { Amount } from '@herajs/client';
 import { DataTable } from 'aergo-ui/src/components/tables';
 import AccountLink from "aergo-ui/src/components/AccountLink";
+import { Tabs, Tab } from 'aergo-ui/src/components/tabs';
 
 function formatTokenAmount(amount, unit, decimals) {
   return `${Amount.moveDecimalPoint(amount, -decimals)}${unit? ` ${unit}` : ''}`;
@@ -249,7 +303,9 @@ export default {
       destinationAddress: null,
       token: null,
       totalTokenTransfers: 0,
+      totalOtherTokenTransfers: 0,
       tokenTransfers: [],
+      otherTokenTransfers: [],
       accountTokens: [],
       names: [],
       nameHistory: [],
@@ -287,6 +343,44 @@ export default {
           format: (amount) => new Amount(amount, 'aer').toUnit('aergo').toString()
         }
       ],
+
+      otherTokenTxHeaderFields: [
+        {
+          name: "ts",
+          label: "Timestamp",
+          sortable: true,
+          format: (value) => moment(value).fromNow()
+        },
+        {
+          name: "hash",
+          label: "TX Hash",
+          sortable: false,
+          customElement: 'hash',
+        },
+        {
+          name: "address",
+          label: "Token",
+          customElement: "address",
+        },
+        {
+          name: "from",
+          label: "From",
+          sortable: true,
+          customElement: 'from',
+        },
+        {
+          name: "to",
+          label: "To",
+          sortable: true,
+          customElement: 'to',
+        },
+        {
+          name: "amount_float",
+          label: "Amount or ID",
+          sortable: true,
+          customElement: 'amount',
+        }
+      ],
   
       sort: "desc",
       sortField: "ts",
@@ -305,6 +399,9 @@ export default {
       }
       if (this.$refs.tokenTxTable) {
         this.$refs.tokenTxTable._load();
+      }
+      if (this.$refs.otherTokenTxTable) {
+        this.$refs.otherTokenTxTable._load();
       }
     },
     'showTokenBalances'() {
@@ -325,8 +422,14 @@ export default {
     TransactionList,
     DataTable,
     AccountLink,
+    Tabs, Tab,
   },
   computed: {
+    queryWithoutTx() {
+      const query = {...this.$route.query};
+      delete query.tx;
+      return query;
+    },
     tokenHeaderFields() {
       return [
         {
@@ -340,11 +443,6 @@ export default {
           label: "TX Hash",
           sortable: false,
           customElement: 'hash',
-        },
-        !this.token && {
-          name: "address",
-          label: "Token",
-          customElement: "address",
         },
         {
           name: "from",
@@ -360,11 +458,11 @@ export default {
         },
         {
           name: "amount_float",
-          label: this.token ? this.token.meta.type === 'ARC2' ? "ID" : "Amount" : "Amount or ID",
+          label: this.token && this.token.meta.type === 'ARC2' ? "ID" : "Amount",
           sortable: true,
           customElement: 'amount',
         },
-      ].filter(a => a);
+      ];
     },
     realAddress() {
       return this.destinationAddress || this.$route.params.address;
@@ -535,27 +633,30 @@ export default {
       const response = await fetch.json();
       if (response.error) {
         this.error = response.error.msg;
-      } else if (response.hits.length) {
+      } else if (response.hits) {
         this.transactions = response.hits.map(item => ({ ...item.meta, hash: item.hash }));
         this.totalItems = response.total;
       }
     },
-    loadTokenTableData: async function({ sortField, sort, currentPage, itemsPerPage }) {
-      this.error = "";
-      const start = (currentPage - 1) * itemsPerPage;
-      const fetch = await this.$fetch.get(`${cfg.API_URL}/tokenTransfers`, {
-        q: this.token ? `address:${this.realAddress}` : `to:${this.realAddress} OR from:${this.realAddress}`,
-        size: itemsPerPage,
-        from: start,
-        sort: `${sortField}:${sort}`,
-      });
-      const response = await fetch.json();
-      if (response.error) {
-        this.error = response.error.msg;
-      } else if (response.hits.length) {
-        this.tokenTransfers = response.hits.map(item => ({ ...item.meta, token: item.token, hash: item.hash }));
-        this.totalTokenTransfers = response.total;
-      }
+    loadTokenTableData: function(type) {
+      return async ({ sortField, sort, currentPage, itemsPerPage }) => {
+        console.log('reloading', type);
+        this.error = "";
+        const start = (currentPage - 1) * itemsPerPage;
+        const fetch = await this.$fetch.get(`${cfg.API_URL}/tokenTransfers`, {
+          q: type === 'token' ? `address:${this.realAddress}` : `to:${this.realAddress} OR from:${this.realAddress}`,
+          size: itemsPerPage,
+          from: start,
+          sort: `${sortField}:${sort}`,
+        });
+        const response = await fetch.json();
+        if (response.error) {
+          this.error = response.error.msg;
+        } else if (response.hits) {
+          this[type === 'token' ? 'tokenTransfers' : 'otherTokenTransfers'] = response.hits.map(item => ({ ...item.meta, token: item.token, hash: item.hash }));
+          this[type === 'token' ? 'totalTokenTransfers' : 'totalOtherTokenTransfers'] = response.total;
+        }
+      };
     },
     moment,
     formatTokenAmount,
@@ -618,5 +719,22 @@ export default {
 
 .token-balance td {
   padding: 5px 5px 7px;
+}
+
+.island-tabs {
+  margin: -20px -20px 20px -20px;
+  background: #fafafa;
+  display: flex;
+  .island-header {
+    margin: 0;
+    line-height: 3;
+    padding: 0 20px;
+    border-right: 1px solid #f0f0f0;
+    cursor: pointer;
+    background: #fff;
+  }
+  .router-link-exact-active, .router-link-exact-active:hover {
+    border-color: #FF36AD;
+  }
 }
 </style>

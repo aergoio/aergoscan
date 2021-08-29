@@ -31,6 +31,12 @@ export default async function setup(opts) {
     const router = new VueRouter({
         routes,
         mode: 'history',
+        scrollBehavior (from, to, savedPosition) {
+            if (from.path !== to.path) {
+                return { x: 0, y: 0 }
+            }
+            return savedPosition;
+        }
     });
 
     const vue = new Vue({
