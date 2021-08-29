@@ -356,7 +356,7 @@ apiRouter.route('/accounts').get(async (req, res) => {
         }
         async function convBucket(bucket) {
             const token = await getCachedToken(req.apiClient, bucket.key);
-            if (!token) return [];
+            if (!token) return null;
             return {
                 ...bucket,
                 token,
@@ -366,7 +366,7 @@ apiRouter.route('/accounts').get(async (req, res) => {
         const sort = 'max_blockno';
         const results = await makeQuery(req.query.address);
         const mapped = await Promise.all(results.map(convBucket));
-        return res.json({ objects: mapped.flat().sort((a, b) => b[sort] - a[sort]) });
+        return res.json({ objects: mapped.filter(a => a).sort((a, b) => b[sort] - a[sort]) });
     } catch(e) {
         console.log(e);
         return res.json({error: ''+e});
