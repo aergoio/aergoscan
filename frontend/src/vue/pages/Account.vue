@@ -15,7 +15,9 @@
           </tr>
           <tr v-if="token.meta.supply">
             <td>Supply:</td>
-            <td>{{token.meta.supply}}</td>
+            <td>
+              <span v-html="$options.filters.formatGenericToken(formatTokenAmount(token.meta.supply, '', token.meta.decimals), token.meta.symbol)"></span>
+            </td>
           </tr>
           <tr v-if="token.meta.decimals">
             <td>Decimals:</td>
