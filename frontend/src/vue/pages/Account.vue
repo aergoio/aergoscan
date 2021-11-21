@@ -69,20 +69,6 @@
                 <span v-html="$options.filters.formatToken(unstakedBalance, 'aergo')"></span>
               </td>
             </tr>
-            <tr v-if="accountTokens && accountTokens.length">
-              <td>{{accountTokens.length}} Tokens:</td>
-              <td><span class="btn-toggle" :class="{open: showTokenBalances}" @click="showTokenBalances = !showTokenBalances">View balances</span></td>
-            </tr>
-            <template v-if="accountTokens && showTokenBalances">
-              <tr v-for="accountToken in accountTokens" :key="accountToken.key" class="token-balance">
-                <td>
-                  <AccountLink :address="accountToken.key" :name="accountToken.token.meta.name" @click="$router.push(`/account/${accountToken.key}/`)" />
-                <td>
-                  <span v-if="accountToken.balance" v-html="$options.filters.formatGenericToken(formatTokenAmount(accountToken.balance, '', accountToken.token.meta.decimals), accountToken.token.meta.symbol)"></span>
-                  <span v-else>...</span>
-                </td>
-              </tr>
-            </template>
             <tr><td>Nonce:</td><td>{{accountDetail.nonce}}</td></tr>
           </table>
         </div>
@@ -155,6 +141,9 @@
           </router-link>
           <router-link :to="{ query: { ...$route.query, tx: 'tokenAll' } }" replace>
             <IslandHeader :title="`${token ? 'Other ' : ''}Token Transfers`" :annotation="`${totalOtherTokenTransfers}`" />
+          </router-link>
+          <router-link :to="{ query: { ...$route.query, tx: 'tokenBalances' } }" replace v-if="accountTokens && accountTokens.length">
+            <IslandHeader title="Token Balances" :annotation="`${accountTokens.length}`" />
           </router-link>
         </div>
 
@@ -265,6 +254,31 @@
             </div>
           </DataTable>
         </div>
+
+        <div v-show="$route.query.tx === 'tokenBalances'">
+          <table class="table datatable">
+            <thead>
+              <tr>
+                <th class="header-item"><div class="th-wrapper">Token</div></th>
+                <th class="header-item"><div class="th-wrapper">Type</div></th>
+                <th class="header-item"><div class="th-wrapper">Balance</div></th>
+                <th class="header-item"><div class="th-wrapper">Last transfer</div></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="accountToken in accountTokens" :key="accountToken.key" class="token-balance">
+                <td>
+                  <AccountLink :address="accountToken.key" :name="accountToken.token.meta.name" @click="$router.push(`/account/${accountToken.key}/`)" />
+                <td>{{accountToken.token.meta.type}}</td>
+                <td>
+                  <span v-if="accountToken.balance" v-html="$options.filters.formatGenericToken(formatTokenAmount(accountToken.balance, '', accountToken.token.meta.decimals), accountToken.token.meta.symbol)"></span>
+                  <span v-else>Loading...</span>
+                </td>
+                <td><router-link :to="`/transaction/${accountToken.transfer.tx_id}/`">{{moment(accountToken.transfer.ts)}}</router-link></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </Island>
 
       <Island v-if="accountDetail && accountDetail.codehash">
@@ -311,7 +325,6 @@ export default {
       accountTokens: [],
       names: [],
       nameHistory: [],
-      showTokenBalances: false,
 
       headerFields: [
         {
@@ -394,6 +407,9 @@ export default {
       if (to.path !== from.path) {
         this.load();
       }
+      if (this.$route.query.tx === 'tokenBalances') {
+        this.loadTokenBalances();
+      }
     },
     'realAddress' () {
       if (this.$refs.txTable) {
@@ -406,14 +422,6 @@ export default {
         this.$refs.otherTokenTxTable._load();
       }
     },
-    'showTokenBalances'() {
-      if (this.showTokenBalances) {
-        this.accountTokens.map(async (token) => {
-          const balance = await this.$store.dispatch('blockchain/getTokenBalance', { token: token.key, address: this.address });
-          token.balance = balance;
-        });
-      }
-    }
   },
   mounted () {
     this.load();
@@ -492,6 +500,12 @@ export default {
   methods: {
     addressMatches(addr) {
       return addr === this.$route.params.address || addr === this.realAddress;
+    },
+    async loadTokenBalances() {
+      this.accountTokens.map(async (token) => {
+        const balance = await this.$store.dispatch('blockchain/getTokenBalance', { token: token.key, address: this.address });
+        token.balance = balance;
+      });
     },
     async load() {
       let address;
@@ -586,7 +600,7 @@ export default {
         })();
       }
 
-      // Token balances
+      // Tokens
       (async() => {
         const fetch = await this.$fetch.get(`${cfg.API_URL}/accountTokens`, {
           address
@@ -598,6 +612,10 @@ export default {
           }
           if (response.objects) {
             this.accountTokens = response.objects.map(v => ({...v, balance: null}));
+            // Token balances
+            if (this.$route.query.tx === 'tokenBalances') {
+              this.loadTokenBalances();
+            }
           }
         } catch (e) {
           console.error(e);
@@ -642,7 +660,6 @@ export default {
     },
     loadTokenTableData: function(type) {
       return async ({ sortField, sort, currentPage, itemsPerPage }) => {
-        console.log('reloading', type);
         this.error = "";
         const start = (currentPage - 1) * itemsPerPage;
         const fetch = await this.$fetch.get(`${cfg.API_URL}/tokenTransfers`, {

@@ -333,7 +333,7 @@ apiRouter.route('/accounts').get(async (req, res) => {
                             transfer: { top_hits: {
                                 size: 1,
                                 sort: { blockno: 'desc' },
-                                _source: { include: ['ts', 'blockno'] }
+                                _source: { include: ['ts', 'blockno', 'tx_id'] }
                             }},
                             max_blockno: {
                                 max: {
@@ -349,6 +349,7 @@ apiRouter.route('/accounts').get(async (req, res) => {
                     'aggregations.address_unique.buckets.doc_count',
                     'aggregations.address_unique.buckets.transfer.hits.hits._source.ts',
                     'aggregations.address_unique.buckets.transfer.hits.hits._source.blockno',
+                    'aggregations.address_unique.buckets.transfer.hits.hits._source.tx_id',
                 ],
             })
             if (!result.aggregations) return [];

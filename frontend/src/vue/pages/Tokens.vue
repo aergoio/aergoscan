@@ -4,6 +4,12 @@
       <Island>
         <IslandHeader title="Tokens" :annotation="`${totalItems}`">
           <div style="align-self: center; margin-left: auto;">
+            <select v-model="type">
+              <option value="">All types</option>
+              <option :value="type" v-for="type in Types" :key="type">{{type}}</option>
+            </select>
+          </div>
+          <div style="align-self: center; margin-left: 10px;">
             <ReloadButton :action="reload"/>
           </div>
         </IslandHeader>
@@ -43,6 +49,8 @@ import cfg from '../../config';
 import { DataTable } from 'aergo-ui/src/components/tables';
 import AccountLink from "aergo-ui/src/components/AccountLink";
 
+const Types = ["ARC1", "ARC2"];
+
 export default {
   data: function() {
     return {
@@ -78,28 +86,42 @@ export default {
       data: [],
       sort: "desc",
       sortField: "blockno",
-      totalItems: 0
+      totalItems: 0,
+      Types,
+      type: "",
     };
   },
   methods: {
     loadTableData: async function({ sortField, sort, currentPage, itemsPerPage }) {
       this.error = "";
       const start = (currentPage - 1) * itemsPerPage;
-      const response = await (await this.$fetch.get(`${cfg.API_URL}/token`, {
+      const params = {
         size: itemsPerPage,
         from: start,
         sort: `${sortField}:${sort}`,
-      })).json();
+      };
+      if (this.type !== '') {
+        params.q =`type:"${this.type}"`;
+      }
+      const response = await (await this.$fetch.get(`${cfg.API_URL}/token`, params)).json();
       if (response.error) {
         this.error = response.error.msg;
       } else if (response.hits.length) {
         this.data = response.hits.map(item => ({ ...item.meta, hash: item.hash }));
         this.totalItems = response.total;
+      } else {
+        this.data = [];
+        this.totalItems = 0;
       }
     },
     reload: async function() {
       this.$refs.table._load();
-    }
+    },
+  },
+  watch: {
+    type() {
+      this.reload();
+    },
   },
   components: {
     DataTable,
