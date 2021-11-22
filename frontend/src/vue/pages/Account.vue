@@ -663,7 +663,9 @@ export default {
         this.error = "";
         const start = (currentPage - 1) * itemsPerPage;
         const fetch = await this.$fetch.get(`${cfg.API_URL}/tokenTransfers`, {
-          q: type === 'token' ? `address:${this.realAddress}` : `to:${this.realAddress} OR from:${this.realAddress}`,
+          q: type === 'token'
+            ? `address:${this.realAddress}`
+            : `(to:${this.realAddress} OR from:${this.realAddress}) AND NOT (address:${this.realAddress})`,
           size: itemsPerPage,
           from: start,
           sort: `${sortField}:${sort}`,

@@ -75,8 +75,12 @@ export default {
         },
         {
           name: "symbol",
-          label: "symbol",
+          label: "Symbol",
           sortable: true,
+        },
+        {
+          name: "supply",
+          label: "Supply",
         },
         {
           name: "type",
