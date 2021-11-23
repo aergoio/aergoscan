@@ -15,7 +15,7 @@
         </IslandHeader>
 
         <p>This page shows tokens that were indexed by Aergoscan.
-          If you deployed an ARC1 or ARC2 compliant contract and it doesn't show up here, please contact us.</p>
+          If you deployed an ARC1 (standard token) or ARC2 (NFT) compliant contract and it doesn't show up here, please contact us.</p>
 
         <p v-if="error" class="error">{{error}}</p>
         
