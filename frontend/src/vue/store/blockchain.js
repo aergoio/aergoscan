@@ -2,6 +2,23 @@ import aergo from '../../controller';
 import { Contract } from '@herajs/client';
 import { waitOrLoad } from 'timed-async';
 
+
+const TokenABI = {
+"language": "lua",
+"version": "0.2",
+"functions": [
+    {
+    "name": "balanceOf",
+    "arguments": [
+        {
+        "name": "owner"
+        }
+    ],
+    "view": true,
+    "payable": false,
+    "feeDelegation": false
+    }
+]};
 const HISTORY_MAX_BLOCKS = 60;
 
 const state = {
@@ -161,16 +178,21 @@ const actions = {
         commit('setProvider', { provider });
     },
     async queryContract ({}, {abi, address, name, args}) {
-         const contract = Contract.fromAbi(abi).setAddress(address);
-         return await aergo.queryContract(contract[name](...args));
+        const contract = Contract.fromAbi(abi).setAddress(address);
+        return await aergo.queryContract(contract[name](...args));
     },
     async queryContractState ({}, {abi, address, stateNames}) {
         const contract = Contract.fromAbi(abi).setAddress(address);
         return await aergo.queryContractState(contract.queryState(...stateNames));
-   },
+    },
     async getEvents ({}, filter) {
         return await aergo.getEvents(filter);
-   }
+    },
+    async getTokenBalance({}, { token, address }){
+        const contract = Contract.fromAbi(TokenABI).setAddress(token);
+        const result = await aergo.queryContract(contract['balanceOf'](address));
+        return result._bignum;
+    }
 }
 
 const mutations = {

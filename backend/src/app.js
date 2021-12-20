@@ -1,10 +1,15 @@
 import express from 'express';
+import cors from 'cors';
 import { Amount } from '@herajs/client';
 import { ApiClient } from './db';
 import cfg from './config';
 import chaininfos from '../chaininfo';
 import fetch from 'node-fetch';
 const app = express();
+
+app.use(cors({credentials: true, origin: 'http://localhost:8081'}));
+
+const TokenCache = new Map();
 
 // Nested router for chainId
 const chainRouter = express.Router();
@@ -57,7 +62,7 @@ chainRouter.param('chainId', function(req, res, next, chainId) {
 chainRouter.use('/:chainId', apiRouter);
 
 apiRouter.route('/').get((req, res) => {
-    const publicEndpoints = ['chaininfo', 'bestBlock', 'blocks', 'transactions', 'names', 'rewards'];
+    const publicEndpoints = ['chaininfo', 'bestBlock', 'blocks', 'transactions', 'names', 'rewards', 'token', 'tokenTransfers'];
     return res.json({
         id: req.params.chainId,
         msg: `Aergoscan API for chain ${req.params.chainId}.`,
@@ -123,6 +128,57 @@ apiRouter.route('/recentTransactions').get(async (req, res) => {
 apiRouter.route('/transactions').get(async (req, res) => {
     try {
         return res.json(await req.apiClient.quickSearchTransactions(req.query.q, req.query.sort, parseInt(req.query.from || 0), Math.min(1000, parseInt(req.query.size || 10))));
+    } catch(e) {
+        return res.json({error: e});
+    }
+});
+
+async function fetchToken(apiClient, address) {
+    const result = await apiClient.quickSearchToken(`_id:${address}`);
+    if (result.hits && result.hits.length) {
+        return result.hits[0];
+    }
+    return null;
+}
+
+function getCachedToken(apiClient, address) {
+    const token = TokenCache.get(address);
+    if (token) {
+        return token;
+    }
+    const fetch = fetchToken(apiClient, address);
+    TokenCache.set(address, fetch);
+    return fetch;
+}
+
+async function addCachedTokenData(apiClient, hit) {
+    hit.token = await getCachedToken(apiClient, hit.meta.address);
+    return hit;
+}
+
+/**
+ * Query token transfers, allow search query (q, sort, size, from)
+ * For q, see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
+ */
+ apiRouter.route('/tokenTransfers').get(async (req, res) => {
+    try {
+        const result = await req.apiClient.quickSearchTokenTransfers(req.query.q, req.query.sort, parseInt(req.query.from || 0), Math.min(1000, parseInt(req.query.size || 10)));
+        if (result.hits && result.hits.length) {
+            result.hits = await Promise.all(result.hits.map(hit => addCachedTokenData(req.apiClient, hit)))
+        }
+        return res.json(result);
+    } catch(e) {
+        return res.json({error: e});
+    }
+});
+
+/**
+ * Query token transfers, allow search query (q, sort, size, from)
+ * For q, see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
+ */
+ apiRouter.route('/token').get(async (req, res) => {
+    try {
+        return res.json(await req.apiClient.quickSearchToken(req.query.q, req.query.sort, parseInt(req.query.from || 0), Math.min(1000, parseInt(req.query.size || 10))));
     } catch(e) {
         return res.json({error: e});
     }
@@ -246,6 +302,72 @@ apiRouter.route('/accounts').get(async (req, res) => {
             }
         }
         return res.json({ objects: Array.from(merged.values()).sort((a, b) => b[sort] - a[sort]) });
+    } catch(e) {
+        console.log(e);
+        return res.json({error: ''+e});
+    }
+});
+
+/**
+ * Query distinct token balances for account
+ */
+ apiRouter.route('/accountTokens').get(async (req, res) => {
+    try {
+        async function makeQuery(value) {
+            const result = await req.apiClient.searchTokenTransfersRaw({
+                match: {
+                    to: {
+                        query: value
+                    }
+                }
+            }, {
+                size: 0,
+                aggs: {
+                    address_unique: {
+                        terms: {
+                            field: 'address',
+                            size: 100,
+                            order: { max_blockno: 'desc' }
+                        },
+                        aggs: {
+                            transfer: { top_hits: {
+                                size: 1,
+                                sort: { blockno: 'desc' },
+                                _source: { include: ['ts', 'blockno', 'tx_id'] }
+                            }},
+                            max_blockno: {
+                                max: {
+                                    field: "blockno"
+                                }
+                            }
+                        }
+                    }
+                }
+            }, {
+                filterPath: [
+                    'aggregations.address_unique.buckets.key',
+                    'aggregations.address_unique.buckets.doc_count',
+                    'aggregations.address_unique.buckets.transfer.hits.hits._source.ts',
+                    'aggregations.address_unique.buckets.transfer.hits.hits._source.blockno',
+                    'aggregations.address_unique.buckets.transfer.hits.hits._source.tx_id',
+                ],
+            })
+            if (!result.aggregations) return [];
+            return result.aggregations.address_unique.buckets;
+        }
+        async function convBucket(bucket) {
+            const token = await getCachedToken(req.apiClient, bucket.key);
+            if (!token) return null;
+            return {
+                ...bucket,
+                token,
+                transfer: bucket.transfer.hits.hits[0]._source
+            }
+        }
+        const sort = 'max_blockno';
+        const results = await makeQuery(req.query.address);
+        const mapped = await Promise.all(results.map(convBucket));
+        return res.json({ objects: mapped.filter(a => a).sort((a, b) => b[sort] - a[sort]) });
     } catch(e) {
         console.log(e);
         return res.json({error: ''+e});

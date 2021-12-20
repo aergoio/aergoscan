@@ -8,7 +8,7 @@
           </div>
         </IslandHeader>
 
-        <p>This page shows recently active accounts only.</p>
+        <p>This page shows the last 50 recently active accounts only (based on transaction data).</p>
 
         <p v-if="error" class="error">{{error}}</p>
         

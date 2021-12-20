@@ -8,6 +8,7 @@
 
       <div class="main-nav">
         <router-link :to="`/`">Dashboard</router-link>
+        <router-link :to="`/tokens`">Tokens</router-link>
         <router-link :to="`/developers`">Developers</router-link>
         <!--<router-link :to="`/foo`">Transactions</router-link>-->
       </div>

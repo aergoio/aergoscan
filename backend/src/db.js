@@ -32,6 +32,8 @@ export class ApiClient {
         this.BLOCK_INDEX = `${chainId}_block`;
         this.TX_INDEX = `${chainId}_tx`;
         this.NAME_INDEX = `${chainId}_name`; 
+        this.TOKEN_INDEX = `${chainId}_token`; 
+        this.TOKEN_TX_INDEX = `${chainId}_token_transfer`; 
     }
 
     async searchBlock(opts, single = false) {
@@ -114,6 +116,66 @@ export class ApiClient {
             hits: response.hits.hits.map(item => ({hash: item._id, meta: item._source}))
         };
         return resp;
+    }
+
+    async quickSearchTokenTransfers (q, sort="blockno:desc", from=0, size=10) {
+        const query = {
+            requestTimeout: 5000,
+            index: this.TOKEN_TX_INDEX,
+            q,
+            sort,
+            from,
+            size
+        };
+        const response = await db.search(query);
+        const resp = {
+            total: response.hits.total,
+            from,
+            size,
+            hits: response.hits.hits.map(item => ({hash: item._id, meta: item._source}))
+        };
+        return resp;
+    }
+
+    async quickSearchToken (q, sort="blockno:desc", from=0, size=10) {
+        const query = {
+            requestTimeout: 5000,
+            index: this.TOKEN_INDEX,
+            q,
+            sort,
+            from,
+            size
+        };
+        const response = await db.search(query);
+        const resp = {
+            total: response.hits.total,
+            from,
+            size,
+            hits: response.hits.hits.map(item => ({hash: item._id, meta: item._source}))
+        };
+        return resp;
+    }
+
+    async searchTokenTransfersRaw (query, extraBody, extraParams) {
+        const q = {
+            requestTimeout: 5000,
+            index: this.TOKEN_TX_INDEX,
+            body: {
+                query,
+                size: 50,
+                sort: {
+                    blockno: { "order" : "desc" }
+                },
+            }
+        };
+        if (extraBody) {
+            Object.assign(q.body, extraBody);
+        }
+        if (extraParams) {
+            Object.assign(q, extraParams);
+        }
+        const response = await db.search(q);
+        return response;
     }
 
     async quickSearchNames (q, sort="blockno:desc", from=0, size=1) {

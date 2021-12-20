@@ -16,7 +16,11 @@
         <div class="cell" style="width: 75px">{{moment(tx.ts || tx.block.header.timestamp/1000000).format('HH:mm:ss')}}</div>
         <div class="cell" style="width: 75px">{{tx.blockno || tx.block.header.blockno}}</div>
         <div class="cell monospace hash">{{tx.hash}}</div>
-        <div class="cell" v-html="$options.filters.formatToken(tx.amount)"></div>
+        <div class="cell"><span class="label">{{tx.category}}</span></div>
+        <div class="cell">
+          <span v-if="tx.token_transfers">{{tx.token_transfers}} transfers +</span>
+          <span v-html="$options.filters.formatToken(tx.amount)" />
+        </div>
         <!--<div class="cell">{{tx.body.account | shortAddress}} -> {{tx.body.recipient | shortAddress}}</div>-->
         <div class="cell"><span class="icon icon-view"></span></div>
       </div>

@@ -4,6 +4,12 @@
       <Island>
         <IslandHeader title="Transactions" :annotation="`${totalItems}`">
           <div style="align-self: center; margin-left: auto;">
+            <select v-model="category">
+              <option value="all">All methods</option>
+              <option :value="category" v-for="category in Categories" :key="category">{{category}}</option>
+            </select>
+          </div>
+          <div style="align-self: center; margin-left: 10px;">
             <ReloadButton :action="reload"/>
           </div>
         </IslandHeader>
@@ -36,6 +42,9 @@
           <div slot="category" slot-scope="{ rowData }">
             <span class="label">{{rowData.category}}</span>
           </div>
+          <div slot="method" slot-scope="{ rowData }">
+            <span class="label">{{rowData.method}}</span>
+          </div>
           <div slot="amount" slot-scope="{ rowData }">
             <span v-html="$options.filters.formatToken(rowData.amount, 'aergo')"></span>
           </div>
@@ -47,17 +56,31 @@
 
 <script>
 import ReloadButton from '../components/ReloadButton';
-import { Amount } from '@herajs/client';
-import aergo from '../../controller';
-import moment from 'moment';
 import cfg from '../../config';
 import { DataTable } from 'aergo-ui/src/components/tables';
 import AccountLink from "aergo-ui/src/components/AccountLink";
+
+const Categories = ["","payload",
+	"call",
+  "token",
+	"governance",
+	"system",
+	"staking",
+	"voting",
+	"name",
+	"namecreate",
+	"nameupdate",
+	"enterprise",
+	"conf",
+	"cluster",
+	"deploy",
+	"redeploy"];
 
 export default {
   data: function() {
     return {
       error: '',
+      category: 'all',
       headerFields: [
         {
           name: "blockno",
@@ -90,37 +113,61 @@ export default {
           customElement: 'category',
         },
         {
+          name: "method",
+          label: "Method",
+          sortable: false,
+          customElement: 'method',
+        },
+        {
           name: "amount_float",
           label: "Amount",
           sortable: true,
           customElement: 'amount',
+        },
+        {
+          name: "token_transfers",
+          label: "Tokens transferred",
+          sortable: false,
         }
       ],
       data: [],
       sort: "desc",
       sortField: "blockno",
-      totalItems: 0
+      totalItems: 0,
+      Categories,
     };
+  },
+  watch: {
+    category() {
+      this.reload();
+    },
   },
   methods: {
     loadTableData: async function({ sortField, sort, currentPage, itemsPerPage }) {
       this.error = "";
       const start = (currentPage - 1) * itemsPerPage;
-      const response = await (await this.$fetch.get(`${cfg.API_URL}/transactions`, {
+      const params = {
         size: itemsPerPage,
         from: start,
         sort: `${sortField}:${sort}`,
-      })).json();
+      };
+      if (this.category !== 'all') {
+        params.q =`category:"${this.category}"`;
+      }
+      const response = await (await this.$fetch.get(`${cfg.API_URL}/transactions`, params)).json();
       if (response.error) {
         this.error = response.error.msg;
       } else if (response.hits.length) {
         this.data = response.hits.map(item => ({ ...item.meta, hash: item.hash }));
         this.totalItems = response.total;
+      } else {
+        this.data = [];
+        this.totalItems = 0;
       }
     },
     reload: async function() {
       this.$refs.table._load();
-    }
+    },
   },
   components: {
     DataTable,

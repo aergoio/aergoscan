@@ -8,6 +8,7 @@ import Consensus from '../pages/Consensus.vue';
 import Transactions from '../pages/Transactions.vue';
 import Blocks from '../pages/Blocks.vue';
 import Accounts from '../pages/Accounts.vue';
+import Tokens from '../pages/Tokens.vue';
 import Search from '../pages/Search.vue';
 
 export default [
@@ -22,6 +23,7 @@ export default [
     { path: '/transactions/', component: Transactions, name: 'transactions' },
     { path: '/blocks/', component: Blocks, name: 'blocks' },
     { path: '/accounts/', component: Accounts, name: 'accounts' },
+    { path: '/tokens/', component: Tokens, name: 'tokens' },
     { path: '/search/', component: Search, name: 'search' },
     { path: '/go/', component: Search, name: 'go' },
 ];
