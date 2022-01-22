@@ -14,7 +14,7 @@
     "cors": "^2.8.5",
     "elasticsearch": "^15.1.1",
     "express": "^4.16.3",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^3.1.1",
     "tiny-async-pool": "^1.0.1"
   },
   "devDependencies": {
