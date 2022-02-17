@@ -399,7 +399,7 @@ export default {
           customElement: 'to',
         },
         {
-          name: "amount",
+          name: "amount_float",
           label: "Amount or ID",
           sortable: true,
           customElement: 'amount',
@@ -476,7 +476,7 @@ export default {
           customElement: 'to',
         },
         {
-          name: "amount",
+          name: "amount_float",
           label: this.token && this.token.meta.type === 'ARC2' ? "ID" : "Amount",
           sortable: true,
           customElement: 'amount',
