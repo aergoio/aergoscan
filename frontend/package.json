@@ -9,8 +9,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@herajs/client": "^0.21.0",
-    "@herajs/common": "^0.21.0",
+    "@herajs/client": "^1.0.0",
+    "@herajs/common": "^1.0.0",
     "aergo-ui": "git+https://github.com/aergoio/aergo-ui.git#75209d5",
     "bs58check": "^2.1.2",
     "chart.js": "^2.7.3",
