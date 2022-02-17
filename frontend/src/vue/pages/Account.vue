@@ -172,6 +172,9 @@
             <div slot="category" slot-scope="{ rowData }">
               <span class="label">{{rowData.category}}</span>
             </div>
+            <div slot="method" slot-scope="{ rowData }">
+              <span class="label">{{rowData.method}}</span>
+            </div>
           </DataTable>
         </div>
 
@@ -350,6 +353,12 @@ export default {
           label: "Category",
           sortable: false,
           customElement: 'category',
+        },
+        {
+          name: "method",
+          label: "Method",
+          sortable: false,
+          customElement: 'method',
         },
         {
           name: "amount",
@@ -709,8 +718,12 @@ export default {
 }
 .label-account-wrap {
   display: flex;
+  overflow: hidden;
   .label {
     margin-right: 5px;
+  }
+  .account-link {
+    min-width: 100px;
   }
 }
 .token-transfer-table .account-link {
