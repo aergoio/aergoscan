@@ -199,12 +199,12 @@
               <AccountLink :address="rowData.address" @click="$router.push(`/account/${rowData.address}/`)" />
             </div>
             <div slot="from" slot-scope="{ rowData }">
-              <AccountLink v-if="rowData.from !== '1111111111111111111111111111111111111111111111111111'" :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" />
-              <AccountLink v-else address="" :name="rowData.from" />
+              <AccountLink v-if="!['1111111111111111111111111111111111111111111111111111', 'MINT'].includes(`${rowData.from}`.toUpperCase())" :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" />
+              <span class="label" v-else>Mint</span>
             </div>
             <div slot="to" slot-scope="{ rowData }">
-              <AccountLink v-if="rowData.to !== '1111111111111111111111111111111111111111111111111111'" :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" />
-              <AccountLink v-else address="" :name="rowData.to" />
+              <AccountLink v-if="!['1111111111111111111111111111111111111111111111111111', 'MINT'].includes(`${rowData.to}`.toUpperCase())" :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" />
+              <span class="label" v-else>Burn</span>
             </div>
             <div slot="amount" slot-scope="{ rowData }">
               <span v-if="rowData.token_id">{{rowData.token ? rowData.token.meta.symbol : ''}} <span class="token-id">{{rowData.token_id}}</span></span>
@@ -239,12 +239,12 @@
               <AccountLink :address="rowData.address" @click="$router.push(`/account/${rowData.address}/`)" />
             </div>
             <div slot="from" slot-scope="{ rowData }">
-              <AccountLink v-if="rowData.from !== '1111111111111111111111111111111111111111111111111111'" :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" />
-              <AccountLink v-else address="" :name="rowData.from" />
+              <AccountLink v-if="!['1111111111111111111111111111111111111111111111111111', 'MINT'].includes(`${rowData.from}`.toUpperCase())" :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" />
+              <span class="label" v-else>Mint</span>
             </div>
             <div slot="to" slot-scope="{ rowData }">
-              <AccountLink v-if="rowData.to !== '1111111111111111111111111111111111111111111111111111'" :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" />
-              <AccountLink v-else address="" :name="rowData.to" />
+              <AccountLink v-if="!['1111111111111111111111111111111111111111111111111111', 'MINT'].includes(`${rowData.to}`.toUpperCase())" :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" />
+              <span class="label" v-else>Burn</span>
             </div>
             <div slot="amount" slot-scope="{ rowData }">
               <span v-if="rowData.token_id">{{rowData.token ? rowData.token.meta.symbol : ''}} <span class="token-id">{{rowData.token_id}}</span></span>
