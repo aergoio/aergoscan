@@ -107,7 +107,7 @@
                 <div class="aergo-tab-content monospace"><pre>{{receiptJson}}</pre></div>
               </Tab>
               <Tab :title="`Events (${events.length})`" :route="{ query: query({receipt: 'events'}) }">
-                <EventsList :events="events" :columns="[]" />
+                <EventsList :events="events" :columns="[]" :address="txDetail.tx.to" />
               </Tab>
             </Tabs>
           </div>
@@ -220,13 +220,7 @@ export default {
       })();
       (async () => {
         this.txReceipt = await this.$store.dispatch('blockchain/getTransactionReceipt', { hash });
-        if (this.txReceipt) {
-          this.events = (await this.$store.dispatch('blockchain/getEvents', {
-            address: this.txReceipt.contractaddress,
-            blockfrom: this.txReceipt.blockno,
-            blockto: this.txReceipt.blockno,
-          })).filter(ev => ev.txhash === hash);
-        }
+        this.events = this.txReceipt.events;
       })();
       (async () => {
         const response = await (await this.$fetch.get(`${cfg.API_URL}/transactions`, { q: `_id:${hash}` })).json();

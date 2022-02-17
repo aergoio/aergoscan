@@ -907,12 +907,12 @@
     "@babel/helper-validator-identifier" "^7.14.5"
     to-fast-properties "^2.0.0"
 
-"@herajs/client@^0.21.0":
-  version "0.21.1"
-  resolved "https://registry.yarnpkg.com/@herajs/client/-/client-0.21.1.tgz#a37089b476f276810121744b35fb1c91ba6a3516"
-  integrity sha512-bD9l4a9ByTiD9xiU+1tI049iFSLaa94YIuTz2pBuExA8w9wfKCzj00KAA2+sxtSQCEqD8yYMYh+jC9b2tztohQ==
+"@herajs/client@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@herajs/client/-/client-1.0.0.tgz#a28e3aa59cb5fddc7f1bbf5fa41ce39ef3652ab6"
+  integrity sha512-i0KjS40mJGXVGdrjyz9NmLlMkqGUpFuScY9ZpAhA023ISXcOQVC+ptpWrAWi9/sXO3lZzr1AOlXDvZQGEUhJGg==
   dependencies:
-    "@herajs/common" "^0.21.0"
+    "@herajs/common" "^1.0.0"
     "@improbable-eng/grpc-web" "^0.9.1"
     "@types/google-protobuf" "^3.2.7"
     google-protobuf "^3.6.0"
@@ -920,10 +920,10 @@
     hash.js "^1.1.7"
     jsbi "^3.0.0"
 
-"@herajs/common@^0.21.0":
-  version "0.21.0"
-  resolved "https://registry.yarnpkg.com/@herajs/common/-/common-0.21.0.tgz#1df8059a279b7cbf28451e3998de8d1b6b714fac"
-  integrity sha512-XE2xP9k+T4vjRw1S0d84lT8NGz3Pf9cEFs+PRjqlvxAe/4+upIt3drVU9In2zJhcSN4iIFhYsABxa6XNASEC5Q==
+"@herajs/common@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@herajs/common/-/common-1.0.0.tgz#68b5c2d11e7cdd49270903c27cc039dc2fb5f1ad"
+  integrity sha512-wc5XvyBjUd9VgKnaHApXU8KqODz4sJU/B+rvPCnzaE9DKGMf8EYTkNXWlTuvbWSQV+uCyUDxAAfLJG2QbCKAUQ==
   dependencies:
     create-hash "^1.2.0"
     jsbi "^3.0.0"

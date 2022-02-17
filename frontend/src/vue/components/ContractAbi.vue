@@ -72,7 +72,6 @@ export default {
   },
   watch: {
     'selectedTab' (to, from) {
-      console.log(to);
       if (to === 2) {
         this.loadEvents();
       }

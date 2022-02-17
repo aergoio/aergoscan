@@ -172,6 +172,9 @@
             <div slot="category" slot-scope="{ rowData }">
               <span class="label">{{rowData.category}}</span>
             </div>
+            <div slot="method" slot-scope="{ rowData }">
+              <span class="label">{{rowData.method}}</span>
+            </div>
           </DataTable>
         </div>
 
@@ -196,12 +199,12 @@
               <AccountLink :address="rowData.address" @click="$router.push(`/account/${rowData.address}/`)" />
             </div>
             <div slot="from" slot-scope="{ rowData }">
-              <AccountLink v-if="rowData.from !== '1111111111111111111111111111111111111111111111111111'" :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" />
-              <AccountLink v-else address="" :name="rowData.from" />
+              <AccountLink v-if="!['1111111111111111111111111111111111111111111111111111', 'MINT'].includes(`${rowData.from}`.toUpperCase())" :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" />
+              <span class="label" v-else>Mint</span>
             </div>
             <div slot="to" slot-scope="{ rowData }">
-              <AccountLink v-if="rowData.to !== '1111111111111111111111111111111111111111111111111111'" :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" />
-              <AccountLink v-else address="" :name="rowData.to" />
+              <AccountLink v-if="!['1111111111111111111111111111111111111111111111111111', 'BURN'].includes(`${rowData.to}`.toUpperCase())" :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" />
+              <span class="label" v-else>Burn</span>
             </div>
             <div slot="amount" slot-scope="{ rowData }">
               <span v-if="rowData.token_id">{{rowData.token ? rowData.token.meta.symbol : ''}} <span class="token-id">{{rowData.token_id}}</span></span>
@@ -236,12 +239,12 @@
               <AccountLink :address="rowData.address" @click="$router.push(`/account/${rowData.address}/`)" />
             </div>
             <div slot="from" slot-scope="{ rowData }">
-              <AccountLink v-if="rowData.from !== '1111111111111111111111111111111111111111111111111111'" :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" />
-              <AccountLink v-else address="" :name="rowData.from" />
+              <AccountLink v-if="!['1111111111111111111111111111111111111111111111111111', 'MINT'].includes(`${rowData.from}`.toUpperCase())" :address="rowData.from" @click="$router.push(`/account/${rowData.from}/`)" />
+              <span class="label" v-else>Mint</span>
             </div>
             <div slot="to" slot-scope="{ rowData }">
-              <AccountLink v-if="rowData.to !== '1111111111111111111111111111111111111111111111111111'" :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" />
-              <AccountLink v-else address="" :name="rowData.to" />
+              <AccountLink v-if="!['1111111111111111111111111111111111111111111111111111', 'MINT'].includes(`${rowData.to}`.toUpperCase())" :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" />
+              <span class="label" v-else>Burn</span>
             </div>
             <div slot="amount" slot-scope="{ rowData }">
               <span v-if="rowData.token_id">{{rowData.token ? rowData.token.meta.symbol : ''}} <span class="token-id">{{rowData.token_id}}</span></span>
@@ -350,6 +353,12 @@ export default {
           label: "Category",
           sortable: false,
           customElement: 'category',
+        },
+        {
+          name: "method",
+          label: "Method",
+          sortable: false,
+          customElement: 'method',
         },
         {
           name: "amount",
@@ -622,20 +631,33 @@ export default {
         }
       })();
 
-      // Contract and transactions
+      const loadTokenMetadata = async () => {
+        try {
+          const response = await this.$fetch.get(`${cfg.API_URL}/token`, { q: `_id:${this.$route.params.address}`, size: 1 });
+          const data = (await response.json());
+          this.token = data.hits[0];
+        } catch (e) {
+          console.error(e);
+        }
+      };
+
+      // Contract and token info
       try {
         if (this.accountDetail.codehash) {
-          this.$store.dispatch('blockchain/getABI', { address }).then(abi => this.contractAbi = abi);
-
-          (async () => {
-            try {
-              const response = await this.$fetch.get(`${cfg.API_URL}/token`, { q: `_id:${this.$route.params.address}`, size: 1 });
-              const data = (await response.json());
-              this.token = data.hits[0];
-            } catch (e) {
-              console.error(e);
+          Promise.all([
+            this.$store.dispatch('blockchain/getABI', { address }).then(abi => {
+              this.contractAbi = abi;
+            }),
+            loadTokenMetadata(),
+          ]).then(async () => {
+            // Get updated supply
+            if (this.contractAbi && this.token) {
+              const supply = await this.$store.dispatch('blockchain/queryContract', { abi: this.contractAbi, name: 'totalSupply', address, args: [] });
+              if (supply && supply._bignum) {
+                this.token.meta.supply = supply._bignum;
+              }
             }
-          })();
+          });
         }
       } catch (e) {
         console.error(e);
@@ -709,8 +731,12 @@ export default {
 }
 .label-account-wrap {
   display: flex;
+  overflow: hidden;
   .label {
     margin-right: 5px;
+  }
+  .account-link {
+    min-width: 100px;
   }
 }
 .token-transfer-table .account-link {

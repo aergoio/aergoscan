@@ -12,7 +12,9 @@
       <tr v-for="row in events" :key="`${row.txhash}${row.eventidx}`">
         <td v-if="columns.indexOf('blockno') >= 0"><router-link :to="`/block/${row.blockhash}/`">{{row.blockno}}</router-link></td>
         <td v-if="columns.indexOf('tx') >= 0"><router-link :to="`/transaction/${row.txhash}/`">{{row.txhash}}</router-link></td>
-        <td>{{row.eventName}}</td>
+        <td>
+          {{row.eventName}}
+          <div v-if="`${row.address}` !== `${address}`">@ <router-link :to="`/account/${row.address}/`">{{`${row.address}`.substr(0, 5)}}...</router-link></div></td>
         <td width="100%"><span class="event-args">
           <span class="args-payload" v-if="row.args.length"><pre><ArgFormatter v-for="arg of row.args" :key="`${arg}`" :arg="arg" class="monospace" /></pre></span>
         </span></td>
@@ -47,7 +49,7 @@ const ArgFormatter = {
 };
 
 export default {
-  props: ['events', 'columns'],
+  props: ['events', 'columns', 'address'],
   data () {
     return {};
   },
