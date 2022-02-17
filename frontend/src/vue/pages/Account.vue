@@ -203,7 +203,7 @@
               <span class="label" v-else>Mint</span>
             </div>
             <div slot="to" slot-scope="{ rowData }">
-              <AccountLink v-if="!['1111111111111111111111111111111111111111111111111111', 'MINT'].includes(`${rowData.to}`.toUpperCase())" :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" />
+              <AccountLink v-if="!['1111111111111111111111111111111111111111111111111111', 'BURN'].includes(`${rowData.to}`.toUpperCase())" :address="rowData.to" @click="$router.push(`/account/${rowData.to}/`)" />
               <span class="label" v-else>Burn</span>
             </div>
             <div slot="amount" slot-scope="{ rowData }">
@@ -631,20 +631,33 @@ export default {
         }
       })();
 
-      // Contract and transactions
+      const loadTokenMetadata = async () => {
+        try {
+          const response = await this.$fetch.get(`${cfg.API_URL}/token`, { q: `_id:${this.$route.params.address}`, size: 1 });
+          const data = (await response.json());
+          this.token = data.hits[0];
+        } catch (e) {
+          console.error(e);
+        }
+      };
+
+      // Contract and token info
       try {
         if (this.accountDetail.codehash) {
-          this.$store.dispatch('blockchain/getABI', { address }).then(abi => this.contractAbi = abi);
-
-          (async () => {
-            try {
-              const response = await this.$fetch.get(`${cfg.API_URL}/token`, { q: `_id:${this.$route.params.address}`, size: 1 });
-              const data = (await response.json());
-              this.token = data.hits[0];
-            } catch (e) {
-              console.error(e);
+          Promise.all([
+            this.$store.dispatch('blockchain/getABI', { address }).then(abi => {
+              this.contractAbi = abi;
+            }),
+            loadTokenMetadata(),
+          ]).then(async () => {
+            // Get updated supply
+            if (this.contractAbi && this.token) {
+              const supply = await this.$store.dispatch('blockchain/queryContract', { abi: this.contractAbi, name: 'totalSupply', address, args: [] });
+              if (supply && supply._bignum) {
+                this.token.meta.supply = supply._bignum;
+              }
             }
-          })();
+          });
         }
       } catch (e) {
         console.error(e);
