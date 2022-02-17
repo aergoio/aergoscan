@@ -79,10 +79,6 @@ export default {
           sortable: true,
         },
         {
-          name: "supply",
-          label: "Supply",
-        },
-        {
           name: "type",
           label: "Type",
         },
