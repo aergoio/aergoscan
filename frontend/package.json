@@ -17,7 +17,7 @@
     "hash.js": "^1.1.7",
     "intersection-observer": "^0.5.1",
     "jdenticon": "^2.2.0",
-    "moment": "^2.29.1",
+    "moment": "^2.29.2",
     "primer-tooltips": "^1.5.11",
     "promise-polyfill": "^8.2.0",
     "proxy-polyfill": "^0.3.2",
